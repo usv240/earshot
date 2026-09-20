@@ -97,18 +97,52 @@ describe("what the validation run measured", () => {
 });
 
 describe("what the project says in public", () => {
+  /*
+    Matching a figure to its label, rather than to the nearest number.
+
+    The first version of this looked for a decimal followed by "dB" with
+    the words "test-retest" somewhere in the next forty characters. In a
+    sentence that reads "bias 0.037 dB, test-retest spread 0.748 dB" it
+    found the bias and compared it against the spread. The pin was loose
+    in exactly the direction that makes a pin useless: it matched
+    something, so it looked alive, and what it matched was wrong.
+  */
+  const SD_PATTERNS = [
+    /test-retest (?:spread|standard deviation)(?: of)? \*{0,2}([0-9]+\.[0-9]+)\s*dB/gi,
+    /\*{0,2}([0-9]+\.[0-9]+)\s*dB\*{0,2}\s+test-retest/gi,
+  ];
+  const BIAS_PATTERNS = [/bias(?: of)? \*{0,2}([0-9]+\.[0-9]+)\s*dB/gi];
+
+  const stated = (text: string, patterns: RegExp[]): number[] =>
+    patterns.flatMap((p) => [...text.matchAll(p)].map((m) => Number(m[1])));
+
   it("states the measured test-retest figure, not a rounded memory of it", () => {
-    if (PUBLIC_TEXT.length === 0) return;
-    const stated = PUBLIC_TEXT.flatMap((d) => {
-      const m = d.text.match(/([0-9]+\.[0-9]+)\s*dB(?=[^.]{0,40}(repeat|test-retest|retest))/i);
-      return m ? [{ file: d.file, value: Number(m[1]) }] : [];
-    });
-    for (const s of stated) {
-      expect(
-        s.value,
-        `${s.file} states ${s.value} dB; the run measured ${results.headline.sdDb} dB`,
-      ).toBeCloseTo(results.headline.sdDb, 2);
+    let found = 0;
+    for (const d of PUBLIC_TEXT) {
+      for (const value of stated(d.text, SD_PATTERNS)) {
+        found++;
+        expect(
+          value,
+          `${d.file} states ${value} dB test-retest; the run measured ${results.headline.sdDb} dB`,
+        ).toBeCloseTo(results.headline.sdDb, 3);
+      }
     }
+    // Without this the whole check passes by matching nothing at all.
+    expect(found, "no document states the test-retest figure").toBeGreaterThan(0);
+  });
+
+  it("states the measured bias, and does not confuse it with the spread", () => {
+    let found = 0;
+    for (const d of PUBLIC_TEXT) {
+      for (const value of stated(d.text, BIAS_PATTERNS)) {
+        found++;
+        expect(
+          value,
+          `${d.file} states a bias of ${value} dB; the run measured ${results.headline.biasDb} dB`,
+        ).toBeCloseTo(results.headline.biasDb, 3);
+      }
+    }
+    expect(found, "no document states the bias").toBeGreaterThan(0);
   });
 
   it("does not claim the screen was validated on people", () => {
