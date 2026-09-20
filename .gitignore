@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.next/
+out/
+cdk.out/
+.env
+.DS_Store
+video/build/
+apps/web/public/content/

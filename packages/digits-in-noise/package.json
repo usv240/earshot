@@ -1,0 +1,42 @@
+{
+  "name": "digits-in-noise",
+  "version": "0.1.0",
+  "description": "The digits-in-noise hearing screen as a dependency-free TypeScript library: adaptive one-up one-down track, triplet scoring, speech reception threshold estimation, run validity checks, and a simulated listener with a known threshold so the procedure itself can be measured.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc -b",
+    "prepublishOnly": "tsc -b"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "keywords": [
+    "hearing",
+    "hearing-test",
+    "hearing-screening",
+    "audiometry",
+    "digits-in-noise",
+    "digit-triplet-test",
+    "speech-in-noise",
+    "speech-reception-threshold",
+    "adaptive-staircase",
+    "psychophysics",
+    "accessibility"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usv240/earshot.git",
+    "directory": "packages/digits-in-noise"
+  },
+  "publishConfig": { "access": "public" },
+  "engines": { "node": ">=18" }
+}

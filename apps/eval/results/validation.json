@@ -1,0 +1,143 @@
+{
+  "generatedAt": "2026-09-20",
+  "method": "Simulated listeners with known speech reception thresholds answer the adaptive procedure. Bias is the mean estimate minus the truth; the standard deviation is test-retest spread for one unchanging ear.",
+  "procedure": {
+    "digitSet": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      9
+    ],
+    "tripletSize": 3,
+    "startSnrDb": 0,
+    "stepDb": 2,
+    "coarseStepDb": 4,
+    "coarseTrials": 4,
+    "trials": 24,
+    "settleAfter": 4,
+    "minSnrDb": -25,
+    "maxSnrDb": 10
+  },
+  "referenceListener": {
+    "trueSrtDb": -9,
+    "slopePerDb": 0.18,
+    "lapseRate": 0.02
+  },
+  "headline": {
+    "runs": 2000,
+    "biasDb": 0.037,
+    "sdDb": 0.748,
+    "worstDb": 3.29,
+    "rejected": 0
+  },
+  "acrossRange": [
+    {
+      "trueSrtDb": -14,
+      "biasDb": 0.002,
+      "sdDb": 0.833,
+      "worstDb": 2.57,
+      "rejected": 0
+    },
+    {
+      "trueSrtDb": -12,
+      "biasDb": 0.045,
+      "sdDb": 0.783,
+      "worstDb": 3.05,
+      "rejected": 0
+    },
+    {
+      "trueSrtDb": -10,
+      "biasDb": 0.068,
+      "sdDb": 0.757,
+      "worstDb": 2.76,
+      "rejected": 0
+    },
+    {
+      "trueSrtDb": -9,
+      "biasDb": 0.013,
+      "sdDb": 0.804,
+      "worstDb": 2.9,
+      "rejected": 0
+    },
+    {
+      "trueSrtDb": -7,
+      "biasDb": -0.007,
+      "sdDb": 0.772,
+      "worstDb": 2.81,
+      "rejected": 0
+    },
+    {
+      "trueSrtDb": -5,
+      "biasDb": -0.034,
+      "sdDb": 0.812,
+      "worstDb": 2.71,
+      "rejected": 0
+    },
+    {
+      "trueSrtDb": -3,
+      "biasDb": 0.037,
+      "sdDb": 0.833,
+      "worstDb": 2.71,
+      "rejected": 0
+    }
+  ],
+  "carelessness": [
+    {
+      "lapseRate": 0,
+      "biasDb": -0.011,
+      "sdDb": 0.769
+    },
+    {
+      "lapseRate": 0.02,
+      "biasDb": 0.013,
+      "sdDb": 0.804
+    },
+    {
+      "lapseRate": 0.05,
+      "biasDb": 0.076,
+      "sdDb": 0.88
+    },
+    {
+      "lapseRate": 0.1,
+      "biasDb": 0.238,
+      "sdDb": 1.027
+    }
+  ],
+  "slopes": [
+    {
+      "slopePerDb": 0.1,
+      "biasDb": 0.09,
+      "sdDb": 1.278
+    },
+    {
+      "slopePerDb": 0.14,
+      "biasDb": 0.038,
+      "sdDb": 0.989
+    },
+    {
+      "slopePerDb": 0.18,
+      "biasDb": 0.013,
+      "sdDb": 0.804
+    },
+    {
+      "slopePerDb": 0.22,
+      "biasDb": 0.029,
+      "sdDb": 0.664
+    }
+  ],
+  "refusals": {
+    "betterThanRangeIsRejected": true,
+    "worseThanRangeIsRejected": true
+  },
+  "comparison": {
+    "publishedTestRetestSdDb": [
+      0.7,
+      1.2
+    ],
+    "note": "Reported test-retest standard deviations for digits-in-noise screens sit in this range. Ours is a simulation of the procedure, not a trial with recruited listeners, and is not a substitute for one."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@earshot/eval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsx src/validate.ts",
+    "test": "vitest run"
+  },
+  "dependencies": { "digits-in-noise": "0.1.0" }
+}

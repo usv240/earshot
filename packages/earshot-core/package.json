@@ -1,0 +1,14 @@
+{
+  "name": "@earshot/core",
+  "version": "0.1.0",
+  "description": "How far past the programme a household is listening, and what that is worth. Dialogue-gated listening level, the behavioural signals a player can see, and the rule that decides when it is fair to interrupt somebody's film.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": { "test": "vitest run", "build": "tsc -b" },
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "dependencies": { "digits-in-noise": "0.1.0" },
+  "sideEffects": false,
+  "engines": { "node": ">=18" }
+}

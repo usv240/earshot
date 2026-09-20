@@ -1,0 +1,28 @@
+{
+  "name": "earshot-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Earshot: your television already has the evidence that you are losing your hearing. It has just never been asked. Passive detection from listening level, a validated digits-in-noise screen on the remote, and a route to the help Fire TV already ships.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -b packages/digits-in-noise packages/earshot-core",
+    "build:packages": "tsc -b packages/digits-in-noise packages/earshot-core",
+    "pretest": "npm run build:packages",
+    "validate": "npm run validate -w @earshot/eval"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

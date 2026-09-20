@@ -1,0 +1,125 @@
+import { describe, expect, it } from "vitest";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+
+/**
+ * Every number this project says out loud, checked against the run that
+ * produced it.
+ *
+ * A figure in a README is a claim. A figure a test re-derives from
+ * committed output is a fact, and it cannot drift quietly: change the
+ * headline without re-running the validation, or re-run it and get a
+ * different answer, and this file fails.
+ *
+ * One claim matters more than the others. This is a health screen, and
+ * the number that decides whether somebody is told to see a doctor is
+ * the threshold. If the procedure reads thresholds with a bias, then
+ * every person near the cut-off is sorted by our arithmetic rather than
+ * by their hearing, in one direction, forever. So bias is asserted as a
+ * near-zero rather than a bound, and it is checked at both ends of the
+ * range, not just in the middle where it is easiest.
+ *
+ * Reproduce the underlying run: npm run validate
+ */
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repo = path.resolve(here, "../../..");
+
+const results = JSON.parse(
+  fs.readFileSync(path.join(repo, "apps/eval/results/validation.json"), "utf8"),
+) as {
+  headline: { runs: number; biasDb: number; sdDb: number; worstDb: number; rejected: number };
+  acrossRange: { trueSrtDb: number; biasDb: number; sdDb: number }[];
+  carelessness: { lapseRate: number; biasDb: number; sdDb: number }[];
+  slopes: { slopePerDb: number; biasDb: number; sdDb: number }[];
+  refusals: { betterThanRangeIsRejected: boolean; worseThanRangeIsRejected: boolean };
+  comparison: { publishedTestRetestSdDb: number[] };
+};
+
+/** Public text, for the cross-document checks at the end. */
+const PUBLIC_TEXT = ["README.md", "docs/EVAL.md", "docs/SUBMISSION.md"]
+  .map((f) => ({ file: f, full: path.join(repo, f) }))
+  .filter((d) => fs.existsSync(d.full))
+  .map((d) => ({ file: d.file, text: fs.readFileSync(d.full, "utf8") }));
+
+describe("what the validation run measured", () => {
+  it("was a run big enough to mean something", () => {
+    expect(results.headline.runs).toBeGreaterThanOrEqual(1000);
+    expect(results.headline.rejected).toBe(0);
+  });
+
+  it("reads a known threshold without a systematic offset", () => {
+    expect(Math.abs(results.headline.biasDb)).toBeLessThan(0.1);
+  });
+
+  it("repeats itself at least as closely as the published test", () => {
+    const [best, worst] = results.comparison.publishedTestRetestSdDb as [number, number];
+    expect(worst).toBeGreaterThan(best);
+    expect(results.headline.sdDb).toBeLessThanOrEqual(worst);
+  });
+
+  it("has no systematic offset at either end of the range", () => {
+    // The middle is the easy part. People near the cut-off are the whole
+    // point of a screen, and they live at the ends.
+    for (const row of results.acrossRange) {
+      expect(
+        Math.abs(row.biasDb),
+        `at a true threshold of ${row.trueSrtDb} dB the estimate is off by ${row.biasDb} dB`,
+      ).toBeLessThan(0.2);
+    }
+    expect(results.acrossRange.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("does not fall apart when the listener is careless", () => {
+    const careless = results.carelessness.find((c) => c.lapseRate === 0.1);
+    expect(careless).toBeTruthy();
+    expect(Math.abs(careless!.biasDb)).toBeLessThan(1);
+  });
+
+  it("gets noisier with a shallow slope, and says so rather than hiding it", () => {
+    // A listener whose performance improves only gradually is harder to
+    // pin down. That is a property of the method, not a defect, and the
+    // honest thing is to show it moving in the direction it must.
+    const shallow = results.slopes.find((s) => s.slopePerDb === 0.1);
+    const steep = results.slopes.find((s) => s.slopePerDb === 0.22);
+    expect(shallow && steep).toBeTruthy();
+    expect(shallow!.sdDb).toBeGreaterThan(steep!.sdDb);
+  });
+
+  it("refuses to report a threshold it could not reach", () => {
+    // Both of these are exact. A screen that returns a plausible number
+    // for an ear outside its range is worse than one that returns
+    // nothing, because the number is what gets believed.
+    expect(results.refusals.betterThanRangeIsRejected).toBe(true);
+    expect(results.refusals.worseThanRangeIsRejected).toBe(true);
+  });
+});
+
+describe("what the project says in public", () => {
+  it("states the measured test-retest figure, not a rounded memory of it", () => {
+    if (PUBLIC_TEXT.length === 0) return;
+    const stated = PUBLIC_TEXT.flatMap((d) => {
+      const m = d.text.match(/([0-9]+\.[0-9]+)\s*dB(?=[^.]{0,40}(repeat|test-retest|retest))/i);
+      return m ? [{ file: d.file, value: Number(m[1]) }] : [];
+    });
+    for (const s of stated) {
+      expect(
+        s.value,
+        `${s.file} states ${s.value} dB; the run measured ${results.headline.sdDb} dB`,
+      ).toBeCloseTo(results.headline.sdDb, 2);
+    }
+  });
+
+  it("does not claim the screen was validated on people", () => {
+    // It was validated on a model. Saying otherwise about a health tool
+    // is the kind of overclaim that should be impossible to make by
+    // accident, so it is checked rather than remembered.
+    for (const d of PUBLIC_TEXT) {
+      expect(
+        /validated (?:on|with|against) (?:real |recruited |human )?(?:listeners|patients|participants|people)/i.test(d.text),
+        `${d.file} claims validation on people`,
+      ).toBe(false);
+    }
+  });
+});
