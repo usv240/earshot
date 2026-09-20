@@ -58,6 +58,38 @@ describe("source hygiene", () => {
     expect(files.length).toBeGreaterThan(5);
   });
 
+  it("points only at documents that exist", () => {
+    /*
+      Both of the pipeline's error messages tell somebody to read
+      docs/AWS.md. A message that names a file which is not there is
+      worse than one that says nothing, because it was written by
+      somebody who believed they had explained the problem.
+
+      This also covers the ordinary rot: a document gets renamed and
+      four links keep pointing at where it used to be.
+    */
+    const missing: string[] = [];
+    let found = 0;
+    for (const file of files) {
+      const full = path.join(repo, file);
+      if (!fs.existsSync(full)) continue;
+      const text = fs.readFileSync(full, "utf8");
+      for (const m of text.matchAll(/docs\/[A-Za-z0-9_-]+\.md/g)) {
+        found++;
+        const target = m[0];
+        if (!fs.existsSync(path.join(repo, target))) {
+          missing.push(`${file} points at ${target}, which does not exist`);
+        }
+      }
+    }
+    // The check is a loop over matches. Without this, a pattern that
+    // stopped matching would pass every assertion inside it. The first
+    // version of this test did exactly that, in the file whose whole
+    // job is catching checks that quietly stopped checking.
+    expect(found, "no document references found at all").toBeGreaterThan(3);
+    expect(missing, missing.join("\n")).toEqual([]);
+  });
+
   it("contains no escape sequence that was eaten on the way to disk", () => {
     const damaged: string[] = [];
     for (const file of files) {

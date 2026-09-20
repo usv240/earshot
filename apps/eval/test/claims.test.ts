@@ -37,12 +37,24 @@ const results = JSON.parse(
   comparison: { publishedTestRetestSdDb: number[] };
 };
 
-/** Public text, for the cross-document checks at the end. */
+/**
+ * Public text: the README and every document, found rather than listed.
+ *
+ * A hand-written list has to be edited whenever a document is added, and
+ * it will not be, so the newest document is the one nothing checks. This
+ * list also carried a name that did not exist yet, which the hygiene
+ * suite caught: a forward reference that was invisible because the list
+ * filtered out anything missing before looking at it.
+ *
+ * Reading the directory means a document is covered by every check below
+ * from the moment it is written.
+ */
 const PUBLIC_TEXT = [
   "README.md",
-  "docs/EVAL.md",
-  "docs/PRIOR_ART.md",
-  "docs/SUBMISSION.md",
+  ...fs
+    .readdirSync(path.join(repo, "docs"))
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => `docs/${f}`),
 ]
   .map((f) => ({ file: f, full: path.join(repo, f) }))
   .filter((d) => fs.existsSync(d.full))

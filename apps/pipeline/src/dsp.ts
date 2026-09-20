@@ -186,6 +186,50 @@ export function activeRms(samples: Float32Array, gateDb = -25, frame = 256): num
   return Math.sqrt(kept.reduce((sum, f) => sum + f * f, 0) / kept.length);
 }
 
+/**
+ * Cut the silence off either end of a word.
+ *
+ * Polly pads what it returns, and by different amounts for different
+ * words. Left alone, one digit starts a fifth of a second later than
+ * another, which makes some of them feel slower rather than quieter and
+ * gives a listener a cue that has nothing to do with hearing.
+ *
+ * A margin is kept rather than cutting to the first sample above the
+ * floor, because the onset of a word carries information and a hard cut
+ * at the threshold removes the quietest part of it. Consonants are
+ * exactly what a listener with hearing loss is missing, so trimming them
+ * would make the test easier in the one dimension that matters.
+ */
+export function trimSilence(audio: Audio, floorDb = -45, marginSec = 0.02): Audio {
+  const { samples, sampleRate } = audio;
+  const peak = Math.max(...Array.from(samples, Math.abs));
+  if (peak <= 0) return audio;
+  const floor = peak * Math.pow(10, floorDb / 20);
+
+  let first = 0;
+  while (first < samples.length && Math.abs(samples[first]!) < floor) first++;
+  let last = samples.length - 1;
+  while (last > first && Math.abs(samples[last]!) < floor) last--;
+  if (first >= last) return audio;
+
+  const margin = Math.round(marginSec * sampleRate);
+  const from = Math.max(0, first - margin);
+  const to = Math.min(samples.length, last + margin + 1);
+  return { sampleRate, samples: samples.slice(from, to) };
+}
+
+/** Everything one after another, for measuring a shared spectrum. */
+export function concat(clips: Float32Array[]): Float32Array {
+  const total = clips.reduce((n, c) => n + c.length, 0);
+  const out = new Float32Array(total);
+  let at = 0;
+  for (const clip of clips) {
+    out.set(clip, at);
+    at += clip.length;
+  }
+  return out;
+}
+
 /** Scale so the speech in this clip sits at a chosen level. */
 export function normaliseTo(audio: Audio, targetDbfs: number): Audio {
   const level = activeRms(audio.samples);

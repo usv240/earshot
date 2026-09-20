@@ -10,8 +10,10 @@ import {
   fft,
   normaliseTo,
   rms,
+  concat,
   speechShapedNoise,
   spectrumDifferenceDb,
+  trimSilence,
   whiteNoise,
   type Audio,
 } from "../src/dsp.js";
@@ -142,6 +144,54 @@ describe("levelling the digits", () => {
   it("leaves silence alone rather than amplifying it to the target", () => {
     const silence = { sampleRate: SR, samples: new Float32Array(1000) };
     expect(rms(normaliseTo(silence, -20).samples)).toBe(0);
+  });
+});
+
+describe("trimming a word", () => {
+  it("takes the padding off both ends", () => {
+    const word = tone(500, 0.2, 0.5);
+    const padded = new Float32Array(SR * 2);
+    padded.set(word, Math.round(SR * 0.9));
+    const trimmed = trimSilence({ sampleRate: SR, samples: padded });
+    expect(trimmed.samples.length).toBeLessThan(padded.length / 2);
+    expect(trimmed.samples.length).toBeGreaterThan(word.length);
+  });
+
+  it("keeps a margin, because the onset of a word is part of the word", () => {
+    // Cutting to the first sample over the floor removes the quietest
+    // part of the attack. Consonants live there and consonants are what
+    // a listener with hearing loss is missing, so a hard cut would make
+    // the test easier in the one dimension that matters.
+    const word = tone(500, 0.2, 0.5);
+    const padded = new Float32Array(SR);
+    padded.set(word, Math.round(SR * 0.4));
+    const trimmed = trimSilence({ sampleRate: SR, samples: padded }, -45, 0.02);
+    expect(trimmed.samples.length).toBeGreaterThanOrEqual(word.length + Math.round(0.03 * SR));
+  });
+
+  it("leaves a clip of pure silence alone rather than emptying it", () => {
+    const silence = { sampleRate: SR, samples: new Float32Array(500) };
+    expect(trimSilence(silence).samples.length).toBe(500);
+  });
+
+  it("does not change the level of the word it kept", () => {
+    const word = tone(500, 0.2, 0.5);
+    const padded = new Float32Array(SR * 2);
+    padded.set(word, SR);
+    const before = activeRms(padded);
+    const after = activeRms(trimSilence({ sampleRate: SR, samples: padded }).samples);
+    expect(Math.abs(dbfs(after) - dbfs(before))).toBeLessThan(0.5);
+  });
+});
+
+describe("joining clips", () => {
+  it("puts them end to end without losing any", () => {
+    const joined = concat([tone(400, 0.1), tone(800, 0.2)]);
+    expect(joined.length).toBe(Math.round(0.1 * SR) + Math.round(0.2 * SR));
+  });
+
+  it("handles nothing at all", () => {
+    expect(concat([]).length).toBe(0);
   });
 });
 
