@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import { defaultOptions } from "digits-in-noise";
 import { requireRegion } from "./aws.js";
@@ -95,7 +96,11 @@ function pcmToFloat(pcm: Buffer): Float32Array {
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const at = argv.indexOf("--out");
-  const out = at >= 0 ? argv[at + 1]! : "apps/web/public/audio";
+  // Defaults resolve against the repository, not against whatever
+  // directory npm happened to run the workspace script from. The first
+  // run of this wrote its files into apps/pipeline/apps/web/public.
+  const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+  const out = at >= 0 ? argv[at + 1]! : path.join(repo, "apps/web/public/audio");
   const region = requireRegion();
   fs.mkdirSync(out, { recursive: true });
 

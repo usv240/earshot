@@ -246,10 +246,17 @@ export function assessValidity(
 
   // Pinned against an end of the range: the real threshold is somewhere
   // outside what we can play, so the mean is an artefact of the clamp.
+  //
+  // These two say something about the test, not about the listener. A
+  // run can pin at the top because somebody could not hear it, or
+  // because they were pressing buttons without listening, and nothing
+  // here can tell those apart. Drawing a conclusion about their hearing
+  // out of a run this file has just refused would be exactly the move
+  // the refusal exists to prevent.
   if (srtDb <= options.minSnrDb + 1) {
-    problems.push("Hearing was better than this test can measure.");
+    problems.push("The level needed was below anything this test can present, so there is no threshold to report.");
   } else if (srtDb >= options.maxSnrDb - 1) {
-    problems.push("Hearing was outside the range this test can measure.");
+    problems.push("The level needed was above anything this test can present, so there is no threshold to report.");
   }
 
   // Wrong number of digits over and over is a person fighting the remote,

@@ -1,0 +1,72 @@
+{
+  "builtAt": "2026-09-20",
+  "placeholder": true,
+  "voice": "none: shaped tone bursts, not speech",
+  "engine": "local",
+  "sampleRate": 16000,
+  "digits": [
+    {
+      "digit": 1,
+      "word": "1",
+      "file": "digit-1.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 2,
+      "word": "2",
+      "file": "digit-2.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 3,
+      "word": "3",
+      "file": "digit-3.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 4,
+      "word": "4",
+      "file": "digit-4.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 5,
+      "word": "5",
+      "file": "digit-5.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 6,
+      "word": "6",
+      "file": "digit-6.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 8,
+      "word": "8",
+      "file": "digit-8.wav",
+      "levelDbfs": -26
+    },
+    {
+      "digit": 9,
+      "word": "9",
+      "file": "digit-9.wav",
+      "levelDbfs": -26
+    }
+  ],
+  "noise": {
+    "file": "noise.wav",
+    "seconds": 20,
+    "levelDbfs": -26
+  },
+  "levelling": {
+    "spreadBeforeDb": 0,
+    "spreadAfterDb": 0
+  },
+  "noiseMatch": {
+    "meanDb": 6.34,
+    "maxDb": 32.11,
+    "band": "100 Hz to 6 kHz"
+  },
+  "provenance": "Placeholder audio generated locally. These are tone bursts, not spoken digits, so a threshold measured with them says nothing about anybody's hearing. Run npm run digits to build the real material with Amazon Polly."
+}

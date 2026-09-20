@@ -6,7 +6,8 @@
   "scripts": {
     "analyse": "tsx src/analyse.ts",
     "digits": "tsx src/digits.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "digits:placeholder": "tsx src/placeholder.ts"
   },
   "dependencies": {
     "@aws-sdk/client-polly": "^3.700.0",

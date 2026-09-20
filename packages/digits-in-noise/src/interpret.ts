@@ -83,9 +83,11 @@ export function interpret(
     return {
       band: "unmeasured",
       headline: "This test did not produce a usable result.",
+      // Advice, never a repeat of the reasons. The reasons belong to the
+      // result and a screen that shows both printed the first one twice,
+      // which a screenshot caught and no test would have.
       nextStep:
-        result.problems[0] ??
-        "Try again somewhere quiet, with the room as it usually is when you watch.",
+        "Try it again somewhere quiet, with the room as it usually is when you watch. If it keeps coming out like this, that is worth mentioning to a doctor by itself.",
       reference,
     };
   }

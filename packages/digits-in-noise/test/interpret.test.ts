@@ -5,6 +5,7 @@ import {
   interpret,
   PROVISIONAL_DIOTIC,
   runScreen,
+  Screen,
   type ScreenResult,
 } from "../src/index.js";
 
@@ -23,6 +24,42 @@ import {
  * most likely to produce an unusable run is the one whose hearing is
  * furthest outside the range we can play.
  */
+
+/**
+ * Every sentence the procedure can give as a reason for refusing a run.
+ *
+ * Collected by causing each refusal rather than by listing the strings,
+ * so a new one cannot be added without this seeing it.
+ */
+function everyRefusalReason(): string[] {
+  const reasons = new Set<string>();
+
+  // Better and worse than the range the test can present.
+  for (const trueSrtDb of [-60, 40]) {
+    for (const p of runScreen({ ...defaultListener(), trueSrtDb }, 1).problems) reasons.add(p);
+  }
+
+  // Abandoned part way.
+  const short = new Screen({}, 1);
+  for (let i = 0; i < 3; i++) short.submit(short.current().digits);
+  for (const p of short.result().problems) reasons.add(p);
+
+  // Somebody fighting the remote rather than listening.
+  const malformed = new Screen({}, 2);
+  while (!malformed.finished) malformed.submit([1]);
+  for (const p of malformed.result().problems) reasons.add(p);
+
+  // A track that never settled.
+  const erratic = new Screen({}, 3);
+  let n = 0;
+  while (!erratic.finished) {
+    const trial = erratic.current();
+    erratic.submit(n++ % 7 === 0 ? trial.digits : [0, 0, 0]);
+  }
+  for (const p of erratic.result().problems) reasons.add(p);
+
+  return [...reasons];
+}
 
 const result = (over: Partial<ScreenResult>): ScreenResult => ({
   srtDb: -9,
@@ -64,6 +101,41 @@ describe("the wording", () => {
     const messages = allMessages();
     expect(messages.length).toBeGreaterThanOrEqual(8);
     for (const m of messages) expect(m.trim().length).toBeGreaterThan(20);
+  });
+
+  it("never draws a conclusion about hearing in a reason for refusing", () => {
+    /*
+      This class was not covered until a screenshot showed it. The
+      wording check above reads what `interpret` produces; the reasons a
+      run was refused come from `assessValidity` and were never looked
+      at. Two of them said "Hearing was better than" and "Hearing was
+      outside the range", which is a statement about a listener drawn
+      from a run that had just been declared unusable.
+
+      A run can pin at the top because somebody could not hear it or
+      because they were pressing buttons without listening, and nothing
+      in the procedure can tell those apart.
+    */
+    const reasons = everyRefusalReason();
+    expect(reasons.length).toBeGreaterThanOrEqual(4);
+    for (const reason of reasons) {
+      for (const pattern of [/\bhearing\b/i, /\byour?\b/i, /\bdeaf\b/i]) {
+        expect(
+          pattern.test(reason),
+          `a reason for refusing matches ${pattern}: ${JSON.stringify(reason)}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("does not print a reason twice by using it as the advice as well", () => {
+    // A screen that shows both the reasons and the next step showed the
+    // first reason in both places.
+    const refused = runScreen({ ...defaultListener(), trueSrtDb: 40 }, 1);
+    expect(refused.valid).toBe(false);
+    const advice = interpret(refused).nextStep;
+    for (const reason of refused.problems) expect(advice).not.toBe(reason);
+    expect(refused.problems.some((p) => advice.includes(p))).toBe(false);
   });
 });
 

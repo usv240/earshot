@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/*
+  Earshot's tokens.
+
+  Light values on :root, dark values under the system preference, and a
+  third copy under an explicit choice so somebody who prefers light on a
+  dark machine gets what they asked for.
+
+  The type is larger than a marketing site would use, and the contrast is
+  higher. The people this is for are on average older than the people who
+  usually get designed for, and a page about a sense you are losing is a
+  bad place to be clever with grey on grey.
+*/
+:root {
+  --bg: #fbfaf8;
+  --surface: #ffffff;
+  --raised: #f2f0ec;
+  --ink: #17181b;
+  --muted: #55595f;
+  --line: #ddd9d2;
+  --primary: #1f4fd8;
+  --primary-contrast: #ffffff;
+  --warn: #b8862b;
+  --warn-bg: #fdf6e6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101114;
+    --surface: #17191d;
+    --raised: #1f222a;
+    --ink: #f3f2f0;
+    --muted: #a7acb4;
+    --line: #2b2f37;
+    --primary: #7aa2ff;
+    --primary-contrast: #0e1016;
+    --warn: #e0b45c;
+    --warn-bg: #241d0d;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #101114;
+  --surface: #17191d;
+  --raised: #1f222a;
+  --ink: #f3f2f0;
+  --muted: #a7acb4;
+  --line: #2b2f37;
+  --primary: #7aa2ff;
+  --primary-contrast: #0e1016;
+  --warn: #e0b45c;
+  --warn-bg: #241d0d;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/*
+  Controls.
+
+  The keypad keys are deliberately large. A person who has just been told
+  their hearing might be worth checking is, on the balance of who that is,
+  also somebody for whom a 32-pixel tap target is a nuisance. They are
+  also the thing being pressed twenty-four times in ninety seconds.
+*/
+button.primary,
+button.secondary,
+button.key {
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: background-color 120ms, border-color 120ms, opacity 120ms;
+}
+
+button.primary {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+}
+
+button.secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 0.7rem 1.25rem;
+  font-size: 1rem;
+}
+
+button.key {
+  background: var(--raised);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+  padding: 1rem 0;
+  min-height: 4rem;
+}
+
+button.primary:hover:not(:disabled),
+button.secondary:hover:not(:disabled),
+button.key:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+button.key:active:not(:disabled) {
+  background: var(--primary);
+  color: var(--primary-contrast);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Focus has to be visible. Some of this is driven from a keyboard. */
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}

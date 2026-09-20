@@ -14,7 +14,10 @@
     "typecheck": "tsc -b packages/digits-in-noise packages/earshot-core",
     "build:packages": "tsc -b packages/digits-in-noise packages/earshot-core",
     "pretest": "npm run build:packages",
-    "validate": "npm run validate -w @earshot/eval"
+    "validate": "npm run validate -w @earshot/eval",
+    "digits:placeholder": "npm run digits:placeholder -w @earshot/pipeline",
+    "digits": "npm run digits -w @earshot/pipeline",
+    "analyse": "npm run analyse -w @earshot/pipeline"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
