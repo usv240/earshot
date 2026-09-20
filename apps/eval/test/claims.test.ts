@@ -38,7 +38,12 @@ const results = JSON.parse(
 };
 
 /** Public text, for the cross-document checks at the end. */
-const PUBLIC_TEXT = ["README.md", "docs/EVAL.md", "docs/SUBMISSION.md"]
+const PUBLIC_TEXT = [
+  "README.md",
+  "docs/EVAL.md",
+  "docs/PRIOR_ART.md",
+  "docs/SUBMISSION.md",
+]
   .map((f) => ({ file: f, full: path.join(repo, f) }))
   .filter((d) => fs.existsSync(d.full))
   .map((d) => ({ file: d.file, text: fs.readFileSync(d.full, "utf8") }));
@@ -143,6 +148,42 @@ describe("what the project says in public", () => {
       }
     }
     expect(found, "no document states the bias").toBeGreaterThan(0);
+  });
+
+  it("never claims to be the first hearing test on a consumer device", () => {
+    /*
+      Apple shipped one in September 2024, with FDA authorisation, as a
+      free update to hardware millions of people already own. Any
+      sentence here implying otherwise is false, and it is the kind of
+      false that a judge finds in thirty seconds.
+
+      The interesting claim was never that one. It is that the audiogram
+      measures tones in quiet and misses the complaint people actually
+      have, which is speech in noise. So this is checked rather than
+      remembered, in both directions: nothing may claim the first, and
+      the prior art has to keep naming what exists.
+    */
+    for (const d of PUBLIC_TEXT) {
+      expect(
+        /\bfirst\b[^.]{0,60}\bhearing (?:test|screen)\b/i.test(d.text),
+        `${d.file} claims to be the first hearing test somewhere`,
+      ).toBe(false);
+      expect(
+        /\b(?:nobody|no one|no-one) has\b[^.]{0,60}\bhearing (?:test|screen)\b/i.test(d.text),
+        `${d.file} claims nobody has built a hearing test`,
+      ).toBe(false);
+    }
+  });
+
+  it("keeps naming the prior art rather than quietly dropping it", () => {
+    const priorArt = PUBLIC_TEXT.find((d) => d.file === "docs/PRIOR_ART.md");
+    expect(priorArt, "the prior art audit is missing").toBeTruthy();
+    for (const competitor of ["Apple", "Intel", "FDA"]) {
+      expect(priorArt!.text).toContain(competitor);
+    }
+    // And the README has to point at it, or it is a file nobody opens.
+    const readme = PUBLIC_TEXT.find((d) => d.file === "README.md");
+    expect(readme!.text).toContain("PRIOR_ART.md");
   });
 
   it("does not claim the screen was validated on people", () => {
