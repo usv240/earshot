@@ -1,0 +1,20 @@
+{
+  "name": "@earshot/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Earshot MCP server: the Alexa+ surface. Model Context Protocol 2025-11-25 over Streamable HTTP. It can explain what the television watches and talk about checks that were taken; it cannot report how anybody watches television, because that never leaves the device.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@fastify/aws-lambda": "^6.4.1",
+    "@fastify/cors": "^10.0.1",
+    "digits-in-noise": "0.1.0",
+    "fastify": "^5.1.0"
+  }
+}
