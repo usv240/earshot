@@ -49,6 +49,44 @@ function trackedFiles(): string[] {
     .filter((f) => /\.(ts|tsx|js|jsx|mjs|json|md|css|yml|yaml|txt)$/i.test(f));
 }
 
+/*
+  The television app is outside the npm workspaces, because Metro and
+  Gradle both resolve from the app directory and hoisting breaks them.
+  Nothing else installs it, and nothing else runs its suite.
+
+  A sibling project shipped for three days with a green root suite that
+  had never once run the app on its primary track. The failure arrives
+  at the end of a long green run as "jest is not recognized", which
+  reads like a missing global tool rather than a missing install, and
+  the published test count included those tests.
+*/
+describe("the documented command can reach the whole suite", () => {
+  const pkg = JSON.parse(
+    fs.readFileSync(path.join(repo, "package.json"), "utf8"),
+  ) as { scripts: Record<string, string> };
+
+  it("runs the television suite from npm test", () => {
+    expect(pkg.scripts.test).toContain("--prefix tv");
+  });
+
+  it("installs the television app's own dependencies from npm install", () => {
+    const install = [pkg.scripts.postinstall, pkg.scripts.prepare]
+      .filter(Boolean)
+      .join(" ");
+    expect(
+      install,
+      "nothing installs tv/, so a clean clone cannot run its suite",
+    ).toContain("tv");
+  });
+
+  it("keeps the television app out of the vitest run, so it is not run twice badly", () => {
+    // vitest would walk into tv/__tests__ and fail on a tsconfig that
+    // only exists inside the app's own node_modules.
+    const config = fs.readFileSync(path.join(repo, "vitest.config.ts"), "utf8");
+    expect(config).toContain("tv/**");
+  });
+});
+
 describe("source hygiene", () => {
   const files = trackedFiles();
 
