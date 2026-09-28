@@ -58,8 +58,13 @@ the real number every night and has never been asked.
 
 - **Primary track: Fire TV.** A React Native app on Fire OS: the passive
   listening model, the offer, and the screen driven entirely by a remote.
-- **Alexa+:** a self-hosted MCP server implementing spec revision
-  2025-11-25 over Streamable HTTP, five tools.
+- **Alexa+:** an Agent Skill, which is the path the rules prioritise,
+  at [skills/earshot/SKILL.md](../skills/earshot/SKILL.md), backed by a
+  self-hosted MCP server implementing spec revision 2025-11-25 over
+  Streamable HTTP with five tools. The skill is held to the same checks
+  as every other document here: its figures are re-derived, it may not
+  claim a first, and a test fails the build if it lists a tool the
+  server does not implement or drops one it does.
 - **Mini challenge: AWS Builder.** Amazon Transcribe, Amazon Polly,
   Amazon S3, Amazon DynamoDB, AWS Lambda, CloudFront. See
   [AWS.md](AWS.md) for exactly what each does and the minimum IAM policy.

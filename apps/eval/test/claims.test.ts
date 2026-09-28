@@ -55,6 +55,12 @@ const PUBLIC_TEXT = [
     .readdirSync(path.join(repo, "docs"))
     .filter((f) => f.endsWith(".md"))
     .map((f) => `docs/${f}`),
+  // A skill is read by an agent and quoted at a person, which makes it
+  // the least supervised surface here. Every check below applies to it.
+  ...fs
+    .readdirSync(path.join(repo, "skills"))
+    .map((d) => `skills/${d}/SKILL.md`)
+    .filter((f) => fs.existsSync(path.join(repo, f))),
 ]
   .map((f) => ({ file: f, full: path.join(repo, f) }))
   .filter((d) => fs.existsSync(d.full))
@@ -210,6 +216,58 @@ describe("what the project says in public", () => {
     // And the README has to point at it, or it is a file nobody opens.
     const readme = PUBLIC_TEXT.find((d) => d.file === "README.md");
     expect(readme!.text).toContain("PRIOR_ART.md");
+  });
+
+  it("describes exactly the tools the server implements", () => {
+    /*
+      A skill is a description of a server, kept in a different file from
+      the server. Nothing makes them agree, and the failure is quiet: an
+      agent reads the skill, calls a tool that was renamed, and the
+      person asking gets an error instead of an answer.
+    */
+    const skill = PUBLIC_TEXT.find((d) => d.file.startsWith("skills/"));
+    expect(skill, "no skill found").toBeTruthy();
+
+    const server = fs.readFileSync(
+      path.join(repo, "apps/mcp/src/mcp.ts"),
+      "utf8",
+    );
+    const implemented = [...server.matchAll(/^\s*name: "([a-z_]+)",$/gm)].map((m) => m[1]!);
+    expect(implemented.length).toBeGreaterThan(3);
+
+    // Deliberately checked against the tools section rather than the
+    // whole file. Every name also appears in the "when to use" table,
+    // so a mention anywhere is satisfied by a tool that was dropped
+    // from the list an agent actually reads to know what it can call.
+    const section = skill!.text.split("## The tools")[1] ?? "";
+    for (const tool of implemented) {
+      expect(
+        section.includes(tool),
+        `the server implements ${tool} and the skill does not list it`,
+      ).toBe(true);
+    }
+
+    /*
+      And nothing invented. Matched on the name that opens each bullet,
+      not on every backticked name in the section.
+
+      Two earlier versions failed on srt_db. It is an argument to
+      record_screen_result, it is correctly named in the prose
+      describing that tool, and a guard that cannot tell an argument
+      from a tool would force the documentation to stop naming
+      arguments. That is the wrong thing to give up to keep a check
+      happy.
+    */
+    const toolsSection = skill!.text.split("## The tools")[1] ?? "";
+    expect(toolsSection.length, "the skill has no tools section").toBeGreaterThan(100);
+    const listed = [...toolsSection.matchAll(/^- \*\*`([a-z_]+)`/gm)].map((m) => m[1]!);
+    expect(listed.length, "the tools section lists nothing").toBeGreaterThan(3);
+    for (const tool of listed) {
+      expect(
+        implemented.includes(tool),
+        `the skill lists ${tool} as a tool and the server does not implement it`,
+      ).toBe(true);
+    }
   });
 
   it("does not claim the screen was validated on people", () => {

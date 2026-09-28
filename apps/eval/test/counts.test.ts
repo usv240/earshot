@@ -85,6 +85,14 @@ const PUBLIC_TEXT = [
     .map((f) => `docs/${f}`),
   "FRICTION_LOG.md",
   "PRODUCT_FEEDBACK.md",
+  // A skill is public text. It is read by an agent and quoted at a
+  // person, which makes it the least supervised surface this project
+  // has, so every honesty check that applies to a document applies to
+  // it too.
+  ...fs
+    .readdirSync(path.join(repo, "skills"))
+    .map((d) => `skills/${d}/SKILL.md`)
+    .filter((f) => fs.existsSync(path.join(repo, f))),
 ]
   .map((f) => ({ file: f, full: path.join(repo, f) }))
   .filter((d) => fs.existsSync(d.full))
