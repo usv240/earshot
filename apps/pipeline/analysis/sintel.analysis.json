@@ -1,0 +1,11 @@
+{
+  "id": "sintel",
+  "durationSec": 125,
+  "speechSeconds": 28.3,
+  "speechShare": 0.2264,
+  "regions": 17,
+  "dialogueLufs": -40.6,
+  "programmeLufs": -41,
+  "gatingDifferenceDb": 0.4,
+  "measuredAt": "2026-09-28"
+}

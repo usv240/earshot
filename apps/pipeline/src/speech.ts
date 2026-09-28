@@ -12,12 +12,18 @@
  * therefore dominated by whatever is loudest in it, which for most film
  * and television is not the talking.
  *
- * That matters here more than it would anywhere else. Two programmes can
- * report the same integrated loudness with their dialogue fifteen
- * decibels apart, and a viewer sets the volume for the dialogue, because
- * the dialogue is the part they are trying to follow. Measure the
- * programme and you measure the score. Measure the speech and you
- * measure what the person was reaching for.
+ * That matters here more than it would anywhere else. A viewer sets the
+ * volume for the dialogue, because the dialogue is the part they are
+ * trying to follow. Measure the programme and you measure whatever is
+ * loudest in it. Measure the speech and you measure what the person was
+ * reaching for.
+ *
+ * How much difference that makes depends entirely on the programme. On
+ * the first real measurement, two minutes of Sintel, it was 0.4 dB,
+ * because that clip's non-speech sits at about the same level as its
+ * speech. On an action sequence or a concert it would be far more. The
+ * point of gating is not that the gap is always large, it is that you
+ * cannot know it is small without doing the measurement.
  *
  * Amazon Transcribe already knows where the words are, to the
  * millisecond, because that is what it was asked for. Nothing here asks

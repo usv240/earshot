@@ -86,6 +86,27 @@ export function durationSec(file: string): number {
   return seconds;
 }
 
+/** How many channels the source carries, and whether one is the centre. */
+export function audioLayout(file: string): { channels: number; hasCentre: boolean } {
+  const out = run(
+    "ffprobe",
+    [
+      "-v", "error",
+      "-select_streams", "a:0",
+      "-show_entries", "stream=channels,channel_layout",
+      "-of", "default=noprint_wrappers=1",
+      file,
+    ],
+    "ffprobe",
+  );
+  const channels = Number(/channels=(\d+)/.exec(out)?.[1] ?? 0);
+  const layout = /channel_layout=(.+)/.exec(out)?.[1]?.trim() ?? "";
+  // FC is the centre channel in ffmpeg's naming. Any surround layout has
+  // one; stereo and mono do not.
+  const hasCentre = /5\.1|7\.1|\bFC\b|quad\(side\)|3\.0|4\.0/.test(layout) && channels >= 3;
+  return { channels, hasCentre };
+}
+
 /**
  * Speech audio, at the rate Transcribe wants and no better.
  *
@@ -93,11 +114,49 @@ export function durationSec(file: string): number {
  * anything more is bytes uploaded for nothing. Only the audio is sent:
  * a film is gigabytes and its soundtrack is tens of megabytes, and the
  * picture is no business of a hearing project.
+ *
+ * The channel handling is the part that matters, and it was wrong until
+ * a real film went through.
+ *
+ * In a surround mix the dialogue is not spread across the channels, it
+ * is a channel: almost all of it sits in the centre, which is what the
+ * centre channel is for. Averaging six channels to mono therefore
+ * divides the dialogue by six and leaves the score and the effects
+ * untouched, burying the one thing being measured by roughly fifteen
+ * decibels. The first real run reported a film at -40.6 LUFS, which is
+ * about seventeen decibels below anything a broadcast would ship, and
+ * that figure was the bug rather than the film.
+ *
+ * So where a centre channel exists it is taken on its own. Everything
+ * else downmixes normally. This is also better for the recogniser,
+ * which gets speech without the music sitting on top of it.
  */
-export function extractAudio(input: string, output: string): void {
+export function extractAudio(
+  input: string,
+  output: string,
+  what: "dialogue" | "programme" = "dialogue",
+): void {
+  const { hasCentre } = audioLayout(input);
+  /*
+    Two different questions need two different extractions.
+
+    Dialogue: the centre channel, where the speech is. Programme: the
+    whole mix downmixed, because that is what a viewer hears and sets
+    the volume against.
+
+    Measuring both from the centre channel was the second version of
+    this bug. It reported the gate changing the answer by 0.2 dB, which
+    is true and meaningless: the centre channel is already mostly
+    speech, so there was nothing left for the gate to remove. The
+    contrast that matters is speech against the whole mix.
+  */
+  const filter =
+    what === "dialogue" && hasCentre
+      ? ["-af", "pan=mono|c0=FC"]
+      : ["-ac", "1"];
   run(
     "ffmpeg",
-    ["-y", "-i", input, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", output],
+    ["-y", "-i", input, "-vn", ...filter, "-ar", "16000", "-c:a", "pcm_s16le", output],
     "extracting audio",
   );
 }

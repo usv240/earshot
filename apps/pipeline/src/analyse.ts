@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import {
   GetTranscriptionJobCommand,
@@ -68,7 +69,17 @@ function parseArgs(argv: string[]): Args {
         "The bucket can also come from EARSHOT_BUCKET.",
     );
   }
-  return { input, id, bucket, out: get("--out") ?? "apps/pipeline/analysis" };
+  // Anchored to the repository, not to whatever directory npm ran the
+  // workspace script from. The sibling scripts were fixed for this and
+  // this one was missed, so the first real run wrote its artefacts to
+  // apps/pipeline/apps/pipeline/analysis.
+  const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+  return {
+    input,
+    id,
+    bucket,
+    out: get("--out") ?? path.join(repo, "apps/pipeline/analysis"),
+  };
 }
 
 async function transcribeTimings(
@@ -76,6 +87,21 @@ async function transcribeTimings(
   audioPath: string,
   region: string,
 ): Promise<TranscribeItem[]> {
+  /*
+    A transcript already on disk is used rather than bought again.
+
+    Recognition is the only part of this pipeline with a cost that
+    scales with content, and the timings for a given programme do not
+    change. This also means a failure later in the run, which is how
+    this function first got exercised, does not cost a second job.
+  */
+  const cached = path.join(args.out, `${args.id}.transcribe.json`);
+  if (fs.existsSync(cached)) {
+    process.stdout.write(`reusing the saved transcript at ${path.basename(cached)}
+`);
+    return JSON.parse(fs.readFileSync(cached, "utf8")) as TranscribeItem[];
+  }
+
   const s3 = new S3Client({ region });
   const key = `earshot-analysis/${args.id}-${Date.now()}.wav`;
 
@@ -137,7 +163,17 @@ function measureLufs(audioPath: string, filter: string | null, tmpDir: string): 
     // will carry as one argument.
     const scriptPath = path.join(tmpDir, "gate.filter");
     fs.writeFileSync(scriptPath, `${filter},ebur128=peak=none`, "utf8");
-    args.push("-filter_script:a", scriptPath);
+    /*
+      `-/filter:a file` rather than `-filter_script:a file`.
+
+      The latter was removed in ffmpeg 7 in favour of the generic
+      "read this option's value from a file" syntax, and the error it
+      gives is "Unrecognized option", which reads like a typo rather
+      than a removal. This code had never been run against a real
+      programme until today; every test that exercises the filter
+      builds the string and never hands it to ffmpeg.
+    */
+    args.push("-/filter:a", scriptPath);
   } else {
     args.push("-af", "ebur128=peak=none");
   }
@@ -155,7 +191,27 @@ async function main(): Promise<void> {
   const duration = durationSec(args.input);
   process.stdout.write(`${args.id}: ${duration.toFixed(1)}s of programme\n`);
 
-  extractAudio(args.input, audioPath);
+  /*
+    Two extractions doing two different jobs, and separating them took
+    three attempts against a real film.
+
+    The centre channel goes to the recogniser. In a surround mix the
+    dialogue is a channel rather than a blend, so the centre is the
+    cleanest possible input for finding where the words are: speech
+    without the score sitting on top of it.
+
+    Every loudness figure, though, is measured on the delivered mix,
+    because that is what a television plays and what a viewer sets the
+    volume against. Measuring dialogue on the isolated centre channel
+    answers a question nobody asked: the viewer never hears that signal
+    alone.
+
+    So the gate is the only difference between the two numbers below,
+    which is what makes their difference mean anything.
+  */
+  extractAudio(args.input, audioPath, "dialogue");
+  const programmePath = path.join(tmpDir, `${args.id}-programme.wav`);
+  extractAudio(args.input, programmePath, "programme");
 
   const items = await transcribeTimings(args, audioPath, region);
   fs.writeFileSync(
@@ -178,8 +234,8 @@ async function main(): Promise<void> {
     "utf8",
   );
 
-  const dialogueLufs = measureLufs(audioPath, gateFilter(regions), tmpDir);
-  const programmeLufs = measureLufs(audioPath, null, tmpDir);
+  const dialogueLufs = measureLufs(programmePath, gateFilter(regions), tmpDir);
+  const programmeLufs = measureLufs(programmePath, null, tmpDir);
 
   const analysis = {
     id: args.id,
@@ -192,11 +248,25 @@ async function main(): Promise<void> {
     /*
       The reason the gating exists, as a number.
 
-      If this is near zero the programme was nearly all talking and the
-      gate changed nothing. On drama and film it is usually several
-      decibels, and that difference is exactly the amount by which an
-      ungated measurement would have misjudged what the viewer was
-      setting the volume for.
+      How much the gate changed the answer. Both figures come from the
+      same delivered mix, so this is the gate's effect and nothing else.
+
+      An earlier version of this comment asserted that on drama and film
+      it is "usually several decibels". The first real measurement, on
+      two minutes of Sintel, came back at 0.4 dB, and there was no
+      evidence for the claim in the first place. What is true: the gate
+      matters when a programme's non-speech is much louder than its
+      speech, which is an action sequence or a concert and is not every
+      programme, and you cannot know which you have without measuring.
+      It costs one extra pass and removes a risk.
+    */
+    /*
+      Both figures come from the same delivered mix, so the gate is the
+      only thing that differs between them and the difference is the
+      gate's effect rather than an artefact of how the audio was
+      prepared. An earlier version measured one on the centre channel
+      and the other on a downmix, and reported ten decibels that were
+      mostly the downmix.
     */
     gatingDifferenceDb: Number((dialogueLufs - programmeLufs).toFixed(2)),
     measuredAt: new Date().toISOString().slice(0, 10),
