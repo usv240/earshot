@@ -74,6 +74,12 @@ const config = {
     extraNodeModules: {
       '@earshot/core': path.join(repoRoot, 'packages', 'earshot-core'),
       'digits-in-noise': path.join(repoRoot, 'packages', 'digits-in-noise'),
+      // The shared packages are compiled by Babel, which injects helper
+      // requires. Those resolve from the package's own directory, which
+      // sits above this app and has no node_modules, so they have to be
+      // pointed back here the same way react is. jest.config.js needed
+      // exactly the same mapping for exactly the same reason.
+      '@babel/runtime': path.join(appRoot, 'node_modules', '@babel', 'runtime'),
       react: path.join(appRoot, 'node_modules', 'react'),
       'react-native': path.join(appRoot, 'node_modules', 'react-native'),
     },
