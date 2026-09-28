@@ -1,0 +1,60 @@
+name: tests
+
+# Every push and every pull request. A suite that only runs when
+# somebody remembers is a suite that reports on the days it was already
+# going to pass.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Deliberately `npm ci` and then the documented command, with
+      # nothing else in between. A sibling project shipped for three
+      # days with a green root suite that had never once run the app on
+      # its primary track, because the television lives outside the npm
+      # workspaces and nothing installed it. This job is the check that
+      # a stranger cloning the repository gets what the README promises.
+      - name: Install exactly the way the README says
+        run: npm ci
+
+      - name: The whole suite, both runners
+        run: npm test
+
+      - name: Typecheck the packages and the pipeline
+        run: |
+          npx tsc --noEmit -p apps/mcp/tsconfig.json
+          npx tsc --noEmit -p apps/pipeline/tsconfig.json
+
+      - name: Typecheck and lint the site
+        working-directory: apps/web
+        run: |
+          npx tsc --noEmit
+          npx eslint src
+
+      - name: Typecheck the television app
+        working-directory: tv
+        run: npx tsc --noEmit
+
+      # The accuracy figures are claims, and claims are re-derived. This
+      # regenerates them from scratch and fails if the committed results
+      # no longer match what the procedure actually does.
+      # Compares everything except the date it was generated. A plain
+      # `git diff` would fail on every day except the one the file was
+      # written, which is the sort of check people learn to ignore.
+      - name: The committed figures are what this code produces
+        run: npm run check:validation
+
+      - name: Build the site
+        working-directory: apps/web
+        run: npx next build

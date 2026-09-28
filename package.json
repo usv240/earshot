@@ -26,7 +26,8 @@
     "web:build": "npm run build -w @earshot/web",
     "mcp": "npm run dev -w @earshot/mcp",
     "deploy": "npm run web:build && npx cdk deploy --require-approval never --app \"npx tsx bin/app.ts\"",
-    "prevalidate": "npm run build:packages"
+    "prevalidate": "npm run build:packages",
+    "check:validation": "node scripts/check-validation.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
