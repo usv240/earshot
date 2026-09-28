@@ -226,7 +226,7 @@ export default function App(): React.JSX.Element {
             )}
 
             <View style={styles.panel}>
-              <Text style={styles.panelTitle}>What this television is looking at</Text>
+              <Text style={styles.panelTitle}>What a television could watch for</Text>
               <Text style={styles.panelBody}>
                 How loud a programme&apos;s dialogue actually is, against the
                 volume chosen for it. Not whether it was turned up, but how
@@ -245,9 +245,12 @@ export default function App(): React.JSX.Element {
               </Text>
               {SAMPLE && (
                 <Text style={styles.warn}>
-                  The viewing history on this screen is sample data, so the
-                  figures above describe a household we made up. The test
-                  itself is real.
+                  The viewing history on this screen is sample data, and this
+                  app is not collecting the real thing. No app on Fire TV can:
+                  reading what another app is playing needs a permission Amazon
+                  does not grant to third parties, so only the platform could
+                  produce this signal. The check itself is real and the result
+                  below it is yours.
                 </Text>
               )}
             </View>

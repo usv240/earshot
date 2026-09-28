@@ -27,6 +27,25 @@ import {
  * becomes uninterpretable the day the reference moves.
  */
 
+/*
+  A note on who can read this, because it is the first thing a reviewer
+  should ask about a store holding anything health-adjacent.
+
+  `household` is a name the household chose. There is no account, no
+  token and no check, so anybody who guesses the name can read and write
+  that history on the public demo endpoint. That is a deliberate scope
+  for a demonstration and it would be indefensible in a product.
+
+  What makes it tolerable here rather than merely convenient: the rows
+  carry no identity. A date, a threshold in decibels, whether the run
+  settled, and which reference it was compared against. No name, no
+  contact, no audio, no answers, and nothing about how anybody watches
+  television, because that never leaves the device it happened on.
+
+  A product would put this behind the household's existing Amazon
+  identity, which is exactly the kind of thing an Alexa+ integration
+  would carry for free, and is why this is scoped rather than solved.
+*/
 export interface ScreenRecord {
   household: string;
   takenAt: string;

@@ -63,13 +63,21 @@ export default function Home() {
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
-                It notices
+                It would notice
               </p>
               <p className="mt-3 leading-relaxed text-muted">
-                It compares how loud a programme&apos;s dialogue actually is
+                Comparing how loud a programme&apos;s dialogue actually is
                 against the volume you chose for it. Not whether you turned it
-                up, but how far past the programme you are listening. It also
-                sees subtitles going on, and going back to hear a line again.
+                up, but how far past the programme you are listening.
+              </p>
+              <p className="mt-3 leading-relaxed text-muted">
+                <span className="font-semibold text-ink">
+                  No app on Fire TV can do this, including ours.
+                </span>{" "}
+                Reading what another app is playing needs a permission Amazon
+                does not grant to third parties. System volume is readable;
+                what is playing is not. The model is built and tested, and it
+                is waiting on an API only the platform can provide.
               </p>
             </div>
             <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">

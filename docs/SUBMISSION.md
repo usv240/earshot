@@ -17,11 +17,25 @@ test in the world and be told they are fine.
 
 Earshot measures the other one, on the device where the complaint lives.
 
-**It notices.** The Fire TV app compares how loud a programme's dialogue
-actually is against the volume this household chose for it. Not whether
-the set was turned up, but how far past the programme somebody is
-listening. It also sees subtitles going on and rewinding to hear a line
-again. No microphone, no camera, and none of it leaves the device.
+**It notices, and this half is a proposal rather than a shipped
+feature.** The model compares how loud a programme's dialogue actually
+is against the volume a household chose for it: not whether the set was
+turned up, but how far past the programme somebody is listening, along
+with subtitles going on and rewinding to hear a line again.
+
+A third-party Fire TV app cannot do that, and we established why rather
+than assuming it. Reading what another app is playing needs
+`MEDIA_CONTENT_CONTROL`, which is signature-level and unavailable, or
+notification-listener access, whose settings screen is not reliably
+reachable on Fire OS and in practice needs ADB. System volume is
+readable by any app; what is playing is not. So the one signal that
+makes this product different from a hearing test you have to go looking
+for can only be produced by the platform.
+
+The model is built, tested and demonstrable against recorded sessions.
+What it needs is an API that does not exist, which is
+[FRICTION_LOG.md](../FRICTION_LOG.md) entry 12 and the feature request
+this submission most wants read.
 
 **It asks, rarely.** After months, never during a programme, never twice
 in a season, and never again if somebody declines twice.
@@ -176,11 +190,22 @@ here:**
   their own spectrum to 1.12 dB mean across 100 Hz to 6 kHz. They are
   still not a normed corpus, so the referral bands stay provisional.
 - The television's viewing history is **sample data**, and the app says
-  so. A household has to watch for months before this product has
-  anything to say, which is correct behaviour and a poor demonstration.
+  so on its home screen. Two reasons, and the second is the important
+  one. A household has to watch for months before the model has anything
+  to say, which is correct behaviour and a poor demonstration. And a
+  third-party app cannot collect the real thing on Fire TV at all, for
+  the platform reason above. The app therefore contains no video player
+  and records no sessions, because there is nothing it could honestly
+  record.
 - Fire TV exposes no way to turn Dialogue Boost on or to read whether it
   is on, so the app explains where the setting lives and cannot confirm
   anybody found it. Friction log entry 1.
+- The demo MCP endpoint has **no authentication**. A household is a name
+  somebody chose, so anybody who guesses it can read that history. That
+  is a deliberate scope for a demonstration and would be indefensible in
+  a product. What is stored carries no identity at all: a date, a
+  threshold, whether the run settled, and its reference. A product would
+  put it behind the household's existing Amazon identity.
 
 ## Deliverables
 
@@ -189,7 +214,7 @@ here:**
 - **Live site:** https://d29nbz7seeunuf.cloudfront.net
 - **Live MCP endpoint:** https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp
 - **Demo video:** add when published.
-- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), eleven entries,
+- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), twelve entries,
   two of them against us.
 - **Product feedback:** [PRODUCT_FEEDBACK.md](../PRODUCT_FEEDBACK.md),
   every tool, API and SDK used.
