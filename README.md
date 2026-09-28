@@ -106,9 +106,17 @@ is aimed at.
 
 ```
 npm install
-npm test                 # the engine, the wording, and every published number
+npm test                 # 171 tests: the engine, the wording, the listening
+                         # model, the agent, and every published number
 npm run validate         # regenerate the validation results
+npm run web:dev          # the site, and the check you can take yourself
 ```
+
+`npm install` installs the Fire TV app too, and `npm test` runs its suite.
+The app is outside the npm workspaces because Metro and Gradle both resolve
+from the app directory and hoisting breaks them, so without those two lines
+a clean clone gets a long green run that never touched this project's
+primary track.
 
 ## What this is not
 

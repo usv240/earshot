@@ -20,7 +20,10 @@
     "analyse": "npm run analyse -w @earshot/pipeline",
     "postinstall": "npm --prefix tv install --no-audit --no-fund",
     "test:tv": "npm --prefix tv test",
-    "bundle:tv": "npm --prefix tv run bundle"
+    "bundle:tv": "npm --prefix tv run bundle",
+    "web:dev": "npm run dev -w @earshot/web",
+    "web:build": "npm run build -w @earshot/web",
+    "mcp": "npm run dev -w @earshot/mcp"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
