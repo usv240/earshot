@@ -211,6 +211,11 @@ here:**
 - Fire TV exposes no way to turn Dialogue Boost on or to read whether it
   is on, so the app explains where the setting lives and cannot confirm
   anybody found it. Friction log entry 1.
+- Sittings the television records are **lost when the app closes**. React
+  Native ships no storage and the standard module for it does not build
+  against react-native-tvos 0.83, which is friction log entry 13. The
+  model needs months of history, so this is a defect rather than a
+  decision, and the app says so on its home screen.
 - The demo MCP endpoint has **no authentication**. A household is a name
   somebody chose, so anybody who guesses it can read that history. That
   is a deliberate scope for a demonstration and would be indefensible in
@@ -225,7 +230,7 @@ here:**
 - **Live site:** https://d29nbz7seeunuf.cloudfront.net
 - **Live MCP endpoint:** https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp
 - **Demo video:** add when published.
-- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), twelve entries,
+- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), thirteen entries,
   two of them against us.
 - **Product feedback:** [PRODUCT_FEEDBACK.md](../PRODUCT_FEEDBACK.md),
   every tool, API and SDK used.
@@ -238,7 +243,7 @@ here:**
 
 ```
 npm install
-npm test          # 197 tests
+npm test          # 204 tests
 npm run validate
 npm run web:dev
 ```

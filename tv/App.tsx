@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Pressable,
   ScrollView,
@@ -24,6 +24,7 @@ import {
 } from 'digits-in-noise';
 import {TripletPlayer, type TripletPlayerHandle} from './src/audio';
 import {HISTORY, SAMPLE} from './src/sessions';
+import {DeviceSessionStore, PERSISTENCE_AVAILABLE} from './src/store';
 import {Watch} from './src/watch';
 
 /**
@@ -114,6 +115,17 @@ export default function App(): React.JSX.Element {
     months and a demonstration has minutes.
   */
   const [recorded, setRecorded] = useState<Session[]>([]);
+  const store = useRef(new DeviceSessionStore());
+
+  /*
+    Sittings survive the app being closed, which is not a nicety. The
+    model needs months before it has anything to say, so a history that
+    forgets on restart is a product that can never reach its own
+    threshold for speaking.
+  */
+  useEffect(() => {
+    void store.current.all().then(setRecorded);
+  }, []);
 
   const run = useRef<Screen | null>(null);
   const audio = useRef<TripletPlayerHandle | null>(null);
@@ -191,6 +203,7 @@ export default function App(): React.JSX.Element {
       <Watch
         onDone={session => {
           if (session) {
+            void store.current.append(session);
             setRecorded(current => [...current, session]);
           }
           setStage('home');
@@ -271,6 +284,17 @@ export default function App(): React.JSX.Element {
                 There is no microphone in this app and no camera. Nothing about
                 how you watch leaves this device.
               </Text>
+              {recorded.length > 0 && !PERSISTENCE_AVAILABLE && (
+                <Text style={styles.warn}>
+                  Sittings this app records are lost when it closes. React
+                  Native ships no storage and the standard module for it does
+                  not build against this television toolchain, which is
+                  friction log entry 13. A household needs months of history
+                  before the model says anything, so this is a defect rather
+                  than a decision, and the app says so instead of appearing
+                  to work.
+                </Text>
+              )}
               {recorded.length > 0 && (
                 <Text style={styles.figure}>
                   {recorded.length} sitting{recorded.length === 1 ? '' : 's'} recorded by
