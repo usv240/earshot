@@ -33,6 +33,8 @@ const results = JSON.parse(
   acrossRange: { trueSrtDb: number; biasDb: number; sdDb: number }[];
   carelessness: { lapseRate: number; biasDb: number; sdDb: number }[];
   slopes: { slopePerDb: number; biasDb: number; sdDb: number }[];
+  cutPointDb: number;
+  referralCurve: { trueSrtDb: number; relativeToCutDb: number; referredPercent: number }[];
   refusals: { betterThanRangeIsRejected: boolean; worseThanRangeIsRejected: boolean };
   comparison: { publishedTestRetestSdDb: number[] };
 };
@@ -108,6 +110,51 @@ describe("what the validation run measured", () => {
     const steep = results.slopes.find((s) => s.slopePerDb === 0.22);
     expect(shallow && steep).toBeTruthy();
     expect(shallow!.sdDb).toBeGreaterThan(steep!.sdDb);
+  });
+
+  it("draws its cut-point from the literature rather than from us", () => {
+    /*
+      An earlier version used -9 and -7 dB, which came from the
+      observation that adult diotic thresholds cluster near -9. That is
+      a statement about where people score, not about where a screen
+      should draw a line, and on a screening tool the difference is
+      whether somebody is told to see a doctor.
+
+      The published diotic categories put normal at or below -5.55 and
+      poor above -3.80.
+    */
+    expect(results.cutPointDb).toBeCloseTo(-3.8, 2);
+  });
+
+  it("does not bother people who are clearly fine", () => {
+    // The property that decides whether this is tolerable to ship. A
+    // screen that refers healthy people teaches them to ignore it.
+    const clearlyFine = results.referralCurve.filter((r) => r.relativeToCutDb <= -2);
+    expect(clearlyFine.length).toBeGreaterThan(2);
+    for (const row of clearlyFine) {
+      expect(
+        row.referredPercent,
+        `a listener ${-row.relativeToCutDb} dB better than the cut-point was referred ${row.referredPercent}% of the time`,
+      ).toBeLessThan(1);
+    }
+  });
+
+  it("does catch people who are clearly struggling", () => {
+    const struggling = results.referralCurve.filter((r) => r.relativeToCutDb >= 1.5);
+    expect(struggling.length).toBeGreaterThan(1);
+    for (const row of struggling) {
+      expect(row.referredPercent).toBeGreaterThan(95);
+    }
+  });
+
+  it("never gets less likely to refer as hearing gets worse", () => {
+    // Monotonic. A dip anywhere here would mean some band of listeners
+    // is protected from referral by arithmetic.
+    let previous = -1;
+    for (const row of results.referralCurve) {
+      expect(row.referredPercent).toBeGreaterThanOrEqual(previous - 0.001);
+      previous = row.referredPercent;
+    }
   });
 
   it("refuses to report a threshold it could not reach", () => {

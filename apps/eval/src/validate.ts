@@ -3,6 +3,8 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   defaultOptions,
+  interpret,
+  PROVISIONAL_DIOTIC,
   runScreen,
   sweep,
   type ListenerOptions,
@@ -87,6 +89,40 @@ function main(): void {
     worseThanRange: runScreen({ ...REFERENCE, trueSrtDb: 40 }, 1),
   };
 
+  /*
+    What the decision rule does to a listener at a given true threshold.
+
+    This is the analysis a screening paper reports, and it needs no
+    assumption about how common anything is. Sensitivity and specificity
+    require a population, and inventing a plausible-looking distribution
+    of thresholds would be making up the very thing the numbers are
+    supposed to come from. Referral probability as a function of the
+    truth does not: it is a property of the procedure, its measurement
+    noise, and where the cut-point sits.
+
+    Read it as the answer to "if somebody really is this bad, how often
+    does this screen say so", and the mirror, "if somebody really is
+    fine, how often does it bother them anyway".
+  */
+  const cut = PROVISIONAL_DIOTIC.referAboveDb;
+  const referralCurve = [-10, -8, -6, -5, -4, -3, -2, -1, 0].map((trueSrtDb) => {
+    let referred = 0;
+    let usable = 0;
+    for (let i = 0; i < RANGE_RUNS; i++) {
+      const result = runScreen({ ...REFERENCE, trueSrtDb }, 90_000 + i);
+      if (!result.valid) continue;
+      usable++;
+      if (interpret(result).band === "refer") referred++;
+    }
+    return {
+      trueSrtDb,
+      /** Distance from the cut-point. Negative is better hearing. */
+      relativeToCutDb: round(trueSrtDb - cut, 2),
+      referredPercent: usable ? round((referred / usable) * 100, 1) : Number.NaN,
+      runs: usable,
+    };
+  });
+
   const results = {
     generatedAt: new Date().toISOString().slice(0, 10),
     method:
@@ -103,6 +139,8 @@ function main(): void {
     acrossRange,
     carelessness,
     slopes,
+    cutPointDb: cut,
+    referralCurve,
     refusals: {
       betterThanRangeIsRejected: !outOfRange.betterThanRange.valid,
       worseThanRangeIsRejected: !outOfRange.worseThanRange.valid,
@@ -120,6 +158,12 @@ function main(): void {
 
   console.log(`bias ${results.headline.biasDb} dB, test-retest sd ${results.headline.sdDb} dB, over ${RUNS} runs`);
   console.log(`worst single miss ${results.headline.worstDb} dB; ${results.headline.rejected} runs refused`);
+  const atCut = referralCurve.find((r) => r.trueSrtDb === -4);
+  const clearlyFine = referralCurve.find((r) => r.trueSrtDb === -8);
+  console.log(
+    `referral rule at ${cut} dB: a listener at -4 dB is referred ` +
+      `${atCut?.referredPercent}% of the time, one at -8 dB ${clearlyFine?.referredPercent}%`,
+  );
   console.log(`written to ${path.relative(repo, out)}`);
 }
 

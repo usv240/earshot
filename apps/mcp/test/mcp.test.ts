@@ -220,7 +220,11 @@ describe("what the agent is allowed to know", () => {
     const { raw, payload } = await call(app, session, "explain_the_check");
     expect(payload?.whatItCannotDo).toBeTruthy();
     expect(raw).toContain("screen, not a diagnosis");
-    expect(raw).toContain("Provisional");
+    // Case-insensitive on purpose. What matters is that the response
+    // discloses the bands are provisional, not how the label is
+    // capitalised; this broke when the reference was renamed to cite
+    // its source.
+    expect(raw).toMatch(/provisional/i);
   });
 });
 

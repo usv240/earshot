@@ -36,23 +36,32 @@ export interface NormativeReference {
  * The reference this project ships with.
  *
  * Diotic digit triplets, meaning the same signal to both ears, which is
- * what a television plays. Published adult thresholds for diotic English
- * digits-in-noise sit near -9 dB, with referral cut-offs a couple of
- * decibels above that.
+ * what a television plays. That detail is not incidental: antiphasic
+ * presentation, where the signal is inverted in one ear, produces
+ * thresholds about six decibels lower, so a cut-point borrowed from an
+ * antiphasic study would refer almost nobody.
  *
- * This is a starting point and it is labelled as one. Our digits are
- * synthesised rather than drawn from a normed corpus, so the honest
- * position is that these bands are provisional until we have measured
- * our own distribution, and that measurement is what apps/eval exists
- * to produce. Anything published about a person's hearing has to name
- * which reference produced it.
+ * The numbers below were invented in an earlier version of this file.
+ * They sat at -9 and -7 dB because adult diotic thresholds are often
+ * described as clustering near -9, which is a statement about where
+ * people score rather than about where a screen should draw a line. The
+ * published categories draw it three and a half decibels away, and on a
+ * screening tool that difference is the difference between telling
+ * somebody to see a doctor and telling them they are fine.
+ *
+ * So the cut-points are now the published ones, cited, and still
+ * labelled provisional: our speech material is synthesised rather than
+ * the corpus those thresholds were measured with, and speech material
+ * moves where a threshold falls. Norming our own needs people. Anything
+ * published about a person's hearing has to name which reference
+ * produced it.
  */
 export const PROVISIONAL_DIOTIC: NormativeReference = {
-  label: "Provisional diotic reference",
+  label: "Published diotic cut-points, provisionally adopted",
   source:
-    "Adult diotic digits-in-noise thresholds cluster near -9 dB SNR. Provisional until this project's own material is normed; see docs/EVAL.md.",
-  clearAtOrBelowDb: -9,
-  referAboveDb: -7,
+    "Diotic digits-in-noise categories from the published literature: normal auditory performance at or below -5.55 dB SNR, insufficient between -5.55 and -3.80, poor above -3.80. Close to the UK Biobank cut-points of -5.5 and -3.5. Adopted provisionally because this project's speech material is synthesised rather than the corpus those thresholds were measured with, and material moves where a threshold falls. See docs/METHOD.md.",
+  clearAtOrBelowDb: -5.55,
+  referAboveDb: -3.8,
 };
 
 export type Band = "clear" | "borderline" | "refer" | "unmeasured";

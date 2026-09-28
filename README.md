@@ -87,9 +87,26 @@ Bias stays under 0.07 dB at every threshold from -14 to -3 dB, which matters mor
 than the headline. A screen exists to sort people near a cut-off, and those people
 are at the ends of the range, not in the comfortable middle.
 
+The cut-point it refers on comes from the published diotic categories
+rather than from us: normal at or below -5.55 dB SNR, poor above -3.80.
+An earlier version used -9 and -7, which came from where adult
+thresholds cluster rather than from where a screen should draw a line,
+and on a screening tool that three and a half decibel difference is the
+difference between telling somebody to see a doctor and telling them
+they are fine.
+
+At that cut-point a listener two decibels inside the normal range is
+referred 0.2 percent of the time, and one two decibels outside it 99.4
+percent of the time. Around the line itself it is close to a coin toss,
+which it has to be, and is why the borderline band says to repeat the
+check rather than offering a verdict.
+
 These come out of `npm run validate`, are written to
 `apps/eval/results/validation.json`, and are read back by
 `apps/eval/test/claims.test.ts`. Nothing about accuracy is typed in by hand.
+[docs/METHOD.md](docs/METHOD.md) sets the whole procedure against the
+literature it came from, parameter by parameter, including the four
+places it deliberately differs and why.
 
 To be explicit about what that establishes: it measures the **procedure**, using
 a model of a listener. It is not a clinical trial and does not stand in for one.
@@ -109,7 +126,7 @@ is aimed at.
 
 ```
 npm install
-npm test                 # 171 tests: the engine, the wording, the listening
+npm test                 # 177 tests: the engine, the wording, the listening
                          # model, the agent, and every published number
 npm run validate         # regenerate the validation results
 npm run web:dev          # the site, and the check you can take yourself

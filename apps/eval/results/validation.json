@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-20",
+  "generatedAt": "2026-09-28",
   "method": "Simulated listeners with known speech reception thresholds answer the adaptive procedure. Bias is the mean estimate minus the truth; the standard deviation is test-retest spread for one unchanging ear.",
   "procedure": {
     "digitSet": [
@@ -127,6 +127,63 @@
       "slopePerDb": 0.22,
       "biasDb": 0.029,
       "sdDb": 0.664
+    }
+  ],
+  "cutPointDb": -3.8,
+  "referralCurve": [
+    {
+      "trueSrtDb": -10,
+      "relativeToCutDb": -6.2,
+      "referredPercent": 0,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -8,
+      "relativeToCutDb": -4.2,
+      "referredPercent": 0,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -6,
+      "relativeToCutDb": -2.2,
+      "referredPercent": 0.2,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -5,
+      "relativeToCutDb": -1.2,
+      "referredPercent": 4.6,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -4,
+      "relativeToCutDb": -0.2,
+      "referredPercent": 34.2,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -3,
+      "relativeToCutDb": 0.8,
+      "referredPercent": 83.8,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -2,
+      "relativeToCutDb": 1.8,
+      "referredPercent": 99.4,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": -1,
+      "relativeToCutDb": 2.8,
+      "referredPercent": 100,
+      "runs": 500
+    },
+    {
+      "trueSrtDb": 0,
+      "relativeToCutDb": 3.8,
+      "referredPercent": 100,
+      "runs": 500
     }
   ],
   "refusals": {
