@@ -1,5 +1,8 @@
 # Earshot
 
+**Live:** <https://d29nbz7seeunuf.cloudfront.net> — take the check yourself.
+**Agent endpoint:** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
+
 **You passed the hearing test and you still can't hear the television.**
 
 That sentence describes a real and very common situation, and it is the one this

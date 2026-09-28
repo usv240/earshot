@@ -127,4 +127,15 @@ not about how hard it is to fix once you do.
 - **Workaround:** every such check now counts its matches and fails if it found none, and a separate test walks all tracked files for control characters that only appear when an escape has been eaten.
 - **Why it is in this log:** the second of the two was written in the file whose entire purpose is catching inert guards.
 
+## Entry 11: bundling a CommonJS dependency into an ES module Lambda fails at cold start, and the message names neither the package nor the reason (2026-09-28)
+
+- **Task:** deploy the MCP server as a Node 22 Lambda behind a function URL, bundled by CDK's `NodejsFunction` with `format: OutputFormat.ESM`.
+- **Steps:** `cdk deploy`, then `curl` the function URL.
+- **Expected:** the same server that had just answered nine spec checks on localhost.
+- **Actual:** every request 502. The log says `Dynamic require of "node:crypto" is not supported`, with a stack that points at `/var/task/index.mjs` and nothing else. `@fastify/aws-lambda` is CommonJS and calls `require`, which has no meaning once esbuild has bundled it into an ES module.
+- **Severity:** high, because of where it is discovered. The bundle builds, the stack deploys, CloudFormation reports success, and every in-process test passes. There is no signal anywhere until the first real request, and the message identifies neither the offending dependency nor the fact that the output format caused it.
+- **Workaround:** an esbuild banner that reconstructs `require` from `createRequire`. One line, once you know.
+- **Suggestion:** `NodejsFunction` knows it is being asked for ESM output. When a bundled dependency contains a `require` call that esbuild has turned into the dynamic-require shim, the construct could warn at synth time, or add the banner itself, which is what every project that hits this ends up doing by hand. Failing that, the CDK documentation for `OutputFormat.ESM` could name the problem: it is the single most likely thing to go wrong with that option and it cannot be caught before deployment.
+- **Why it is in this log:** it is the fourth time this week that a server passed every test it had and was wrong in production, and the only thing that found any of them was speaking real HTTP to the deployed thing.
+
 <!-- Add new entries above this line as they happen. -->

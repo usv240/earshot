@@ -127,7 +127,25 @@ function handler(event) {
         */
         EARSHOT_ALLOWED_ORIGINS: siteUrl,
       },
-      bundling: { format: OutputFormat.ESM, minify: false, sourceMap: true },
+      bundling: {
+        format: OutputFormat.ESM,
+        minify: false,
+        sourceMap: true,
+        /*
+          @fastify/aws-lambda is CommonJS and calls require() for
+          node:crypto. Bundled into an ES module that call has no
+          meaning, and the function dies at cold start with "Dynamic
+          require of node:crypto is not supported", which names neither
+          the package nor the reason.
+
+          Nothing catches this before deployment. The bundle builds, the
+          stack deploys, every in-process test passes, and the first
+          request gets a 502. It was found by curling the deployed URL,
+          which is the only thing that would have found it.
+        */
+        banner:
+          "import{createRequire as __cr}from'module';const require=__cr(import.meta.url);",
+      },
     });
     screens.grantReadWriteData(mcp);
 

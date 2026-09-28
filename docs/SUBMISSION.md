@@ -166,11 +166,10 @@ tool and fails if any of them ever returns a listening figure.
 **Honest gaps, all of them stated in the product itself rather than only
 here:**
 
-- The shipped audio is **placeholder** tone bursts rather than spoken
-  digits, because building the real material needs AWS credentials the
-  judge does not have. The site says so in the first sentence of a banner
-  and the television app says so on its home screen. Every other part of
-  the test is real.
+- The digits are real, synthesised with Amazon Polly and levelled so all
+  eight sit within 0 dB of each other, with masking noise matched to
+  their own spectrum to 1.12 dB mean across 100 Hz to 6 kHz. They are
+  still not a normed corpus, so the referral bands stay provisional.
 - The television's viewing history is **sample data**, and the app says
   so. A household has to watch for months before this product has
   anything to say, which is correct behaviour and a poor demonstration.
@@ -182,8 +181,10 @@ here:**
 
 - **Repository:** https://github.com/usv240/earshot, MIT, all source and
   instructions.
+- **Live site:** https://d29nbz7seeunuf.cloudfront.net
+- **Live MCP endpoint:** https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp
 - **Demo video:** add when published.
-- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), ten entries,
+- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), eleven entries,
   two of them against us.
 - **Product feedback:** [PRODUCT_FEEDBACK.md](../PRODUCT_FEEDBACK.md),
   every tool, API and SDK used.
