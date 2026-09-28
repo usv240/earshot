@@ -154,11 +154,11 @@ export function HearingTest({ manifest }: Props) {
   const keypad = manifest.digits.map((d) => d.digit);
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
+    <div className="card card-lift p-6 sm:p-9">
       {manifest.placeholder && (
         <p
           data-testid="placeholder-warning"
-          className="mb-6 rounded-xl border border-[var(--warn)] bg-[var(--warn-bg)] p-4 text-sm leading-relaxed"
+          className="mb-6 rounded-xl border border-[var(--warn)] bg-[var(--warn-bg)] p-4 text-sm leading-relaxed text-ink"
         >
           <span className="font-semibold">This is not a hearing test yet.</span>{" "}
           The audio here is tone bursts rather than spoken digits, so a
@@ -172,10 +172,11 @@ export function HearingTest({ manifest }: Props) {
 
       {stage === "idle" && (
         <div>
-          <h3 className="text-xl font-semibold text-ink">Try it</h3>
+          <p className="eyebrow">The check</p>
+          <h3 className="display-sm mt-2 text-3xl text-ink">Ninety seconds, with your own speakers</h3>
           <p className="mt-3 max-w-[60ch] leading-relaxed text-muted">
-            Ninety seconds. You will hear three digits at a time with noise
-            behind them, and type back what you heard. It gets harder while
+            You will hear three digits at a time with noise behind them, and
+            type back what you heard. It gets harder while
             you are getting them right and easier when you are not, until it
             finds the point where you get about half of them.
           </p>
@@ -195,7 +196,8 @@ export function HearingTest({ manifest }: Props) {
 
       {stage === "level" && (
         <div>
-          <h3 className="text-xl font-semibold text-ink">Set the volume</h3>
+          <p className="eyebrow">Step one of two</p>
+          <h3 className="display-sm mt-2 text-3xl text-ink">Set the volume</h3>
           <p className="mt-3 max-w-[60ch] leading-relaxed text-muted">
             That is the background noise on its own. Set your volume so it is
             about as loud as you would have the television. Comfortable, not
@@ -219,7 +221,7 @@ export function HearingTest({ manifest }: Props) {
       {(stage === "playing" || stage === "answering") && (
         <div>
           <div className="flex items-baseline justify-between gap-4">
-            <h3 className="text-xl font-semibold text-ink">
+            <h3 className="display-sm text-3xl text-ink">
               {stage === "playing" ? "Listen" : "What did you hear?"}
             </h3>
             <p className="text-sm text-muted">
@@ -227,9 +229,9 @@ export function HearingTest({ manifest }: Props) {
             </p>
           </div>
 
-          <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-line">
+          <div className="progress-track mt-5">
             <div
-              className="h-full bg-[var(--primary)] transition-[width] duration-300"
+              className="progress-fill"
               style={{ width: `${(progress.done / Math.max(1, progress.total)) * 100}%` }}
             />
           </div>
@@ -242,14 +244,14 @@ export function HearingTest({ manifest }: Props) {
             {[0, 1, 2].map((slot) => (
               <div
                 key={slot}
-                className="flex h-16 w-14 items-center justify-center rounded-xl border border-line bg-bg font-mono text-2xl text-ink"
+                className={`slot ${stage === "answering" && entered.length === slot ? "slot-active" : ""}`}
               >
                 {entered[slot] ?? ""}
               </div>
             ))}
           </div>
 
-          <div className="mt-6 grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="mt-7 grid grid-cols-4 gap-3">
             {keypad.map((digit) => (
               <button
                 key={digit}
@@ -283,13 +285,13 @@ export function HearingTest({ manifest }: Props) {
 
       {stage === "done" && result && reading && (
         <div>
-          <h3 className="text-xl font-semibold text-ink">{reading.headline}</h3>
+          <p className="eyebrow">Your result</p>
+          <h3 className="display-sm mt-2 max-w-[24ch] text-3xl text-ink">{reading.headline}</h3>
 
           {result.valid ? (
-            <p className="mt-3 font-mono text-sm text-muted">
-              Speech reception threshold{" "}
-              <span className="font-semibold text-ink">{result.srtDb.toFixed(1)} dB</span>{" "}
-              signal to noise
+            <p className="mt-5 flex items-baseline gap-3">
+              <span className="display text-5xl text-ink">{result.srtDb.toFixed(1)}</span>
+              <span className="text-sm text-muted">dB signal to noise, your speech reception threshold</span>
             </p>
           ) : (
             <ul className="mt-3 list-inside list-disc text-sm text-muted">
@@ -326,7 +328,7 @@ export function HearingTest({ manifest }: Props) {
 
       {stage === "failed" && (
         <div>
-          <h3 className="text-xl font-semibold text-ink">That did not work</h3>
+          <h3 className="display-sm text-3xl text-ink">That did not work</h3>
           <p className="mt-3 max-w-[60ch] leading-relaxed text-muted">{problem}</p>
           <button type="button" onClick={() => void begin()} className="mt-6 secondary">
             Try again

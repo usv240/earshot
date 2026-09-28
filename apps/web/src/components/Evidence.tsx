@@ -44,8 +44,8 @@ export function Evidence() {
   return (
     <div className="space-y-10">
       <div className="grid gap-5 md:grid-cols-3">
-        <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
+        <div className="card min-w-0 p-6">
+          <p className="eyebrow">
             Measured here
           </p>
           <p className="mt-3 leading-relaxed text-muted">
@@ -59,8 +59,8 @@ export function Evidence() {
           </p>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
+        <div className="card min-w-0 p-6">
+          <p className="eyebrow">
             Read from the literature
           </p>
           <p className="mt-3 leading-relaxed text-muted">
@@ -72,8 +72,8 @@ export function Evidence() {
           </p>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-[var(--warn)] bg-surface p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--warn)]">
+        <div className="card min-w-0 border-[var(--warn)] p-6">
+          <p className="eyebrow text-[var(--warn)]">
             Nobody has done yet
           </p>
           <p className="mt-3 leading-relaxed text-muted">
@@ -85,8 +85,8 @@ export function Evidence() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
-        <h3 className="text-lg font-semibold text-ink">
+      <div className="card p-6 sm:p-9">
+        <h3 className="display-sm text-2xl text-ink">
           What the cut-off does to a person
         </h3>
         <p className="mt-3 max-w-[70ch] leading-relaxed text-muted">
