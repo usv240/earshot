@@ -30,6 +30,9 @@ export default function Home() {
       <header className="mx-auto flex max-w-[900px] items-center justify-between px-5 pt-8">
         <p className="text-xl font-semibold tracking-tight">Earshot</p>
         <nav aria-label="Sections" className="flex gap-5 text-sm text-muted">
+          <a href="#test" className="font-medium text-[var(--primary)] hover:underline">
+            Take the check
+          </a>
           <a href="#how" className="hover:text-ink">How</a>
           <a href="#evidence" className="hover:text-ink">Evidence</a>
           <a href="#privacy" className="hover:text-ink">Privacy</a>
@@ -52,6 +55,42 @@ export default function Home() {
             Earshot measures the other one, on the device where you noticed
             the problem.
           </p>
+
+          {/*
+            Three numbers rather than a chart, because three numbers are
+            not a shape. They are the whole case for why this is worth
+            catching at all, and they were four paragraphs down in prose
+            where a reader skimming the page would never reach them.
+          */}
+          <dl className="mt-10 grid gap-4 sm:grid-cols-3">
+            {[
+              {
+                figure: "80%",
+                label: "of people with hearing loss do not know they have it",
+              },
+              {
+                figure: "7 years",
+                label: "the wait between noticing and asking anybody",
+              },
+              {
+                figure: "No. 1",
+                label:
+                  "modifiable risk factor for dementia from midlife, tied with cholesterol (Lancet, 2024)",
+              },
+            ].map((stat) => (
+              <div
+                key={stat.figure}
+                className="min-w-0 rounded-2xl border border-line bg-surface p-5"
+              >
+                <dt className="text-3xl font-semibold tracking-tight text-ink">
+                  {stat.figure}
+                </dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <section id="test" className="mt-12 scroll-mt-8">
