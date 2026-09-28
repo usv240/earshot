@@ -361,8 +361,15 @@ export function spectrumDifferenceDb(
 ): { maxDb: number; meanDb: number } {
   const bins = a.length;
   const nyquist = sampleRate / 2;
-  const first = Math.max(1, Math.floor((fromHz / nyquist) * (bins - 1)));
-  const last = Math.min(bins - 1, Math.ceil((toHz / nyquist) * (bins - 1)));
+  // ceil, not floor. floor picks the bin below the requested frequency,
+  // so a band documented as starting at 100 Hz was actually measured
+  // from 94 Hz. That bin sits under the fundamental of most speech and
+  // is where a smooth filter has least to work with, so it contributed
+  // a 12 dB worst-case figure to a manifest that claimed a 100 Hz
+  // floor. The stated band and the measured band have to be the same
+  // band.
+  const first = Math.max(1, Math.ceil((fromHz / nyquist) * (bins - 1)));
+  const last = Math.min(bins - 1, Math.floor((toHz / nyquist) * (bins - 1)));
 
   const aDb: number[] = [];
   const bDb: number[] = [];

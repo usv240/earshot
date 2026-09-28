@@ -244,6 +244,28 @@ describe("the noise", () => {
     expect(flatError).toBeGreaterThan(shapedError * 2);
   });
 
+  it("compares only the band it says it compares", () => {
+    /*
+      The bounds used to round outward, so a band documented as 100 Hz
+      to 6 kHz was measured from 94 Hz. That bin is below the
+      fundamental of most speech, it is where a smooth filter has least
+      to work with, and it alone produced a 12 dB worst case in a
+      manifest claiming a 100 Hz floor.
+    */
+    const flat = new Float64Array(513).fill(1);
+    const bumped = Float64Array.from(flat);
+    // A large deviation just below the band. It must not be counted.
+    const below = Math.floor((90 / (SR / 2)) * 512);
+    bumped[below] = 40;
+    expect(spectrumDifferenceDb(flat, bumped, SR, 100, 6000).maxDb).toBeLessThan(1);
+
+    // The same deviation inside the band must be counted.
+    const inside = Math.round((1000 / (SR / 2)) * 512);
+    const within = Float64Array.from(flat);
+    within[inside] = 40;
+    expect(spectrumDifferenceDb(flat, within, SR, 100, 6000).maxDb).toBeGreaterThan(10);
+  });
+
   it("comes out at the level it was asked for", () => {
     const noise = speechShapedNoise(speechLike(3), SR, 3, -26, 2);
     expect(dbfs(activeRms(noise.samples))).toBeCloseTo(-26, 1);
