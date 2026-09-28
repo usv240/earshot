@@ -23,6 +23,10 @@
   --primary-contrast: #ffffff;
   --warn: #b8862b;
   --warn-bg: #fdf6e6;
+  /* Chart marks, validated against each surface rather than reusing
+     the link colour: the dark link blue sits outside the lightness
+     band a mark needs on a dark surface. */
+  --chart-mark: #1f4fd8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,6 +41,7 @@
     --primary-contrast: #0e1016;
     --warn: #e0b45c;
     --warn-bg: #241d0d;
+    --chart-mark: #5b86e5;
   }
 }
 
@@ -51,6 +56,7 @@
   --primary-contrast: #0e1016;
   --warn: #e0b45c;
   --warn-bg: #241d0d;
+  --chart-mark: #5b86e5;
 }
 
 @theme inline {
@@ -129,4 +135,36 @@ button:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
+}
+
+/*
+  One bar per row, direct-labelled with its own value beside it.
+
+  The fill is a percentage of a fixed track, not of the table cell. The
+  first version made it a percentage of the cell and capped it with
+  max-width, which meant 83.8, 99.4 and 100 all rendered at the cap and
+  came out exactly the same length. A mark that stops encoding the value
+  above a certain value is worse than no mark, because it reads as
+  precise. Found by looking at a screenshot; no test would have.
+
+  A minimum width on the fill so a row at two tenths of a percent is
+  still visibly a bar rather than nothing, because "almost never" and
+  "never" are different claims and a reader should see which is meant.
+*/
+.ew-track {
+  display: inline-block;
+  width: 9rem;
+  flex: none;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.ew-bar {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 999px;
+  background: var(--chart-mark);
 }

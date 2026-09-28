@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { Evidence } from "../components/Evidence";
 import { HearingTest } from "../components/HearingTest";
 import type { DigitManifest } from "../lib/audio";
 
@@ -120,24 +121,20 @@ export default function Home() {
             factor for dementia from midlife.
           </p>
 
-          <div className="mt-8 rounded-2xl border border-line bg-surface p-6">
-            <h3 className="font-semibold text-ink">What we measured about the test itself</h3>
-            <p className="mt-3 max-w-[68ch] leading-relaxed text-muted">
-              A hearing screen cannot be checked against real listeners, because
-              each one gives a single number and there is nothing to compare it
-              against. So the procedure is run against simulated listeners whose
-              thresholds were chosen in advance. Over 2000 runs it reads a known
-              threshold with a bias of{" "}
-              <span className="font-semibold text-ink">0.037 dB</span> and a{" "}
-              <span className="font-semibold text-ink">0.748 dB</span>{" "}
-              test-retest spread. Published figures for this test sit between
-              0.7 and 1.2 dB.
+          <div className="mt-10">
+            <h3 className="text-xl font-semibold tracking-tight text-ink">
+              What we measured, what we read, and what nobody has done yet
+            </h3>
+            <p className="mt-3 max-w-[70ch] leading-relaxed text-muted">
+              Written for somebody who came here to find the weak point. The
+              three are kept apart on purpose, because a project that calls
+              everything measured either is not one or has not looked.
             </p>
-            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-muted">
-              That validates the procedure against a model. It is not a clinical
-              trial and does not stand in for one.
-            </p>
+            <div className="mt-6">
+              <Evidence />
+            </div>
           </div>
+
         </section>
 
         <section id="privacy" className="mt-20 scroll-mt-8">
