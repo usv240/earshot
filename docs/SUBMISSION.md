@@ -193,10 +193,21 @@ here:**
   so on its home screen. Two reasons, and the second is the important
   one. A household has to watch for months before the model has anything
   to say, which is correct behaviour and a poor demonstration. And a
-  third-party app cannot collect the real thing on Fire TV at all, for
-  the platform reason above. The app therefore contains no video player
-  and records no sessions, because there is nothing it could honestly
-  record.
+  third-party app cannot collect the real thing from *other* apps on
+  Fire TV, for the platform reason above.
+
+  It can measure its own playback, and does. The app plays Sintel, whose
+  dialogue loudness the pipeline measured at -40.6 LUFS over the 28
+  seconds where somebody is speaking, and records a real sitting with
+  the same code the model consumes: the level the viewer settled on, how
+  long they watched, whether they reached for subtitles, and how often
+  they went back eight seconds. Those sittings appear on the home screen
+  alongside the sample ones and are labelled as the real ones.
+
+  The player owns its own volume control, because a React Native app
+  cannot read the system level the remote's volume keys set without a
+  native module. For playback the app owns, that is the entire
+  measurement and nothing is estimated.
 - Fire TV exposes no way to turn Dialogue Boost on or to read whether it
   is on, so the app explains where the setting lives and cannot confirm
   anybody found it. Friction log entry 1.
@@ -227,7 +238,7 @@ here:**
 
 ```
 npm install
-npm test          # 182 tests
+npm test          # 197 tests
 npm run validate
 npm run web:dev
 ```

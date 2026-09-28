@@ -11,8 +11,10 @@ import {
   defaultOfferOptions,
   drift,
   explain,
+  listeningLevelDb,
   shouldOffer,
   type OfferDecision,
+  type Session,
 } from '@earshot/core';
 import {
   interpret,
@@ -22,6 +24,7 @@ import {
 } from 'digits-in-noise';
 import {TripletPlayer, type TripletPlayerHandle} from './src/audio';
 import {HISTORY, SAMPLE} from './src/sessions';
+import {Watch} from './src/watch';
 
 /**
  * Earshot on a television.
@@ -54,7 +57,7 @@ const COLOURS = {
   warn: '#e0b45c',
 };
 
-type Stage = 'home' | 'level' | 'playing' | 'answering' | 'result';
+type Stage = 'home' | 'watch' | 'level' | 'playing' | 'answering' | 'result';
 
 function TvButton({
   label,
@@ -104,6 +107,13 @@ export default function App(): React.JSX.Element {
   const [result, setResult] = useState<ScreenResult | null>(null);
   const [reading, setReading] = useState<Interpretation | null>(null);
   const [declined, setDeclined] = useState(false);
+  /*
+    Sittings this app recorded itself, from its own player, against a
+    dialogue loudness the pipeline measured. They sit alongside the
+    sample history rather than replacing it, because the model needs
+    months and a demonstration has minutes.
+  */
+  const [recorded, setRecorded] = useState<Session[]>([]);
 
   const run = useRef<Screen | null>(null);
   const audio = useRef<TripletPlayerHandle | null>(null);
@@ -116,15 +126,15 @@ export default function App(): React.JSX.Element {
   const decision: OfferDecision = useMemo(
     () =>
       shouldOffer(
-        HISTORY,
+        [...HISTORY, ...recorded],
         {declines: declined ? 2 : 0, completed: false},
         new Date().toISOString().slice(0, 10),
         true,
         defaultOfferOptions(),
       ),
-    [declined],
+    [declined, recorded],
   );
-  const listening = useMemo(() => drift(HISTORY), []);
+  const listening = useMemo(() => drift([...HISTORY, ...recorded]), [recorded]);
 
   const present = useCallback(async () => {
     const screen = run.current;
@@ -176,6 +186,19 @@ export default function App(): React.JSX.Element {
     [stage, present],
   );
 
+  if (stage === 'watch') {
+    return (
+      <Watch
+        onDone={session => {
+          if (session) {
+            setRecorded(current => [...current, session]);
+          }
+          setStage('home');
+        }}
+      />
+    );
+  }
+
   return (
     <View style={styles.screen}>
       <StatusBar hidden />
@@ -201,6 +224,7 @@ export default function App(): React.JSX.Element {
                     }}
                   />
                   <TvButton label="Not now" onPress={() => setDeclined(true)} />
+                  <TvButton label="Watch something" onPress={() => setStage('watch')} />
                 </View>
               </View>
             ) : (
@@ -213,9 +237,13 @@ export default function App(): React.JSX.Element {
                 </Text>
                 <View style={styles.row}>
                   <TvButton
-                    label="Check my hearing anyway"
+                    label="Watch something"
                     primary
                     preferred
+                    onPress={() => setStage('watch')}
+                  />
+                  <TvButton
+                    label="Check my hearing anyway"
                     onPress={() => {
                       audio.current?.playNoise();
                       setStage('level');
@@ -243,6 +271,13 @@ export default function App(): React.JSX.Element {
                 There is no microphone in this app and no camera. Nothing about
                 how you watch leaves this device.
               </Text>
+              {recorded.length > 0 && (
+                <Text style={styles.figure}>
+                  {recorded.length} sitting{recorded.length === 1 ? '' : 's'} recorded by
+                  this app, at a listening level of{' '}
+                  {listeningLevelDb(recorded[recorded.length - 1]!).toFixed(1)} dB
+                </Text>
+              )}
               {SAMPLE && (
                 <Text style={styles.warn}>
                   The viewing history on this screen is sample data, and this

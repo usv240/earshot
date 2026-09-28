@@ -108,7 +108,7 @@ Back to the television.
 
 ```
 npm install
-npm test                              # 182 tests
+npm test                              # 197 tests
 npm run validate                      # regenerate the figures on screen
 npm run digits                        # real spoken digits, needs AWS
 npm --prefix tv run bundle            # before any release build

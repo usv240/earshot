@@ -38,10 +38,16 @@ export interface TripletPlayerHandle {
   stop(): void;
 }
 
-const NOISE = require('../assets/noise.wav');
+/*
+  Metro resolves a bundled asset to a numeric id at bundle time. The
+  component's typings describe a source object, so the ids are cast
+  once here rather than at every use.
+*/
+type AssetSource = Parameters<typeof Video>[0]['source'];
+const NOISE = require('../assets/noise.wav') as AssetSource;
 
 /** Bundled by Metro as numeric asset ids, so they cannot be built by name. */
-const DIGIT_SOURCES: Record<number, ReturnType<typeof require>> = {
+const DIGIT_SOURCES: Record<number, AssetSource> = {
   1: require('../assets/digit-1.wav'),
   2: require('../assets/digit-2.wav'),
   3: require('../assets/digit-3.wav'),
@@ -58,7 +64,7 @@ const LEAD_OUT = 500;
 
 export const TripletPlayer = React.forwardRef<TripletPlayerHandle>((_props, ref) => {
   const [noisePlaying, setNoisePlaying] = useState(false);
-  const [speechSource, setSpeechSource] = useState<number | null>(null);
+  const [speechSource, setSpeechSource] = useState<AssetSource | null>(null);
   const [speechVolume, setSpeechVolume] = useState(1);
   const speechRef = useRef<VideoRef | null>(null);
   const queue = useRef<number[]>([]);
@@ -136,7 +142,6 @@ export const TripletPlayer = React.forwardRef<TripletPlayerHandle>((_props, ref)
         paused={!noisePlaying}
         volume={1}
         style={styles.hidden}
-        audioOnly
       />
       {speechSource !== null && (
         <Video
@@ -145,7 +150,6 @@ export const TripletPlayer = React.forwardRef<TripletPlayerHandle>((_props, ref)
           paused={false}
           volume={speechVolume}
           style={styles.hidden}
-          audioOnly
           onEnd={() => onDigitEnd.current?.()}
         />
       )}
