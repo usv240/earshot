@@ -7,7 +7,8 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "infra"
   ],
   "scripts": {
     "test": "vitest run && npm --prefix tv test",
@@ -23,7 +24,8 @@
     "bundle:tv": "npm --prefix tv run bundle",
     "web:dev": "npm run dev -w @earshot/web",
     "web:build": "npm run build -w @earshot/web",
-    "mcp": "npm run dev -w @earshot/mcp"
+    "mcp": "npm run dev -w @earshot/mcp",
+    "deploy": "npm run web:build && npx cdk deploy --require-approval never --app \"npx tsx bin/app.ts\""
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

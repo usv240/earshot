@@ -175,13 +175,27 @@ describe("what the project says in public", () => {
       remembered, in both directions: nothing may claim the first, and
       the prior art has to keep naming what exists.
     */
+    /*
+      "first" has to be modifying the thing, not merely near it.
+
+      The loose version allowed sixty characters of anything between,
+      which swept up "in the first fifteen seconds: a hearing test" in
+      the shooting script. That is the third time this week a phrase ban
+      has caught innocent prose, and the first two were fixed by
+      rewording. A guard that makes ordinary sentences unwriteable gets
+      worked around, and a guard that gets worked around is worse than
+      none, so this one was tightened to mean what it says.
+    */
+    const CLAIMS_A_FIRST = /\bfirst\b(?:\s+\w+){0,2}\s+hearing (?:test|screen)\b/i;
+    const CLAIMS_NOBODY = /\b(?:nobody|no one|no-one) has\b(?:\s+\w+){0,6}\s+hearing (?:test|screen)\b/i;
+
     for (const d of PUBLIC_TEXT) {
       expect(
-        /\bfirst\b[^.]{0,60}\bhearing (?:test|screen)\b/i.test(d.text),
+        CLAIMS_A_FIRST.test(d.text),
         `${d.file} claims to be the first hearing test somewhere`,
       ).toBe(false);
       expect(
-        /\b(?:nobody|no one|no-one) has\b[^.]{0,60}\bhearing (?:test|screen)\b/i.test(d.text),
+        CLAIMS_NOBODY.test(d.text),
         `${d.file} claims nobody has built a hearing test`,
       ).toBe(false);
     }

@@ -1,0 +1,12 @@
+{
+  "name": "@earshot/infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CDK stack: S3 and CloudFront for the site, DynamoDB for completed checks, and one Lambda behind a function URL for the MCP server. Documented in docs/AWS.md.",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.4.2"
+  }
+}
