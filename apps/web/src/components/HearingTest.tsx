@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  DEFAULT_LENGTH,
   interpret,
   LENGTHS,
   Screen,
-  type Length,
   type Interpretation,
   type ScreenResult,
 } from "digits-in-noise";
@@ -65,7 +65,7 @@ export function HearingTest({ manifest }: Props) {
   const [result, setResult] = useState<ScreenResult | null>(null);
   const [reading, setReading] = useState<Interpretation | null>(null);
   const [problem, setProblem] = useState<string>("");
-  const [length, setLength] = useState<Length>("full");
+  const [trials, setTrials] = useState<number>(DEFAULT_LENGTH);
 
   const screen = useRef<Screen | null>(null);
   const player = useRef<TripletPlayer | null>(null);
@@ -113,11 +113,11 @@ export function HearingTest({ manifest }: Props) {
 
   const startRun = useCallback(async () => {
     player.current?.stop();
-    screen.current = new Screen({ trials: LENGTHS[length].trials }, Date.now() % 100000);
+    screen.current = new Screen({ trials }, Date.now() % 100000);
     setResult(null);
     setReading(null);
     await present();
-  }, [present, length]);
+  }, [present, trials]);
 
   const submit = useCallback(
     async (answer: number[]) => {
@@ -218,36 +218,40 @@ export function HearingTest({ manifest }: Props) {
             quiet, and nowhere near uncomfortable.
           </p>
           {/*
-            Two lengths, and the choice is shown with its cost, because
-            "shorter" has one. Measured on the committed validation run:
-            sixteen trials catches a clearly struggling listener 96
-            percent of the time, twenty-four catches 99. Anything
-            shorter than sixteen mostly refuses to answer, and the engine
-            does not offer it.
+            Every length, with its cost, and the engine says which can be
+            chosen. Six and twelve are shown and disabled with the reason,
+            so a person can see the short option exists and why it is
+            not offered, rather than wondering. Twenty-four is marked as
+            the recommendation because it is the published protocol.
           */}
           <fieldset className="mt-6">
-            <legend className="text-sm font-semibold text-ink">How long</legend>
+            <legend className="text-sm font-semibold text-ink">How many rounds</legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {(Object.keys(LENGTHS) as Length[]).map((key) => (
+              {LENGTHS.map((l) => (
                 <label
-                  key={key}
-                  className={`cursor-pointer rounded-xl border p-3 text-sm ${
-                    length === key ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-line"
+                  key={l.trials}
+                  className={`rounded-xl border p-3 text-sm ${
+                    !l.offered
+                      ? "cursor-not-allowed border-line opacity-60"
+                      : trials === l.trials
+                        ? "cursor-pointer border-[var(--accent)] bg-[var(--accent-soft)]"
+                        : "cursor-pointer border-line"
                   }`}
                 >
                   <input
                     type="radio"
                     name="length"
-                    value={key}
-                    checked={length === key}
-                    onChange={() => setLength(key)}
+                    value={l.trials}
+                    checked={trials === l.trials}
+                    disabled={!l.offered}
+                    onChange={() => setTrials(l.trials)}
                     className="mr-2 accent-[var(--accent)]"
                   />
-                  <span className="font-semibold text-ink">{LENGTHS[key].label}</span>
-                  <span className="text-muted">
-                    {" "}
-                    {LENGTHS[key].trials} rounds, {LENGTHS[key].minutes}
+                  <span className="font-semibold text-ink">
+                    {l.trials} rounds
+                    {l.recommended ? " (recommended)" : ""}
                   </span>
+                  <span className="block text-muted">{l.offered ? l.minutes : l.reason}</span>
                 </label>
               ))}
             </div>
@@ -352,9 +356,9 @@ export function HearingTest({ manifest }: Props) {
 
           <p className="mt-4 max-w-[60ch] leading-relaxed text-muted">{reading.nextStep}</p>
           <p className="mt-3 text-sm text-muted">
-            {LENGTHS[length].label} check, {LENGTHS[length].trials} rounds.
-            {length === "quick"
-              ? " The full check is a little more precise; if this result is close to the line, take that one."
+            {trials} rounds.
+            {trials < DEFAULT_LENGTH
+              ? ` The ${DEFAULT_LENGTH}-round check is a little more precise; if this result is close to the line, take that one.`
               : ""}
           </p>
 

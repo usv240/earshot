@@ -183,7 +183,7 @@ function main(): void {
     The columns are how often each length refuses to answer, wrongly
     refers the fine one, and catches the struggling one.
   */
-  const lengthCost = [8, 10, 12, 14, 16, 20, 24].map((trials) => {
+  const lengthCost = [6, 12, 18, 24].map((trials) => {
     const s = sweep(REFERENCE, 1000, { trials });
     let fineReferred = 0;
     let strugglingCaught = 0;

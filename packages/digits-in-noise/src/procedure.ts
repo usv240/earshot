@@ -36,30 +36,81 @@ import type {
  */
 
 /**
- * The lengths this test can honestly run at.
+ * Every length this test could run at, with what each one costs.
  *
  * Trial count is what buys precision, and there is a floor below which
- * the track never settles and a real difficulty goes unseen. Measured
- * on a simulated ear at -9 dB, 1000 runs each, and pinned by
- * apps/eval/test/claims.test.ts against the committed validation run:
+ * the track never settles and a real difficulty goes unseen. Rather
+ * than hide the short lengths, the table shows all of them with the
+ * measured cost attached, and marks which are offered. A person can see
+ * that six rounds exists and why they cannot choose it.
  *
- *   10 trials: 620 of 1000 runs refused, and a listener at -2 dB, who
- *              plainly struggles, is caught only 28.6 percent of the
- *              time. That is not a shorter test, it is not a test.
- *   16 trials: 18 refused, spread 0.95 dB, that listener caught 96
- *              percent of the time. The honest floor.
- *   24 trials: none refused, spread 0.74 dB, caught 98.2 percent. The
- *              published protocol.
+ * Measured on a simulated ear, 1000 runs each, on the two listeners a
+ * screen exists to tell apart: one 2.2 dB inside the cut-off and one
+ * 1.8 dB outside it. The figures below are pinned by
+ * apps/eval/test/claims.test.ts against the committed validation run,
+ * and the pin requires every offered length to catch the struggling
+ * listener at least 95 percent of the time and refuse fewer than one
+ * run in twenty. A length that fails that cannot be offered without a
+ * test failing.
  *
- * So two lengths are offered and the result says which it took, and
- * with what spread, so a person knows what a minute bought them.
+ *    6 rounds: every run refused. Four are the coarse approach, so two
+ *              real trials remain and the track cannot settle.
+ *   12 rounds: one run in four refused, and a listener who plainly
+ *              struggles is missed one time in three. On a screen that
+ *              is the worst outcome available: told you are fine, you
+ *              stop looking.
+ *   18 rounds: three refusals in a thousand, caught 97 percent. Real.
+ *   24 rounds: none refused, caught 98 percent. The published protocol
+ *              and the recommendation.
  */
-export const LENGTHS = {
-  quick: { trials: 16, label: "Quick", minutes: "about a minute and a half" },
-  full: { trials: 24, label: "Full", minutes: "about two minutes" },
-} as const;
+export interface LengthOption {
+  trials: number;
+  label: string;
+  minutes: string;
+  /** Whether the engine lets a person choose it. */
+  offered: boolean;
+  /** Why not, in a sentence a person can read, when it is not. */
+  reason?: string;
+  recommended?: boolean;
+}
 
-export type Length = keyof typeof LENGTHS;
+export const LENGTHS: readonly LengthOption[] = [
+  {
+    trials: 6,
+    label: "Six",
+    minutes: "under half a minute",
+    offered: false,
+    reason: "Too short to settle. Every run is refused.",
+  },
+  {
+    trials: 12,
+    label: "Twelve",
+    minutes: "under a minute",
+    offered: false,
+    reason: "One run in four is refused, and a real difficulty is missed one time in three.",
+  },
+  {
+    trials: 18,
+    label: "Eighteen",
+    minutes: "about a minute and a half",
+    offered: true,
+  },
+  {
+    trials: 24,
+    label: "Twenty-four",
+    minutes: "about two minutes",
+    offered: true,
+    recommended: true,
+  },
+];
+
+export const DEFAULT_LENGTH = 24;
+
+export function lengthFor(trials: number): LengthOption {
+  const found = LENGTHS.find((l) => l.trials === trials);
+  if (!found) throw new Error(`no length with ${trials} trials`);
+  return found;
+}
 
 export function defaultOptions(): ProcedureOptions {
   return {

@@ -17,10 +17,11 @@ import {
   type Session,
 } from '@earshot/core';
 import {
+  DEFAULT_LENGTH,
   interpret,
   LENGTHS,
+  lengthFor,
   Screen,
-  type Length,
   type Interpretation,
   type ScreenResult,
 } from 'digits-in-noise';
@@ -110,7 +111,7 @@ export default function App(): React.JSX.Element {
   const [result, setResult] = useState<ScreenResult | null>(null);
   const [reading, setReading] = useState<Interpretation | null>(null);
   const [declined, setDeclined] = useState(false);
-  const [length, setLength] = useState<Length>('full');
+  const [trials, setTrials] = useState<number>(DEFAULT_LENGTH);
   /*
     Sittings this app recorded itself, from its own player, against a
     dialogue loudness the pipeline measured. They sit alongside the
@@ -172,11 +173,11 @@ export default function App(): React.JSX.Element {
   }, []);
 
   const startRun = useCallback(() => {
-    run.current = new Screen({trials: LENGTHS[length].trials}, Date.now() % 100000);
+    run.current = new Screen({trials}, Date.now() % 100000);
     setResult(null);
     setReading(null);
     void present();
-  }, [present, length]);
+  }, [present, trials]);
 
   const press = useCallback(
     (digit: number) => {
@@ -325,13 +326,20 @@ export default function App(): React.JSX.Element {
               near uncomfortable.
             </Text>
             <Text style={styles.body}>
-              {LENGTHS[length].label}: {LENGTHS[length].trials} rounds,{' '}
-              {LENGTHS[length].minutes}.
+              {trials} rounds, {lengthFor(trials).minutes}.
+              {lengthFor(trials).recommended ? ' Recommended.' : ''}
             </Text>
             <View style={styles.row}>
               <TvButton
-                label={length === 'full' ? 'Make it quicker' : 'Make it the full check'}
-                onPress={() => setLength(l => (l === 'full' ? 'quick' : 'full'))}
+                label="Change length"
+                onPress={() => {
+                  // Cycle through the lengths the engine offers. The
+                  // short ones exist in the table with their reasons but
+                  // are not reachable from here.
+                  const offered = LENGTHS.filter(l => l.offered).map(l => l.trials);
+                  const at = offered.indexOf(trials);
+                  setTrials(offered[(at + 1) % offered.length]!);
+                }}
               />
               <TvButton label="Play it again" onPress={() => audio.current?.playNoise()} />
               <TvButton label="Begin" primary preferred onPress={startRun} />

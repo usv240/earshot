@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LENGTHS } from "digits-in-noise";
+import { DEFAULT_LENGTH, LENGTHS } from "digits-in-noise";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -172,23 +172,26 @@ describe("what the validation run measured", () => {
 
   it("offers only lengths that still catch a struggling listener", () => {
     /*
-      The answer to "why twenty-four trials, can it be shorter". Every
-      length the engine names has to clear the same bar in the committed
-      run: it catches a listener 1.8 dB outside the cut-off at least 95
-      percent of the time, and refuses fewer than one run in twenty.
-      A length that fails that is not a shorter test, it is not a test,
-      and the engine must not offer it.
+      Every length is shown to a person with its cost, and the engine
+      decides which can be chosen. This is the rule it decides by, and
+      it has to hold in the committed run: an offered length catches a
+      listener 1.8 dB outside the cut-off at least 95 percent of the
+      time and refuses fewer than one run in twenty. A length that is
+      not offered has to fail that bar, or hiding it would be arbitrary.
     */
     const byTrials = new Map(results.lengthCost.map((r) => [r.trials, r]));
-    for (const length of Object.values(LENGTHS)) {
+    for (const length of LENGTHS) {
       const row = byTrials.get(length.trials);
-      expect(row, `no measurement for the ${length.trials}-trial length`).toBeTruthy();
-      expect(row!.strugglingCaughtPercent).toBeGreaterThanOrEqual(95);
-      expect(row!.refusedOf1000).toBeLessThan(50);
+      expect(row, `no measurement for the ${length.trials}-round length`).toBeTruthy();
+      const clears = row!.strugglingCaughtPercent >= 95 && row!.refusedOf1000 < 50;
+      expect(
+        clears,
+        `${length.trials} rounds is ${length.offered ? "offered" : "not offered"} but ${clears ? "clears" : "fails"} the bar`,
+      ).toBe(length.offered);
+      if (!length.offered) expect(length.reason, "a rejected length has to say why").toBeTruthy();
     }
-    // And the table has to show why shorter was rejected, not just omit it.
-    const ten = byTrials.get(10);
-    expect(ten!.strugglingCaughtPercent).toBeLessThan(50);
+    expect(LENGTHS.filter((l) => l.recommended)).toHaveLength(1);
+    expect(LENGTHS.find((l) => l.recommended)!.trials).toBe(DEFAULT_LENGTH);
   });
 
   it("beats the obvious alternative, and says by how much", () => {
