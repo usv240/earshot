@@ -355,12 +355,19 @@ export function HearingTest({ manifest }: Props) {
           )}
 
           <p className="mt-4 max-w-[60ch] leading-relaxed text-muted">{reading.nextStep}</p>
-          <p className="mt-3 text-sm text-muted">
-            {trials} rounds.
-            {trials < DEFAULT_LENGTH
-              ? ` The ${DEFAULT_LENGTH}-round check is a little more precise; if this result is close to the line, take that one.`
-              : ""}
-          </p>
+          {/*
+            Only when there is a result. On a refused run "if this result
+            is close to the line" is advice about a number that does not
+            exist, and it sat under the refusal in the first screenshot.
+          */}
+          {result.valid && (
+            <p className="mt-3 text-sm text-muted">
+              {trials} rounds.
+              {trials < DEFAULT_LENGTH
+                ? ` The ${DEFAULT_LENGTH}-round check is a little more precise; if this result is close to the line, take that one.`
+                : ""}
+            </p>
+          )}
 
           <p className="mt-4 max-w-[60ch] text-sm leading-relaxed text-muted">
             Compared against: {reading.reference.label}. {reading.reference.source}

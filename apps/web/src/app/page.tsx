@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { Evidence } from "../components/Evidence";
 import { HearingTest } from "../components/HearingTest";
 import { Info } from "../components/Info";
+import { Outcomes } from "../components/Outcomes";
 import { ThemeToggle } from "../components/ThemeToggle";
 import type { DigitManifest } from "../lib/audio";
 
@@ -99,6 +100,29 @@ export default function Home() {
 
           <div id="test" className="scroll-mt-24">
             <HearingTest manifest={manifest} />
+          </div>
+        </section>
+
+        {/*
+          What it can say, before anybody presses Start. The sentences
+          come from the same function the check calls, so this cannot
+          promise something a real result would not say. This is the
+          panel that answers "what if I do badly", and it is the one the
+          demo cuts to.
+        */}
+        <section id="outcomes" className="mt-16 scroll-mt-24">
+          <p className="eyebrow">Whatever it finds</p>
+          <h2 className="display-sm mt-3 max-w-[22ch] text-3xl text-ink sm:text-4xl">
+            These are the only three things it can say.
+          </h2>
+          <p className="mt-4 max-w-[66ch] leading-relaxed text-muted">
+            No result names a condition, promises anything, or calls a run that did not work
+            good news. A test fails the build if one ever does. The worst it can say is that a
+            hearing test is worth booking, and that some causes are straightforward to treat,
+            which is true.
+          </p>
+          <div className="mt-8">
+            <Outcomes />
           </div>
         </section>
 

@@ -35,19 +35,35 @@ number in it sit on screen long enough to read.
 > "There's no microphone in this app. No camera. And none of this leaves
 > the television."
 
-**0:42 to 1:25 — take the test, on the remote**
+**0:42 to 1:05 — take the check, on the remote, for real**
 
-Press the button. Show the level-setting step, then three or four
-trials, D-pad and select. Real time, no cuts inside a trial.
+Press the button. Pick 18 rounds. Show the volume step, then three or
+four trials on the D-pad, real time, no cuts inside a trial. Then cut;
+nobody needs all eighteen.
 
-> "Three digits, with noise behind them. It gets harder while you're
-> right and easier while you're wrong, until it finds the ratio where
-> you get half of them. That ratio is the measurement, and because it's
-> a ratio rather than a level, it works on a television nobody
-> calibrated. It's why the World Health Organization put this test, and
-> not tones, into a phone app."
+> "Three digits, with noise behind them. It gets harder while I'm right
+> and easier when I'm wrong, until it finds the ratio where I get half of
+> them. That ratio is the measurement, and because it's a ratio rather
+> than a level, it works on a television nobody calibrated."
 
-Then the result screen.
+**1:05 to 1:25 — what it can say, whatever it finds**
+
+Cut to the website, the "These are the only three things it can say"
+panel. Hold on it long enough to read the middle card.
+
+> "Whatever it finds, this is the whole vocabulary: you hear about as
+> well as most adults, you're near the line so try again in a week, or
+> a hearing test is worth booking. It never names a condition. There's
+> a test in the repository that fails the build if any result ever
+> does."
+
+Then your real result screen, whichever it was, for two seconds. A clear
+result demos fine: the next-step line says the honest thing about a test
+that only measures one part of hearing.
+
+Do not stage a bad result. If your real run comes out clear, say so. The
+panel already showed what the other outcomes look like, and a judge who
+later takes the check themselves will get the same three sentences.
 
 **1:25 to 1:50 — what it refuses to say**
 
