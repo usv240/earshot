@@ -34,6 +34,11 @@ const results = JSON.parse(
   carelessness: { lapseRate: number; biasDb: number; sdDb: number }[];
   slopes: { slopePerDb: number; biasDb: number; sdDb: number }[];
   cutPointDb: number;
+  baseline: {
+    households: number;
+    compensating: { volumeOnlyFalseAlarms: number; dialogueReferencedFalseAlarms: number };
+    creeping: { volumeOnlyDetections: number; dialogueReferencedDetections: number };
+  };
   referralCurve: { trueSrtDb: number; relativeToCutDb: number; referredPercent: number }[];
   refusals: { betterThanRangeIsRejected: boolean; worseThanRangeIsRejected: boolean };
   comparison: { publishedTestRetestSdDb: number[] };
@@ -155,6 +160,26 @@ describe("what the validation run measured", () => {
       expect(row.referredPercent).toBeGreaterThanOrEqual(previous - 0.001);
       previous = row.referredPercent;
     }
+  });
+
+  it("beats the obvious alternative, and says by how much", () => {
+    /*
+      The reasonable engineer's first design is to track the volume
+      setting. It is what the 2010 paper did by asking, and what the
+      Intel patent claims. Earshot adds one term, the programme's own
+      dialogue loudness, and this is what that term is worth.
+
+      On households whose ears never changed but who turned up a quieter
+      mix, volume-only accuses every one of them. Dialogue-referenced
+      accuses none. And on households who really did creep, both catch
+      them, so the improvement is not bought by going quiet.
+    */
+    const b = results.baseline;
+    expect(b.households).toBeGreaterThanOrEqual(100);
+    expect(b.compensating.dialogueReferencedFalseAlarms).toBe(0);
+    expect(b.compensating.volumeOnlyFalseAlarms).toBe(b.households);
+    expect(b.creeping.dialogueReferencedDetections).toBe(b.households);
+    expect(b.creeping.volumeOnlyDetections).toBe(b.households);
   });
 
   it("refuses to report a threshold it could not reach", () => {

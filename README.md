@@ -1,5 +1,7 @@
 # Earshot
 
+**Earshot measures how far past a programme's dialogue you are listening, screens your hearing in noise with the remote, and hands you one page for the doctor.**
+
 **Live:** <https://d29nbz7seeunuf.cloudfront.net> — take the check yourself.
 **Agent endpoint:** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
 
@@ -126,7 +128,7 @@ is aimed at.
 
 ```
 npm install
-npm test                 # 204 tests: the engine, the wording, the listening
+npm test                 # 210 tests: the engine, the wording, the listening
                          # model, the agent, and every published number
 npm run validate         # regenerate the validation results
 npm run web:dev          # the site, and the check you can take yourself

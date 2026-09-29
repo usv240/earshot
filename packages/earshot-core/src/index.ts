@@ -17,3 +17,4 @@ export * from "./types.js";
 export * from "./level.js";
 export * from "./offer.js";
 export * from "./record.js";
+export * from "./baseline.js";

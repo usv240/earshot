@@ -2,7 +2,9 @@
 
 ## What it is
 
-**You passed the hearing test and you still can't hear the television.**
+**Earshot measures how far past a programme's dialogue you are listening, screens your hearing in noise with the remote, and hands you one page for the doctor.**
+
+You passed the hearing test and you still can't hear the television.
 
 In September 2024 the FDA authorised the first over-the-counter hearing
 aid software, and AirPods Pro 2 now run a five-minute hearing test. It is
@@ -241,7 +243,7 @@ here:**
 
 ```
 npm install
-npm test          # 204 tests
+npm test          # 210 tests
 npm run validate
 npm run web:dev
 ```

@@ -20,6 +20,11 @@ import * as path from "node:path";
 interface Validation {
   headline: { runs: number; biasDb: number; sdDb: number; worstDb: number };
   cutPointDb: number;
+  baseline: {
+    households: number;
+    compensating: { volumeOnlyFalseAlarms: number; dialogueReferencedFalseAlarms: number };
+    creeping: { volumeOnlyDetections: number; dialogueReferencedDetections: number };
+  };
   referralCurve: {
     trueSrtDb: number;
     relativeToCutDb: number;
@@ -83,6 +88,40 @@ export function Evidence() {
             is about this interface rather than the method.
           </p>
         </div>
+      </div>
+
+      <div className="card p-6 sm:p-9">
+        <h3 className="display-sm text-2xl text-ink">Against the obvious alternative</h3>
+        <p className="mt-3 max-w-[70ch] leading-relaxed text-muted">
+          Anybody asked to notice somebody turning the television up would track the volume
+          setting. That is what the published paper did by asking, and what a device patent
+          claims. Earshot adds one term, the programme&apos;s own dialogue loudness, and this
+          is what that term is worth on {v.baseline.households} households of each kind.
+        </p>
+        <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="border-l-2 border-[var(--line-strong)] pl-4">
+            <dt className="text-sm text-muted">
+              Volume only, on viewers who merely turned up a quieter mix
+            </dt>
+            <dd className="display-sm mt-1 text-3xl text-ink">
+              {v.baseline.compensating.volumeOnlyFalseAlarms} of {v.baseline.households}
+              <span className="ml-2 text-base font-normal text-muted">false alarms</span>
+            </dd>
+          </div>
+          <div className="border-l-2 border-[var(--accent)] pl-4">
+            <dt className="text-sm text-muted">Earshot, on the same viewers</dt>
+            <dd className="display-sm mt-1 text-3xl text-ink">
+              {v.baseline.compensating.dialogueReferencedFalseAlarms} of {v.baseline.households}
+              <span className="ml-2 text-base font-normal text-muted">false alarms</span>
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-5 max-w-[70ch] text-sm leading-relaxed text-muted">
+          Both models catch every household that really did creep upward,{" "}
+          {v.baseline.creeping.dialogueReferencedDetections} of {v.baseline.households}, so
+          the improvement is not bought by going quiet. It is bought by knowing what was
+          playing.
+        </p>
       </div>
 
       <div className="card p-6 sm:p-9">

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-28",
+  "generatedAt": "2026-09-29",
   "method": "Simulated listeners with known speech reception thresholds answer the adaptive procedure. Bias is the mean estimate minus the truth; the standard deviation is test-retest spread for one unchanging ear.",
   "procedure": {
     "digitSet": [
@@ -130,6 +130,18 @@
     }
   ],
   "cutPointDb": -3.8,
+  "baseline": {
+    "households": 200,
+    "compensating": {
+      "volumeOnlyFalseAlarms": 200,
+      "dialogueReferencedFalseAlarms": 0
+    },
+    "creeping": {
+      "volumeOnlyDetections": 200,
+      "dialogueReferencedDetections": 200
+    },
+    "thresholdDb": 4
+  },
   "referralCurve": [
     {
       "trueSrtDb": -10,

@@ -9,6 +9,13 @@ import {
   sweep,
   type ListenerOptions,
 } from "digits-in-noise";
+import {
+  AMPLITUDE_CURVE,
+  compareAgainstVolumeOnly,
+  defaultLevelOptions,
+  defaultOfferOptions,
+  type Session,
+} from "@earshot/core";
 
 /**
  * Measuring the hearing test.
@@ -123,6 +130,50 @@ function main(): void {
     };
   });
 
+  /*
+    The obvious alternative, beaten with a number.
+
+    Anybody asked to notice somebody turning the television up would
+    track the volume setting. That is the reasonable engineer's first
+    design and it is what the 2010 paper and the Intel patent both do.
+    Earshot adds one term, the programme's own dialogue loudness, and
+    this measures what that term is worth.
+
+    Two hundred households of each kind. Compensating: the viewer's ears
+    never change, but the second half of what they watch is mixed
+    quieter and they turn it up by exactly the difference. A model that
+    fires on them is accusing somebody of going deaf on the strength of
+    the sound design. Creeping: the mixing never changes and the viewer
+    really does drift upward. Both models should catch these.
+  */
+  const DAY = 86_400_000;
+  const makeHousehold = (kind: "compensating" | "creeping", seed: number): Session[] => {
+    const start = Date.parse("2026-01-01") + (seed % 7) * DAY;
+    return Array.from({ length: 20 }, (_, i) => {
+      const late = i >= 10;
+      // Compensating: the later programmes are 6 dB quieter and the viewer
+      // matches it exactly. Creeping: same programmes, viewer goes up 6 dB.
+      // Quieter by exactly what half-to-full volume adds: 6.02 dB, not 6.
+      const dialogueLufs = kind === "compensating" && late ? -27 + AMPLITUDE_CURVE.gainDb(0.5) : -27;
+      const volume = late ? 1 : 0.5;
+      return {
+        startedAt: new Date(start + i * 4 * DAY).toISOString().slice(0, 10),
+        programme: { id: `p${i}`, dialogueLufs, speechSeconds: 1800 },
+        volume,
+        watchedSeconds: 3600,
+        captionsOn: false,
+        rehearSeeks: 0,
+      };
+    });
+  };
+  const levelOptions = { ...defaultLevelOptions(), curve: AMPLITUDE_CURVE };
+  const baseline = compareAgainstVolumeOnly(
+    makeHousehold,
+    levelOptions,
+    defaultOfferOptions().driftDb,
+    200,
+  );
+
   const results = {
     generatedAt: new Date().toISOString().slice(0, 10),
     method:
@@ -140,6 +191,7 @@ function main(): void {
     carelessness,
     slopes,
     cutPointDb: cut,
+    baseline,
     referralCurve,
     refusals: {
       betterThanRangeIsRejected: !outOfRange.betterThanRange.valid,
@@ -163,6 +215,10 @@ function main(): void {
   console.log(
     `referral rule at ${cut} dB: a listener at -4 dB is referred ` +
       `${atCut?.referredPercent}% of the time, one at -8 dB ${clearlyFine?.referredPercent}%`,
+  );
+  console.log(
+    `volume-only baseline: ${baseline.compensating.volumeOnlyFalseAlarms}/${baseline.households} false alarms on compensating households; ` +
+      `dialogue-referenced: ${baseline.compensating.dialogueReferencedFalseAlarms}/${baseline.households}`,
   );
   console.log(`written to ${path.relative(repo, out)}`);
 }

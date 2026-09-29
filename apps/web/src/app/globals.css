@@ -339,3 +339,62 @@ a:focus-visible,
     transition: none;
   }
 }
+
+/*
+  The (i) beside a term, and the note it opens.
+
+  A real button, not a title attribute: title is invisible to touch and
+  to screen readers, and a third of the people this page is for are on a
+  phone. The note is positioned below the button so it never covers the
+  term it explains.
+*/
+.info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15em;
+  height: 1.15em;
+  margin-left: 0.3em;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.8em;
+  line-height: 1;
+  vertical-align: 0.1em;
+  cursor: help;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.info-btn:hover,
+.info-btn[aria-expanded="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.info-pop {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 30;
+  width: min(22rem, 80vw);
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  /*
+    The button sits inside a span the page marks whitespace-nowrap so a
+    term and its (i) never split across a line. The note inherits that
+    and its text runs straight out of the box and across the next
+    column. Seen in a screenshot; no test looks at wrapping.
+  */
+  white-space: normal;
+  cursor: pointer;
+}

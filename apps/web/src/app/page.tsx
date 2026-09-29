@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { Evidence } from "../components/Evidence";
 import { HearingTest } from "../components/HearingTest";
+import { Info } from "../components/Info";
 import { ThemeToggle } from "../components/ThemeToggle";
 import type { DigitManifest } from "../lib/audio";
 
@@ -70,18 +71,20 @@ export default function Home() {
         {/* Hero: the claim on the left, the check on the right, above the fold on a laptop. */}
         <section className="grid items-start gap-10 pt-14 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-20">
           <div>
-            <p className="eyebrow">A hearing check for the living room</p>
+            <p className="eyebrow">A hearing check for the living room, on Fire TV</p>
             <h1 className="display mt-4 max-w-[16ch] text-[2.6rem] text-ink sm:text-[3.4rem] lg:text-[3.8rem]">
               You passed the hearing test and you still can&apos;t hear the television.
             </h1>
-            <p className="mt-7 max-w-[56ch] text-lg leading-relaxed text-muted">
+            <p className="mt-7 max-w-[56ch] text-lg leading-relaxed text-ink">
+              Earshot measures how far past a programme&apos;s dialogue you are listening,
+              screens your hearing in noise with the remote, and hands you one page for the
+              doctor.
+            </p>
+            <p className="mt-4 max-w-[56ch] text-lg leading-relaxed text-muted">
               The test on your phone plays tones in a quiet room. What you actually struggle
               with is speech with other sound behind it, and those are not the same
               measurement. People with ordinary results on the first one routinely cannot
               follow dialogue.
-            </p>
-            <p className="mt-4 max-w-[56ch] text-lg leading-relaxed text-muted">
-              Earshot measures the other one, on the device where you noticed the problem.
             </p>
 
             <dl className="mt-10 grid gap-3 sm:grid-cols-3">
@@ -96,6 +99,67 @@ export default function Home() {
 
           <div id="test" className="scroll-mt-24">
             <HearingTest manifest={manifest} />
+          </div>
+        </section>
+
+        <div className="rule my-20" />
+
+        {/*
+          What, why, how, in one screen, for somebody who has never heard
+          of this. Every term a newcomer would not know carries an (i).
+          This section did not exist, and without it the site never said
+          there was a Fire TV app at all: the primary track was invisible
+          to anybody who landed here.
+        */}
+        <section id="what" className="scroll-mt-24">
+          <p className="eyebrow">In one screen</p>
+          <h2 className="display-sm mt-3 max-w-[22ch] text-3xl text-ink sm:text-4xl">
+            What it is, why it exists, and how it runs.
+          </h2>
+          <div className="mt-10 grid gap-10 md:grid-cols-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-ink">What</p>
+              <p className="mt-3 leading-relaxed text-muted">
+                A two-minute hearing check you take with a television remote. Three spoken
+                digits play with noise behind them, it gets harder while you are right and
+                easier while you are wrong, and it ends on the{" "}
+                <span className="whitespace-nowrap">
+                  ratio<Info term="snr" />
+                </span>{" "}
+                at which you get half of them. That ratio is your{" "}
+                <span className="whitespace-nowrap">
+                  speech reception threshold<Info term="srt" />
+                </span>
+                . It measures speech in noise, which a tone test does not.
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-ink">Why</p>
+              <p className="mt-3 leading-relaxed text-muted">
+                Eighty percent of people with hearing loss do not know. The ones who notice
+                wait about seven years. And a television is where the difficulty shows first:
+                a published paper found that turning the set up predicts hearing loss with 81
+                percent sensitivity, collected by asking patients in a clinic. The television
+                knows the real number every night and has never been asked.
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-ink">How</p>
+              <p className="mt-3 leading-relaxed text-muted">
+                A React Native app on Fire OS, sideloaded as an APK and driven entirely by the
+                remote. It plays a film whose{" "}
+                <span className="whitespace-nowrap">
+                  dialogue loudness<Info term="gating" />
+                </span>{" "}
+                was measured with Amazon Transcribe and ffmpeg, records the level you settle
+                on, and offers the check only after months of the same pattern. An{" "}
+                <span className="whitespace-nowrap">
+                  MCP server<Info term="mcp" />
+                </span>{" "}
+                lets Alexa+ explain what the television watches and prepare the page for a
+                doctor. The check you can take on this page is the same engine.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -135,8 +199,11 @@ export default function Home() {
             <div className="min-w-0">
               <p className="text-sm font-semibold text-ink">It helps either way</p>
               <p className="mt-3 leading-relaxed text-muted">
-                Fire TV already ships Dialogue Boost, hearing-aid pairing and direct streaming
-                to cochlear implants. All of it is for people who already know. Earshot points
+                Fire TV already ships{" "}
+                <span className="whitespace-nowrap">
+                  Dialogue Boost<Info term="dialogueBoost" />
+                </span>
+                , hearing-aid pairing and direct streaming to cochlear implants. All of it is for people who already know. Earshot points
                 at the first one and gives you one page to take to a doctor.
               </p>
             </div>
