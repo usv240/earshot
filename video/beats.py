@@ -46,9 +46,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Polly's Joanna at the rate narrate.py asks for, measured across this
-# script: 407 words in 163 seconds of narration. The estimate is only a
-# gate before recording; the real clips decide the cut.
-WORDS_PER_MINUTE = 150
+# script: 423 words in 167 seconds of narration, 152 a minute. The
+# estimate is only a gate before recording; the real clips decide the cut.
+WORDS_PER_MINUTE = 152
 CEILING_SECONDS = 180
 
 
@@ -145,12 +145,12 @@ BEATS: list[Beat] = [
         shows="The evidence section: measured here, read from the literature, nobody has done yet.",
         action="evidence",
         say=(
-            "A hearing screen can't be checked against real listeners, "
-            "because each one gives you a single number with nothing to compare it to. "
+            "A hearing screen can't be checked against real listeners; "
+            "each gives one number with nothing to compare it to. "
             "So this one is run against simulated listeners whose thresholds we chose. "
-            "Two thousand runs. It reads a known threshold with a bias of four hundredths of a decibel, "
+            "Two thousand runs: it reads a known threshold with a bias of four hundredths of a decibel, "
             "and repeats itself to three quarters of one. "
-            "Published figures for this test are between point seven and one point two."
+            "Published figures are point seven to one point two."
         ),
     ),
     Beat(
@@ -165,22 +165,23 @@ BEATS: list[Beat] = [
     ),
     Beat(
         key="tv-home",
-        shows="The Fire TV home screen, then a film playing with the listening level live beside it.",
+        shows="A film playing on the set, the remote's volume key pressed, and the set's volume and the listening level moving together.",
         action="tv_home",
         min_hold=6,
         say=(
             "On Fire TV, the app does the half a web page can't. "
-            "It plays a film whose dialogue loudness was measured, and watches the level you settle on."
+            "It plays a film whose dialogue loudness was measured, reads the set's own volume, "
+            "and watches the level you settle on."
         ),
     ),
     Beat(
         key="tv-check",
-        shows="The check on the D-pad: the volume step, Begin, a round or two.",
+        shows="The home screen with what it noticed and the offer, then the check on the D-pad: the volume step, Begin, a round.",
         action="tv_check",
         min_hold=9,
         say=(
-            "And the check runs entirely on the remote. "
-            "Sittings stay on the set. There is no microphone, and no camera."
+            "Months later it has noticed, and offers the check. "
+            "It runs on the remote. Sittings stay on the set. No microphone, no camera."
         ),
     ),
     Beat(

@@ -532,7 +532,7 @@ def main() -> int:
         focus_on(OFFER if offered else CHECK_ANYWAY)
         mark("tv-check")
         check_end = time.monotonic() + seconds_for("tv-check", narration)
-        hold(1.0)  # the offer, read for a moment, before it is taken up
+        hold(2.4)  # what it noticed, and the offer, while the line says so
         key("DPAD_CENTER")
         wait_for(LEVEL, 10)
         hold(2.4)  # the noise on its own, and the length it will run
