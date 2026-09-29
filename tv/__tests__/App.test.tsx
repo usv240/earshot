@@ -43,7 +43,9 @@ test('renders, and leads with what it noticed', async () => {
   expect(text).toContain('Earshot');
   // The offer, not a bare instruction to take a test.
   expect(text).toContain('Something worth a minute');
-  expect(text).toContain('90 seconds');
+  // Two minutes, not ninety seconds: a timed run took 123 seconds, and
+  // the label the television says out loud has to be a promise it keeps.
+  expect(text).toContain('two minutes');
   // And the sample-data warning, for the same reason the site has one.
   expect(text).toContain('sample data');
 });

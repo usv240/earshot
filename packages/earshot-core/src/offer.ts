@@ -180,7 +180,7 @@ export function shouldOffer(
  *
  * Written to be read once, by somebody who did not ask to be told
  * anything. It states what was noticed, says plainly that it is not a
- * judgement about them, and makes the offer small. Ninety seconds and a
+ * judgement about them, and makes the offer small. Two minutes and a
  * remote is a small thing to ask; a conversation about their hearing is
  * not, and this is not that conversation.
  */
@@ -190,6 +190,6 @@ export function explain(reasons: Reason[]): string {
   return (
     `${evidence} That can happen for all sorts of reasons, including the way ` +
     `programmes are mixed, and on its own it does not mean anything about you. ` +
-    `There is a 90 second check you can do from here with the remote if you want to know more.`
+    `There is a two minute check you can do from here with the remote if you want to know more.`
   );
 }

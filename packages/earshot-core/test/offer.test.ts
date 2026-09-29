@@ -193,7 +193,7 @@ describe("what it says", () => {
 
   it("keeps the ask small", () => {
     const text = explain(shouldOffer(crept(), fresh, LATER, true).reasons);
-    expect(text).toMatch(/90 second/);
+    expect(text).toMatch(/two minute/);
     expect(text).toMatch(/if you want/i);
   });
 

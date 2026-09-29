@@ -228,7 +228,7 @@ export default function App(): React.JSX.Element {
                 <Text style={styles.body}>{explain(decision.reasons)}</Text>
                 <View style={styles.row}>
                   <TvButton
-                    label="Check it, 90 seconds"
+                    label="Check it, two minutes"
                     primary
                     preferred
                     onPress={() => {

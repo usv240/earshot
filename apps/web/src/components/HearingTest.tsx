@@ -39,6 +39,17 @@ import { TripletPlayer, type DigitManifest } from "../lib/audio";
  * credit, no best guess, and no number with a caveat under it.
  */
 
+/*
+  "Two minutes", not "ninety seconds".
+
+  The site said ninety in three places and the television said it out
+  loud. A timed run in a browser took 123 seconds: each trial is a
+  steady 3.8 seconds of audio, noise lead-in, three digits, lead-out,
+  and twenty-four of those is 91 seconds before a person's answering
+  time is counted at all. Ninety was a promise the product could not
+  keep, sitting in the hero card of a project whose whole argument is
+  not overclaiming. Found by timing it rather than by reading it.
+*/
 type Stage = "idle" | "loading" | "level" | "playing" | "answering" | "done" | "failed";
 
 interface Props {
@@ -173,7 +184,7 @@ export function HearingTest({ manifest }: Props) {
       {stage === "idle" && (
         <div>
           <p className="eyebrow">The check</p>
-          <h3 className="display-sm mt-2 text-3xl text-ink">Ninety seconds, with your own speakers</h3>
+          <h3 className="display-sm mt-2 text-3xl text-ink">Two minutes, with your own speakers</h3>
           <p className="mt-3 max-w-[60ch] leading-relaxed text-muted">
             You will hear three digits at a time with noise behind them, and
             type back what you heard. It gets harder while

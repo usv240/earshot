@@ -40,7 +40,7 @@ this submission most wants read.
 **It asks, rarely.** After months, never during a programme, never twice
 in a season, and never again if somebody declines twice.
 
-**It measures.** Ninety seconds with the remote. Three spoken digits in
+**It measures.** Two minutes with the remote. Three spoken digits in
 noise, adaptive, producing a speech reception threshold in dB SNR. The
 digits-in-noise test measures a ratio rather than a level, which is why
 the World Health Organization put it rather than pure-tone audiometry

@@ -57,9 +57,17 @@ export interface NormativeReference {
  * produced it.
  */
 export const PROVISIONAL_DIOTIC: NormativeReference = {
-  label: "Published diotic cut-points, provisionally adopted",
+  label: "Published cut-points for this kind of test, provisionally adopted",
+  /*
+    Read by a person alone in a living room, so it is one sentence they
+    can use rather than a citation block. The earlier version quoted
+    three thresholds and ended "See docs/METHOD.md", which is a
+    developer's note that had leaked onto a result screen. The full
+    comparison, with sources, stays in docs/METHOD.md where a clinician
+    or reviewer will look for it.
+  */
   source:
-    "Diotic digits-in-noise categories from the published literature: normal auditory performance at or below -5.55 dB SNR, insufficient between -5.55 and -3.80, poor above -3.80. Close to the UK Biobank cut-points of -5.5 and -3.5. Adopted provisionally because this project's speech material is synthesised rather than the corpus those thresholds were measured with, and material moves where a threshold falls. See docs/METHOD.md.",
+    "The line between usual and worth checking comes from published studies of this test, not from us. It is provisional, because our recordings are not the ones those studies used.",
   clearAtOrBelowDb: -5.55,
   referAboveDb: -3.8,
 };
