@@ -136,9 +136,9 @@ on the deployed case would be worth a lot.
 screen on a remote control.
 
 **What worked well:** the D-pad focus model in `react-native-tvos` is
-sound, and `hasTVPreferredFocus` does the right thing. Building for Fire
-OS is building for Android, which means the whole Android toolchain
-applies unchanged.
+sound, and `hasTVPreferredFocus` does the right thing on a fresh launch.
+Building for Fire OS is building for Android, which means the whole
+Android toolchain applies unchanged.
 
 **What needs work:** two things, and the first matters more than anything
 else in this document.
@@ -156,6 +156,12 @@ change what this product can do. Friction log entry 1.
 Second, there is no audio mixing on React Native, so playing speech
 against noise at a controlled ratio needs two players and accepts
 imprecise gaps. Friction log entry 2.
+
+Third, and found only when a machine drove the remote: after a screen
+comes back from another screen, focus lands where the row was last
+left, not on the button marked preferred. A person corrects without
+noticing; an automated driver, or a viewer told the app prefers one
+button, does not. Friction log entry 14.
 
 **Onboarding:** the samples are good and the accessibility documentation
 is better than most platforms'. The gap is between the documentation for
@@ -197,6 +203,83 @@ produces thousands of regions and an expression far longer than a command
 line will carry, and the failure does not look like a length problem.
 `-filter_script` solves it and is not mentioned anywhere near the filters
 that generate long expressions. Friction log entry 5.
+
+**Would we build with it again:** yes.
+
+---
+
+## AWS CDK and Amazon CloudFront
+
+**Used for:** the whole deployment as one stack: the S3 bucket behind a
+CloudFront distribution for the site, the DynamoDB table, the Lambda
+function URL for the MCP server, and the one value the server must be
+told, its own site's origin, passed from the stack that knows it rather
+than typed twice.
+
+**What worked well:** one `cdk deploy` from a clean checkout builds the
+site, uploads it, invalidates the cache and prints the two URLs. The
+`BucketDeployment` construct made the static export a one-liner.
+Function URLs meant no API Gateway to configure for an endpoint that
+only ever speaks one protocol.
+
+**What needs work:** esbuild bundling of an ESM Lambda needs a banner
+that recreates `require` before `@fastify/aws-lambda` will load, and
+the failure is a 502 with "Dynamic require of node:crypto" in the logs
+rather than anything at synth time. CloudFront invalidations take a
+minute or two to reach a viewer, which is fine in production and
+confusing in a demo loop, where a fresh deploy and a stale page look
+identical.
+
+**Onboarding:** good. The construct library's types are the
+documentation, and they were enough.
+
+**Would we build with it again:** yes.
+
+---
+
+## Android TV virtual device and Appstore Quality Central
+
+**Used for:** the Fire TV footage in the demo video. The release APK
+runs on an Android TV virtual device from the Android SDK, driven only
+by D-pad key events over ADB and captured in real time from the host.
+
+**What worked well:** the APK that installs on the virtual device is
+the APK a Fire TV would install, and the virtual device is honest about
+what it is. Reading the screen through `uiautomator` made a remote
+driven by a program reliable, which is how the focus finding above was
+made at all.
+
+**What needs work:** the rules ask for footage on a Fire TV device or
+the Fire TV simulator, and the simulator lives in Appstore Quality
+Central behind a developer sign-in and a browser session, so nothing in
+a build pipeline can reach it. A way to drive a Quality Central device
+from ADB, or a downloadable Fire TV system image for the standard
+emulator, would let the footage be made by the same script that makes
+the rest of the video, every time the app changes. As it is, that
+footage is a manual step, and the site says so.
+
+**Onboarding:** the emulator path is Android's and needs nothing from
+Amazon. Finding out whether Quality Central could be scripted took
+longer than it should have, because the answer is not written down.
+
+**Would we build with it again:** yes, and we would want the image.
+
+---
+
+## Playwright
+
+**Used for:** recording the website half of the demo video at 4K from a
+real browser, with the pointer, the address bar and the scroll driven
+by a script that reads the same beat list as the narration.
+
+**What worked well:** one program produces the same take every time,
+which is what let a dozen framing faults be fixed one still at a time.
+
+**What needs work:** the video recording starts a fraction of a second
+before the script's own clock, by a different amount on each run, and
+nothing reports the offset. Every cut was early until the recorder was
+made to clap a black square and find it in the file. A timestamp for
+the first recorded frame in the API would remove the workaround.
 
 **Would we build with it again:** yes.
 

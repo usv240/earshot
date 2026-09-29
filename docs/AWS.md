@@ -1,10 +1,12 @@
 # What this uses on AWS, and what it needs to be allowed to do
 
-Three services, each for one job, each replaceable. Nothing here is a
-managed pipeline that has to be stood up before anything works: the pure
-parts of this project run and are tested with no AWS account at all, and
-these are the steps that produce the two artefacts an account is needed
-for.
+Two groups. Three services produce the artefacts the product is built
+from, each for one job, each replaceable, and they are described first.
+Four more serve the deployed demo, as one stack, and they are at the
+end. Nothing here is a managed pipeline that has to be stood up before
+anything works: the pure parts of this project run and are tested with
+no AWS account at all, and these are the steps that produce the two
+artefacts an account is needed for.
 
 ## Amazon Transcribe: where the words are, never what they were
 
@@ -113,6 +115,41 @@ audio, once, and the result is cached on disk as the analysis file.
 
 Polly runs once for eight short words. Storage is a handful of megabytes
 that can be deleted as soon as the transcription job finishes.
+
+## The deployed demo: CloudFront, S3, DynamoDB, Lambda, through CDK
+
+One stack, `infra/bin/app.ts`, deployed with `npm run deploy` from the
+repository root. What each part does:
+
+- **Amazon S3 and Amazon CloudFront** serve the website. Next.js
+  exports the site as static files, `BucketDeployment` uploads them to
+  a private bucket, and a CloudFront distribution is the only thing
+  that can read it. The bucket is destroyed with the stack; there is
+  nothing in it that is not in the repository.
+- **AWS Lambda with a function URL** runs the MCP server, spec revision
+  2025-11-25 over Streamable HTTP, on Node 22 with 512 MB and a
+  thirty-second timeout. A function URL rather than API Gateway,
+  because the endpoint speaks one protocol and needs no stages or
+  routes. The stack passes the site's own origin to the function as
+  `EARSHOT_ALLOWED_ORIGINS`, which is the whole of the origin
+  allowlist: the value is known to the stack and typed nowhere else.
+- **Amazon DynamoDB** holds screen results for the agent's history and
+  comparison tools: a household name somebody chose, a date, a
+  threshold, whether the run settled, and its reference. Nothing that
+  identifies a person, and nothing about how anybody watches, which
+  never leaves the television. On-demand billing; destroyed with the
+  stack.
+- **AWS CDK** describes all of the above in TypeScript, and the
+  function's esbuild bundle carries a banner that recreates `require`
+  for one CommonJS dependency, because the alternative was a 502 at
+  runtime rather than an error at synth time.
+
+The demo endpoint has no authentication, which
+[SUBMISSION.md](SUBMISSION.md) states as a deliberate scope for a
+demonstration. `cdk deploy` needs the usual CloudFormation, S3, Lambda,
+DynamoDB, CloudFront and IAM permissions of the account that owns the
+stack; the minimum policy above is for producing the artefacts, not
+for deploying.
 
 ## What happens without an account
 
