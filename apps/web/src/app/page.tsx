@@ -1,10 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { Evidence } from "../components/Evidence";
+import { FireTvConnect } from "../components/FireTvConnect";
 import { HearingTest } from "../components/HearingTest";
 import { Info } from "../components/Info";
+import { McpProof } from "../components/McpProof";
+import { Nav } from "../components/Nav";
 import { Outcomes } from "../components/Outcomes";
-import { ThemeToggle } from "../components/ThemeToggle";
 import type { DigitManifest } from "../lib/audio";
 
 /**
@@ -44,29 +46,7 @@ export default function Home() {
         Skip to the check
       </a>
 
-      <header className="mx-auto flex max-w-[1120px] items-center justify-between px-5 pt-6 sm:px-8">
-        <a href="#top" className="display-sm text-2xl text-ink">
-          Earshot
-        </a>
-        <nav aria-label="Sections" className="flex items-center gap-1 sm:gap-2">
-          <a href="#how" className="ghost hidden px-3 py-2 text-sm text-muted hover:text-ink sm:inline">
-            How it works
-          </a>
-          <a href="#evidence" className="ghost hidden px-3 py-2 text-sm text-muted hover:text-ink sm:inline">
-            Evidence
-          </a>
-          <a href="#privacy" className="ghost hidden px-3 py-2 text-sm text-muted hover:text-ink sm:inline">
-            Privacy
-          </a>
-          <ThemeToggle />
-          <a
-            href="#test"
-            className="ml-2 rounded-[0.85rem] bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-ink)] transition-transform hover:-translate-y-px"
-          >
-            Take the check
-          </a>
-        </nav>
-      </header>
+      <Nav />
 
       <main id="top" className="mx-auto max-w-[1120px] px-5 pb-28 sm:px-8">
         {/* Hero: the claim on the left, the check on the right, above the fold on a laptop. */}
@@ -272,6 +252,52 @@ export default function Home() {
 
         <div className="rule my-20" />
 
+        {/*
+          The primary track, as steps a judge can follow with a Fire TV
+          Stick and a laptop. This did not exist: the site never said
+          how the app reaches a television.
+        */}
+        <section id="firetv" className="scroll-mt-24">
+          <p className="eyebrow">Fire TV</p>
+          <h2 className="display-sm mt-3 max-w-[22ch] text-3xl text-ink sm:text-4xl">
+            Put it on a television in ten minutes.
+          </h2>
+          <p className="mt-4 max-w-[66ch] leading-relaxed text-muted">
+            Four steps work today with a Fire TV Stick and a laptop on the same network. The
+            fifth, the Appstore listing, is the one a household would take and is the one
+            that waits on review. Each step says which it is.
+          </p>
+          <div className="mt-10">
+            <FireTvConnect />
+          </div>
+        </section>
+
+        <div className="rule my-20" />
+
+        {/*
+          The agent, shown working rather than described. The rules ask
+          for the MCP server in action; this holds a session from the
+          visitor's own browser.
+        */}
+        <section id="alexa" className="scroll-mt-24">
+          <p className="eyebrow">Alexa+</p>
+          <h2 className="display-sm mt-3 max-w-[22ch] text-3xl text-ink sm:text-4xl">
+            An agent that can explain the television and cannot report on it.
+          </h2>
+          <p className="mt-4 max-w-[66ch] leading-relaxed text-muted">
+            An MCP server, spec 2025-11-25 over Streamable HTTP, with five tools and an
+            Agent Skill. It explains what the television watches, records a check that was
+            taken, says whether anything has changed across checks, and prepares one page
+            for a doctor. It holds no viewing data, because that never leaves the set, and a
+            test walks every tool and fails if one ever returns a listening figure.
+          </p>
+          <div className="mt-10">
+            <McpProof />
+          </div>
+        </section>
+
+        <div className="rule my-20" />
+
         {/* Evidence: what we measured, what we read, what nobody has done yet. */}
         <section id="evidence" className="scroll-mt-24">
           <p className="eyebrow">Evidence</p>
@@ -286,6 +312,50 @@ export default function Home() {
           <div className="mt-10">
             <Evidence />
           </div>
+        </section>
+
+        <div className="rule my-20" />
+
+        {/* Developers: where each piece lives and how to run it. */}
+        <section id="developers" className="scroll-mt-24">
+          <p className="eyebrow">Developers</p>
+          <h2 className="display-sm mt-3 max-w-[22ch] text-3xl text-ink sm:text-4xl">
+            Everything here is a test you can run.
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            <div className="card min-w-0 p-6">
+              <p className="font-semibold text-ink">Run it</p>
+              <pre className="mt-3 overflow-x-auto rounded-lg border border-line bg-[var(--raised)] p-3 font-mono text-[12px] leading-relaxed text-ink">
+                {"npm install\nnpm test          # 211 tests, both runners\nnpm run validate  # regenerate every figure on this page\nnpm run web:dev"}
+              </pre>
+              <p className="mt-3 text-sm leading-relaxed text-muted">
+                No AWS account needed for any of that. The procedure, the wording, the
+                listening model and the signal processing are pure functions with tests.
+              </p>
+            </div>
+            <div className="card min-w-0 p-6">
+              <p className="font-semibold text-ink">Use the engine</p>
+              <pre className="mt-3 overflow-x-auto rounded-lg border border-line bg-[var(--raised)] p-3 font-mono text-[12px] leading-relaxed text-ink">
+                {"import { Screen, interpret } from \"digits-in-noise\";\n\nconst s = new Screen();\nwhile (!s.finished) {\n  const t = s.current(); // play t.digits at t.snrDb\n  s.submit(await typed());\n}\ninterpret(s.result());"}
+              </pre>
+              <p className="mt-3 text-sm leading-relaxed text-muted">
+                <code className="font-mono text-xs">digits-in-noise</code> is the open-source
+                deliverable: the adaptive screen as a dependency-free TypeScript library,
+                with a simulated listener so the procedure itself can be measured.
+              </p>
+            </div>
+          </div>
+          <p className="mt-6 text-sm leading-relaxed text-muted">
+            <a className="text-[var(--accent)] underline underline-offset-4" href="https://github.com/usv240/earshot">Repository</a>
+            {" · "}
+            <a className="text-[var(--accent)] underline underline-offset-4" href="https://github.com/usv240/earshot/blob/main/docs/METHOD.md">The procedure against the literature</a>
+            {" · "}
+            <a className="text-[var(--accent)] underline underline-offset-4" href="https://github.com/usv240/earshot/blob/main/docs/PRIOR_ART.md">Prior art</a>
+            {" · "}
+            <a className="text-[var(--accent)] underline underline-offset-4" href="https://github.com/usv240/earshot/blob/main/FRICTION_LOG.md">Friction log</a>
+            {" · "}
+            <a className="text-[var(--accent)] underline underline-offset-4" href="https://github.com/usv240/earshot/blob/main/skills/earshot/SKILL.md">Agent Skill</a>
+          </p>
         </section>
 
         <div className="rule my-20" />
