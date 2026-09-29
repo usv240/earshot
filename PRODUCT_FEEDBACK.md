@@ -157,6 +157,11 @@ Second, there is no audio mixing on React Native, so playing speech
 against noise at a controlled ratio needs two players and accepts
 imprecise gaps. Friction log entry 2.
 
+Nor can React Native read the set's own volume. Forty lines of Kotlin
+around `AudioManager` can, and this app now ships them, but a
+television framework whose one physical control is a volume key could
+carry that reading in the template.
+
 Third, and found only when a machine drove the remote: after a screen
 comes back from another screen, focus lands where the row was last
 left, not on the button marked preferred. A person corrects without

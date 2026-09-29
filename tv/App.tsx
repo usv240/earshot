@@ -229,6 +229,12 @@ export default function App(): React.JSX.Element {
             {decision.offer ? (
               <View>
                 <Text style={styles.heading}>Something worth a minute</Text>
+                {listening && (
+                  <Text style={styles.bigFigure}>
+                    {listening.driftDb >= 0 ? '+' : ''}
+                    {listening.driftDb.toFixed(1)} dB over {listening.spanDays} days
+                  </Text>
+                )}
                 <Text style={styles.body}>{explain(decision.reasons)}</Text>
                 <View style={styles.row}>
                   <TvButton
@@ -305,12 +311,9 @@ export default function App(): React.JSX.Element {
               )}
               {SAMPLE && (
                 <Text style={styles.warn}>
-                  The viewing history on this screen is sample data, and this
-                  app is not collecting the real thing. No app on Fire TV can:
-                  reading what another app is playing needs a permission Amazon
-                  does not grant to third parties, so only the platform could
-                  produce this signal. The check itself is real and the result
-                  below it is yours.
+                  The history above is sample data. No Fire TV app can read
+                  what another app plays; only the platform could produce this
+                  signal. The check is real and its result is yours.
                 </Text>
               )}
             </View>
@@ -383,9 +386,12 @@ export default function App(): React.JSX.Element {
           <View>
             <Text style={styles.heading}>{reading.headline}</Text>
             {result.valid ? (
-              <Text style={styles.figure}>
-                Speech reception threshold {result.srtDb.toFixed(1)} dB signal to noise
-              </Text>
+              <View>
+                <Text style={styles.bigFigure}>{result.srtDb.toFixed(1)} dB</Text>
+                <Text style={styles.footnote}>
+                  Signal to noise: your speech reception threshold
+                </Text>
+              </View>
             ) : (
               result.problems.map(problem => (
                 <Text key={problem} style={styles.body}>
@@ -410,13 +416,19 @@ export default function App(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   screen: {flex: 1, backgroundColor: COLOURS.bg},
-  page: {paddingHorizontal: '6%', paddingVertical: '4%'},
-  wordmark: {color: COLOURS.ink, fontSize: 26, fontWeight: '700', marginBottom: 28},
-  heading: {color: COLOURS.ink, fontSize: 44, fontWeight: '600', marginBottom: 18},
-  body: {color: COLOURS.muted, fontSize: 24, lineHeight: 36, maxWidth: 1100, marginBottom: 14},
-  figure: {color: COLOURS.ink, fontSize: 26, fontWeight: '600', marginVertical: 12},
-  footnote: {color: COLOURS.muted, fontSize: 18, marginTop: 10},
-  warn: {color: COLOURS.warn, fontSize: 18, lineHeight: 28, marginTop: 14, maxWidth: 1000},
+  page: {paddingHorizontal: '6%', paddingVertical: '3%'},
+  // Ten-foot sizes: read from a sofa, one idea per line, the number the
+  // biggest thing on the screen. The canvas is 960 by 540 dp on a 1080p
+  // set, and the button row has to sit above the fold: a first pass at
+  // larger type pushed it off, and the remote's first press went to the
+  // page rather than a button.
+  wordmark: {color: COLOURS.ink, fontSize: 26, fontWeight: '700', marginBottom: 18},
+  heading: {color: COLOURS.ink, fontSize: 46, fontWeight: '600', marginBottom: 10},
+  bigFigure: {color: COLOURS.ink, fontSize: 54, fontWeight: '700', marginBottom: 10},
+  body: {color: COLOURS.muted, fontSize: 24, lineHeight: 34, maxWidth: 1180, marginBottom: 12},
+  figure: {color: COLOURS.ink, fontSize: 30, fontWeight: '600', marginVertical: 12},
+  footnote: {color: COLOURS.muted, fontSize: 22, marginTop: 6},
+  warn: {color: COLOURS.warn, fontSize: 21, lineHeight: 32, marginTop: 14, maxWidth: 1100},
   row: {flexDirection: 'row', gap: 16, marginTop: 22, flexWrap: 'wrap'},
   panel: {
     marginTop: 40,
@@ -426,8 +438,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLOURS.line,
   },
-  panelTitle: {color: COLOURS.ink, fontSize: 22, fontWeight: '600', marginBottom: 12},
-  panelBody: {color: COLOURS.muted, fontSize: 20, lineHeight: 30, maxWidth: 1000},
+  panelTitle: {color: COLOURS.ink, fontSize: 24, fontWeight: '600', marginBottom: 12},
+  panelBody: {color: COLOURS.muted, fontSize: 22, lineHeight: 33, maxWidth: 1100},
   slots: {flexDirection: 'row', gap: 18, marginVertical: 26},
   slot: {
     width: 104,
@@ -441,9 +453,12 @@ const styles = StyleSheet.create({
   },
   slotText: {color: COLOURS.ink, fontSize: 52, fontWeight: '600'},
   keypad: {flexDirection: 'row', flexWrap: 'wrap', gap: 14, maxWidth: 900},
+  // Three buttons on one line at 960 dp wide, with the longest label the
+  // app has. At 28 dp the row wrapped and the third button fell off the
+  // bottom of the screen.
   button: {
-    paddingHorizontal: 30,
-    paddingVertical: 18,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: COLOURS.line,
@@ -453,5 +468,5 @@ const styles = StyleSheet.create({
   },
   buttonFocused: {borderColor: COLOURS.primary, backgroundColor: COLOURS.primary},
   buttonDisabled: {opacity: 0.35},
-  buttonText: {color: COLOURS.muted, fontSize: 26, fontWeight: '600'},
+  buttonText: {color: COLOURS.muted, fontSize: 24, fontWeight: '600'},
 });

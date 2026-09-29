@@ -7,6 +7,12 @@ import {
   type ProgrammeAudio,
   type Session,
 } from '@earshot/core';
+import {
+  effectiveVolume,
+  readSetVolume,
+  SYSTEM_VOLUME_AVAILABLE,
+  type SetVolume,
+} from './volume';
 
 /**
  * Watching something, and measuring the listening while it happens.
@@ -18,12 +24,14 @@ import {
  * nowhere else. The volume is not a guess either, because this player
  * owns it.
  *
- * That second point is the honest limitation and the reason the volume
- * control is on screen. A React Native app cannot read the system
- * volume that the remote's own volume keys set; that needs a native
- * module around AudioManager. So the player has its own level, the
- * viewer sets it with left and right, and the app knows exactly what
- * they chose. For playback the app owns, that is the whole measurement.
+ * The volume has two parts and the app knows both. This player has its
+ * own gain, set with left and right, because React Native cannot read
+ * the level a remote sets. And the set's own volume is read once a
+ * second through a forty-line native module around AudioManager, so on
+ * a television whose volume the remote drives, turning the set up is
+ * seen here as turning the set up. What the model gets is the product
+ * of the two, which is what the viewer hears. On a stick the second
+ * part is fixed and the first is the whole measurement, as before.
  *
  * For playback the app does not own, nothing here is possible at all,
  * which is friction log entry 12 and the reason the history on the home
@@ -66,6 +74,11 @@ export function Watch({
   const position = useRef(0);
 
   const [volume, setVolume] = useState(0.5);
+  const [set, setSet] = useState<SetVolume | null>(null);
+  // Mirrors of the two volumes for the once-a-second poll, which runs
+  // from the player's callback and would otherwise read stale state.
+  const volumeRef = useRef(0.5);
+  const setRef = useRef<SetVolume | null>(null);
   const [paused, setPaused] = useState(false);
   const [captions, setCaptions] = useState(false);
   const [level, setLevel] = useState<number | null>(null);
@@ -87,23 +100,46 @@ export function Watch({
   const adjust = useCallback((by: number) => {
     setVolume(current => {
       const next = Math.min(1, Math.max(0.05, Number((current + by).toFixed(2))));
-      recorder.current?.volumeChanged(next);
+      volumeRef.current = next;
+      recorder.current?.volumeChanged(effectiveVolume(next, setRef.current));
       return next;
     });
   }, []);
+
+  /*
+    The set's volume, whenever it is asked for. A change is a volume
+    change to the model, exactly as a press on this player's buttons is.
+    Read once on mount, so the panel shows the true level before the
+    film's first frame rather than a figure that drops when the set is
+    first heard from, and then once a second from the player's tick.
+  */
+  const syncSet = useCallback(() => {
+    void readSetVolume().then(read => {
+      if (!read || read.index === setRef.current?.index) {
+        return;
+      }
+      setRef.current = read;
+      setSet(read);
+      recorder.current?.volumeChanged(effectiveVolume(volumeRef.current, read));
+    });
+  }, []);
+
+  useEffect(() => {
+    syncSet();
+  }, [syncSet]);
 
   useEffect(() => {
     setLevel(
       listeningLevelDb({
         startedAt: '',
         programme: PROGRAMME,
-        volume,
+        volume: effectiveVolume(volume, set),
         watchedSeconds: 0,
         captionsOn: false,
         rehearSeeks: 0,
       }),
     );
-  }, [volume]);
+  }, [volume, set]);
 
   /*
     The remote, rather than only the on-screen buttons. Left and right
@@ -154,6 +190,7 @@ export function Watch({
           position.current = currentTime;
           recorder.current?.tick(currentTime);
           setWatched(recorder.current?.seconds ?? 0);
+          syncSet();
         }}
         onEnd={finish}
       />
@@ -170,7 +207,15 @@ export function Watch({
 
         <View style={styles.row}>
           <Text style={styles.figureLabel}>Volume</Text>
-          <Text style={styles.figure}>{Math.round(volume * 100)}%</Text>
+          <Text style={styles.figure}>{Math.round(effectiveVolume(volume, set) * 100)}%</Text>
+          {set && (
+            <>
+              <Text style={styles.figureLabel}>Set at</Text>
+              <Text style={styles.figure}>
+                {set.index} of {set.max}
+              </Text>
+            </>
+          )}
           <Text style={styles.figureLabel}>Listening level</Text>
           <Text style={styles.figure}>
             {level === null ? '-' : `${level.toFixed(1)} dB`}
@@ -182,9 +227,11 @@ export function Watch({
         </View>
 
         <Text style={styles.hint}>
-          Left and right change the volume. Rewind goes back eight seconds,
-          which is the jump the model counts. This player owns its own level
-          because an app cannot read the one the remote sets.
+          Left and right change this player's level. Rewind goes back eight
+          seconds, the jump the model counts.
+          {SYSTEM_VOLUME_AVAILABLE
+            ? " The set's own volume is read from the set, once a second."
+            : ' This build cannot read the set, so this player owns the level.'}
         </Text>
 
         <View style={styles.buttons}>

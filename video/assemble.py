@@ -52,7 +52,7 @@ OUT = Path(__file__).parent / "build"
 
 # Seconds a beat may hold after its line ends. This removes settled
 # screen only.
-SLACK = 0.7
+SLACK = 0.5
 TAIL_KEEP = 1.5      # seconds held after the very last word
 FPS = 30
 CEILING = 180.0

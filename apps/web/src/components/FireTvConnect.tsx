@@ -38,11 +38,11 @@ const STEPS: Step[] = [
     title: "Install it from a laptop on the same network",
     body: "Two commands. The first connects to the set over the network; the second installs the app. Fire TV asks once whether to allow the laptop.",
     status: "live",
-    command: "adb connect <fire-tv-ip>:5555\nadb install earshot-tv-v0.1.0.apk",
+    command: "adb connect <fire-tv-ip>:5555\nadb install earshot-tv-v0.1.1.apk",
   },
   {
     title: "Open it and take the check with the remote",
-    body: "Earshot appears under Your Apps. The home screen says what a television could watch for, a Watch button plays a film while the listening level updates live, and Check it runs the digits-in-noise screen entirely on the D-pad. Sittings are kept on the set and never uploaded.",
+    body: "Earshot appears under Your Apps. The home screen says what a television could watch for, a Watch button plays a film while the listening level updates live, reading the set's own volume once a second on televisions whose volume the remote drives, and Check it runs the digits-in-noise screen entirely on the D-pad. Sittings are kept on the set and never uploaded.",
     status: "live",
   },
   {

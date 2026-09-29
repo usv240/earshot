@@ -246,6 +246,26 @@ export default function Home() {
                 2024 Lancet standing Commission puts hearing loss level with high cholesterol
                 as the largest modifiable risk factor for dementia from midlife.
               </p>
+              <p className="mt-4 leading-relaxed text-muted">
+                Who it is for: by the{" "}
+                <a
+                  className="text-[var(--accent)] underline underline-offset-4"
+                  href="https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing"
+                >
+                  NIDCD&apos;s count
+                </a>{" "}
+                from national survey data, 22 percent of adults aged 65 to 74 and 55 percent of
+                those 75 and older have disabling hearing loss, and of people over 70 who have
+                it, fewer than one in three has ever used a hearing aid. The television is in
+                nearly every one of those homes, and it is where the difficulty shows first.
+              </p>
+              <p className="mt-4 leading-relaxed text-muted">
+                What a pilot looks like: one audiology clinic. Patients due for a routine
+                hearing check take this screen on their own television the week before, and
+                the clinic compares the threshold it read against the speech-in-noise test run
+                in the booth. Two numbers per person, no diagnosis from us, and the first
+                evidence about this interface rather than about the method.
+              </p>
             </div>
           </div>
         </section>

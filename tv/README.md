@@ -8,7 +8,7 @@ past a programme a household is listening.
 
 ```
 adb connect <your Fire TV ip>:5555
-adb install earshot-tv-v0.1.0.apk
+adb install earshot-tv-v0.1.1.apk
 ```
 
 The APK contains `arm64-v8a`, `armeabi-v7a` and `x86_64`, so it installs

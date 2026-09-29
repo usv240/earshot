@@ -326,6 +326,33 @@ def check_trials(r: Recorder):
     r.hold_beat()
 
 
+def check_refused(r: Recorder):
+    """Finish the run off camera, then show what a refusal looks like.
+
+    The trials beat answered a few rounds and cut away. The run is still
+    going, so before this beat's clock starts the recorder keeps
+    answering, first key every time, until the result appears. Answered
+    without listening, the run is refused, and the screen that says so
+    is the shot: the wording is tested to never guess.
+    """
+    for _ in range(60):
+        if r.page.locator("text=Your result").count() > 0:
+            break
+        try:
+            r.page.wait_for_selector("text=What did you hear?", timeout=8_000)
+        except Exception:
+            continue
+        for _ in range(3):
+            r.click(KEY)
+            r.page.wait_for_timeout(260)
+    r.page.wait_for_selector("text=Your result", timeout=20_000)
+    r.park()
+    yield
+    r.on_phrase("says why")
+    r.point("#test li")
+    r.hold_beat()
+
+
 def outcomes(r: Recorder):
     r.page.goto(SITE + "#outcomes", wait_until="networkidle")
     r.page.wait_for_timeout(600)
@@ -385,7 +412,7 @@ def close(r: Recorder):
     r.hold_beat()
 
 
-ACTIONS = {f.__name__: f for f in (hero, stats, check_start, check_trials, outcomes, evidence, baseline, agent, honest, close)}
+ACTIONS = {f.__name__: f for f in (hero, stats, check_start, check_trials, check_refused, outcomes, evidence, baseline, agent, honest, close)}
 
 
 def assert_full_frame(path: Path) -> None:

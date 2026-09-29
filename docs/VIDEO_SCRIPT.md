@@ -40,55 +40,61 @@ Rounds answered on the keypad in real time, no cuts inside a round.
 
 > It gets harder while you're right and easier when you're wrong, until it finds the ratio where you get half of them. That ratio is the measurement. Because it's a ratio and not a level, it works on a television nobody calibrated. That's why the World Health Organization put this test, and not tones, into a phone app.
 
-**1:06, outcomes, the website, in a real browser**
+**1:06, refused, the website, in a real browser**
+
+The run answered without listening reaches its end, and the screen says why it cannot be scored.
+
+> And when a run cannot be scored, it says so, and says why, instead of guessing a number.
+
+**1:13, outcomes, the website, in a real browser**
 
 The three cards: the whole vocabulary of a result.
 
 > Whatever it finds, these are the only three things it can say. It never names a condition. There's a test in the repository that fails the build if any result ever does.
 
-**1:19, measured, the website, in a real browser**
+**1:26, measured, the website, in a real browser**
 
 The evidence section: measured here, read from the literature, nobody has done yet.
 
 > A hearing screen can't be checked against real listeners, because each one gives you a single number with nothing to compare it to. So this one is run against simulated listeners whose thresholds we chose. Two thousand runs. It reads a known threshold with a bias of four hundredths of a decibel, and repeats itself to three quarters of one. Published figures for this test are between point seven and one point two.
 
-**1:48, baseline, the website, in a real browser**
+**1:55, baseline, the website, in a real browser**
 
 Volume-only against Earshot on the same two hundred households.
 
 > And against the obvious alternative, which is just tracking the volume. On two hundred households whose ears never changed, but who turned up a quieter mix, volume-only accuses every one of them. Earshot accuses none.
 
-**2:02, tv-home, Fire TV, from the device**
+**2:09, tv-home, Fire TV, from the device**
 
 The Fire TV home screen, then a film playing with the listening level live beside it.
 
 > On Fire TV, the app does the half a web page can't. It plays a film whose dialogue loudness was measured, and watches the level you settle on.
 
-**2:13, tv-check, Fire TV, from the device**
+**2:20, tv-check, Fire TV, from the device**
 
 The check on the D-pad: the volume step, Begin, a round or two.
 
 > And the check runs entirely on the remote. Sittings stay on the set. There is no microphone, and no camera.
 
-**2:23, agent, the website, in a real browser**
+**2:29, agent, the website, in a real browser**
 
 A session held against the deployed MCP server from the page, every request timed, then the server's own answer.
 
 > For Alexa Plus, an MCP server, held to a real session from this page. It can explain what the television watches, and it cannot report how anybody watches, because that never leaves the device.
 
-**2:37, honest, the website, in a real browser**
+**2:43, honest, the website, in a real browser**
 
 The card that says no person has taken this test.
 
 > What nobody has done yet is on the front page, in the same size as the numbers. No person has taken this test. That's stated, not hidden.
 
-**2:48, close, the website, in a real browser**
+**2:54, close, the website, in a real browser**
 
 What it does not do.
 
 > Your television can already help you hear. It just doesn't know you can't.
 
-Estimated 2:53 of a 3:00 ceiling. The estimate is words at
+Estimated 2:59 of a 3:00 ceiling. The estimate is words at
 150 a minute plus holds; the real narration decides the
 final cut, and `python video/beats.py` exits non-zero if the plan is
 over before a frame is recorded.

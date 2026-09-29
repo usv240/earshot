@@ -70,6 +70,20 @@ where audiometry is unavailable".
 They collected it by asking patients in a clinic. The television knows
 the real number every night and has never been asked.
 
+Who it is for, by the NIDCD's count from national survey data
+([Quick Statistics About Hearing](https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing),
+updated September 2024): 22 percent of adults aged 65 to 74 and 55
+percent of those 75 and older have disabling hearing loss, and of
+people over 70 who have it, fewer than one in three has ever used a
+hearing aid. The television is in nearly every one of those homes.
+
+What a pilot looks like: one audiology clinic. Patients due for a
+routine hearing check take this screen on their own television the week
+before, and the clinic compares the threshold it read against the
+speech-in-noise test run in the booth. Two numbers per person, no
+diagnosis from us, and the first evidence about this interface rather
+than about the method.
+
 ## Tracks and mini challenges
 
 - **Primary track: Fire TV.** A React Native app on Fire OS: the passive
@@ -206,10 +220,16 @@ here:**
   they went back eight seconds. Those sittings appear on the home screen
   alongside the sample ones and are labelled as the real ones.
 
-  The player owns its own volume control, because a React Native app
-  cannot read the system level the remote's volume keys set without a
-  native module. For playback the app owns, that is the entire
-  measurement and nothing is estimated. Sittings are kept on the
+  The volume has two parts and the app knows both. The player has its
+  own gain, because React Native cannot read the level a remote sets;
+  and the set's own volume is read once a second through a forty-line
+  native module around `AudioManager`, so on a television whose volume
+  the remote drives, turning the set up is recorded as turning the set
+  up. The model gets the product of the two, which is what the viewer
+  hears. On a stick the set's part is fixed, because the remote's volume
+  keys go to the television over HDMI and the stick is not told the
+  result. For playback the app owns, that is the entire measurement and
+  nothing is estimated. Sittings are kept on the
   television in `react-native-mmkv` and survive the app closing, which
   is what lets a history accumulate over the months the model needs.
   Nothing about them is uploaded anywhere.
@@ -229,6 +249,8 @@ here:**
   instructions.
 - **Live site:** https://d29nbz7seeunuf.cloudfront.net
 - **Live MCP endpoint:** https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp
+- **Fire TV app:** https://github.com/usv240/earshot/releases/tag/v0.1.1, the
+  APK for arm64, armeabi-v7a and x86_64, with install steps in its notes.
 - **Demo video:** add when published.
 - **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), fourteen entries,
   two of them against us.

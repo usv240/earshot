@@ -199,15 +199,21 @@ def focus_on(label: str, width: int = 6) -> None:
     """
     if label in focused_text():
         return
-    for _ in range(width):
-        key("DPAD_LEFT")
-        hold(0.45)
-    for _ in range(width):
-        if label in focused_text():
-            return
-        key("DPAD_RIGHT")
-        hold(0.45)
-    raise SystemExit(f"could not put focus on {label!r}; it is not in the focused row")
+    # Two rows at most: a wide screen wraps a long row, and a real set
+    # with a different width may wrap where the emulator did not.
+    for row in range(2):
+        for _ in range(width):
+            key("DPAD_LEFT")
+            hold(0.45)
+        for _ in range(width):
+            if label in focused_text():
+                return
+            key("DPAD_RIGHT")
+            hold(0.45)
+        if row == 0:
+            key("DPAD_DOWN")
+            hold(0.45)
+    raise SystemExit(f"could not put focus on {label!r}; it is not in the focused rows")
 
 
 def wait_for(text: str, timeout: float) -> None:
@@ -217,6 +223,32 @@ def wait_for(text: str, timeout: float) -> None:
             return
         time.sleep(0.4)
     raise SystemExit(f"the screen never showed {text!r} within {timeout:.0f}s")
+
+
+def set_volume(target: int) -> None:
+    """Put the set's own volume at a known level before the take.
+
+    The app now reads that level and shows it, so the take should start
+    from somewhere a household would have it rather than wherever the
+    device booted. Read with the media_session shell command and step
+    with the volume keys, because setting it directly is refused on the
+    virtual device.
+    """
+    def current() -> int | None:
+        out = adb("shell", "cmd", "media_session", "volume", "--stream", "3", "--get", check=False, timeout=30)
+        m = re.search(r"volume is (\d+)", out)
+        return int(m.group(1)) if m else None
+    now = current()
+    if now is None:
+        print("  set volume: not readable here, leaving it")
+        return
+    for _ in range(20):
+        if now == target:
+            break
+        key("KEYCODE_VOLUME_UP" if now < target else "KEYCODE_VOLUME_DOWN")
+        hold(0.4)
+        now = current() or now
+    print(f"  set volume: {now} of 15")
 
 
 def pick_avd() -> str:
@@ -244,6 +276,32 @@ def pick_avd() -> str:
         "no Android TV virtual device. Make one in Android Studio's Device "
         "Manager (category TV, 1080p) or set EARSHOT_AVD."
     )
+
+
+def raise_window(title: str) -> None:
+    """Un-minimise the emulator window and bring it forward.
+
+    gdigrab reads the window off the desktop, so a minimised window
+    gives it nothing and the take fails before its first frame. A
+    person tidying their desktop while the recorder waited cost one
+    take this way; now the recorder puts the window back itself.
+    """
+    script = (
+        "Add-Type @'\n"
+        "using System; using System.Runtime.InteropServices;\n"
+        "public class W { [DllImport(\"user32.dll\")] public static extern bool IsIconic(IntPtr h);"
+        " [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr h, int n);"
+        " [DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr h); }\n"
+        "'@\n"
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -eq '{title}' }} | Select-Object -First 1\n"
+        "if ($p) { if ([W]::IsIconic($p.MainWindowHandle)) { [W]::ShowWindow($p.MainWindowHandle, 9) | Out-Null };"
+        " [W]::SetForegroundWindow($p.MainWindowHandle) | Out-Null; 'raised' } else { 'absent' }"
+    )
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", script],
+                         capture_output=True, text=True, timeout=60).stdout.strip()
+    if out != "raised":
+        raise SystemExit(f"no window titled {title!r} to capture")
+    time.sleep(1.0)
 
 
 def booted() -> bool:
@@ -397,6 +455,7 @@ def main() -> int:
         "android.intent.category.LEANBACK_LAUNCHER", "1")
     wait_for("Earshot", 40)
     time.sleep(2.5)
+    set_volume(8)
     offered = on_screen(OFFER)
     print("  home screen: " + ("the check is being offered" if offered else "nothing to report"))
 
@@ -407,6 +466,7 @@ def main() -> int:
         print(f"  capturing the Fire TV's own screen, timed by this clock, at {FPS}fps")
     else:
         window = f"Android Emulator - {avd}:5554"
+        raise_window(window)
         rec = subprocess.Popen(
             ["ffmpeg", "-y", "-v", "error",
              "-f", "gdigrab", "-framerate", str(FPS), "-i", f"title={window}",
@@ -449,12 +509,15 @@ def main() -> int:
         # is seen on the way out, and hold on the home screen with the
         # sitting it just recorded.
         exit_cost = 3 * 0.45 + 0.2 + 1.4
-        # One step louder, on the button focus starts on, so the volume
-        # and the listening level are seen to change rather than
-        # described.
+        # Two presses of the remote's own volume key, so the set's volume,
+        # the volume figure and the listening level are all seen to move
+        # together rather than described. The app reads the set once a
+        # second; the panel catches up on the next tick.
         hold(2.0)
-        key("DPAD_CENTER")
-        hold(max(budget - 2.0 - exit_cost, 3.0))
+        key("KEYCODE_VOLUME_UP")
+        hold(0.5)
+        key("KEYCODE_VOLUME_UP")
+        hold(max(budget - 2.5 - exit_cost, 3.0))
         for _ in range(3):
             key("DPAD_RIGHT")
             hold(0.45)

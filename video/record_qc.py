@@ -154,7 +154,7 @@ def main() -> int:
         print("  1. Sign in to the Developer Console.", flush=True)
         print("  2. Tools and Services, Appstore Quality Central, Virtual Devices, Get Started; accept the agreement.", flush=True)
         print("  3. Connect a Fire TV device and sign in on it with your Amazon account.", flush=True)
-        print("  4. Dashboard tab, App Upload: upload tv/android/app/build/outputs/apk/release/earshot-tv-v0.1.0.apk and install it.", flush=True)
+        print("  4. Dashboard tab, App Upload: upload tv/android/app/build/outputs/apk/release/earshot-tv-v0.1.1.apk and install it.", flush=True)
         print("  5. Launch Earshot on the device so its home screen is on the stream, then say ready.", flush=True)
         print("waiting for build/qc.go ...", flush=True)
         while not GO.exists():

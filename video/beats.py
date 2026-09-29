@@ -122,6 +122,15 @@ BEATS: list[Beat] = [
         ),
     ),
     Beat(
+        key="refused",
+        action="check_refused",
+        shows="The run answered without listening reaches its end, and the screen says why it cannot be scored.",
+        say=(
+            "And when a run cannot be scored, it says so, and says why, "
+            "instead of guessing a number."
+        ),
+    ),
+    Beat(
         key="outcomes",
         shows="The three cards: the whole vocabulary of a result.",
         action="outcomes",
@@ -168,7 +177,7 @@ BEATS: list[Beat] = [
         key="tv-check",
         shows="The check on the D-pad: the volume step, Begin, a round or two.",
         action="tv_check",
-        min_hold=10,
+        min_hold=9,
         say=(
             "And the check runs entirely on the remote. "
             "Sittings stay on the set. There is no microphone, and no camera."
