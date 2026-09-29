@@ -1,6 +1,15 @@
 """Capture the Fire TV beats from the device itself.
 
-    python record_tv.py
+    python record_tv.py                    # an Android TV virtual device
+    python record_tv.py --device <ip>      # a real Fire TV on the network
+
+With --device the footage is an actual Fire TV: the set's own screen,
+read by `screenrecord` on the device and given wall-clock timestamps
+as the frames arrive, so a held screen is held for as long as it was
+held. ADB debugging must be on (Settings, My Fire TV, Developer
+Options) and the laptop on the same network. Everything else, the
+install, the reading of the screen, the walk of the remote, is the
+same code, because to ADB a Fire TV is the device it is.
 
 The Fire TV track rule is specific: the demo video has to show the
 project *running* on a Fire TV device or simulator. So this footage is
@@ -82,6 +91,8 @@ import subprocess
 import time
 from pathlib import Path
 from xml.etree import ElementTree
+
+import sys
 
 from beats import BEATS
 
@@ -296,6 +307,71 @@ def probe_size(path: Path) -> tuple[int, int]:
     return w, h
 
 
+class DeviceCapture:
+    """The set's own screen, recorded on the set, then made constant-rate.
+
+    `screenrecord` writes a frame only when the picture changes, and the
+    file it writes on the device carries the true time of each frame,
+    so a held screen keeps its length. What it loses is the tail: after
+    the last change there are no frames, so the take ends with a press
+    that moves the focus ring and the file runs to the end. Re-encoding
+    at a constant rate afterwards fills every held stretch with the
+    frame that stood there. Real time by construction, the same promise
+    gdigrab makes for the emulator window, kept a different way.
+    """
+
+    REMOTE = "/sdcard/earshot-take.mp4"
+
+    def __init__(self, dest: Path):
+        self.dest = dest
+        adb("shell", "rm", "-f", self.REMOTE, check=False)
+        self.proc = subprocess.Popen(
+            [str(ADB), "shell", "screenrecord", "--time-limit=175",
+             "--bit-rate=12000000", self.REMOTE],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+
+    def poll(self):
+        return self.proc.poll()
+
+    def kill(self) -> None:
+        adb("shell", "pkill", "-2", "screenrecord", check=False)
+        self.proc.kill()
+
+    def communicate(self, input: bytes = b"", timeout: float = 40) -> None:
+        # SIGINT is screenrecord's clean stop: it writes the index and
+        # exits. Then the file comes over and is made constant-rate.
+        adb("shell", "pkill", "-2", "screenrecord", check=False)
+        try:
+            self.proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            self.proc.kill()
+        time.sleep(1.0)
+        raw = self.dest.with_name("tv-device-raw.mp4")
+        adb("pull", self.REMOTE, str(raw), timeout=600)
+        subprocess.run(
+            ["ffmpeg", "-y", "-v", "error", "-i", str(raw),
+             "-r", str(FPS), "-fps_mode", "cfr",
+             "-c:v", "libx264", "-crf", "18", "-preset", "veryfast",
+             "-pix_fmt", "yuv420p", "-an", str(self.dest)],
+            check=True,
+        )
+
+
+def connect_device(address: str) -> None:
+    if ":" not in address:
+        address = f"{address}:5555"
+    out = adb("connect", address, check=False, timeout=30)
+    if "connected" not in out:
+        raise SystemExit(f"could not reach the Fire TV at {address}: {out or 'no answer'}. "
+                         "Is ADB debugging on, and are both on the same network?")
+    if not booted():
+        raise SystemExit("the Fire TV answered but is not ready")
+    model = adb("shell", "getprop", "ro.product.model", check=False)
+    fire = adb("shell", "getprop", "ro.build.version.name", check=False)
+    print(f"  Fire TV {model}, Fire OS {fire or 'unknown'} at {address}")
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     manifest = OUT / "narration.json"
@@ -304,8 +380,14 @@ def main() -> int:
     narration = {n["key"]: n["seconds"] for n in json.loads(manifest.read_text(encoding="utf8"))}
 
     print("Fire TV capture")
-    avd = pick_avd()
-    ensure_device(avd)
+    device = None
+    if "--device" in sys.argv:
+        device = sys.argv[sys.argv.index("--device") + 1]
+        connect_device(device)
+        avd = None
+    else:
+        avd = pick_avd()
+        ensure_device(avd)
     install()
 
     # Launch the way a Fire TV home screen does, through the leanback
@@ -320,20 +402,24 @@ def main() -> int:
 
     dest = OUT / "tv.mp4"
     dest.unlink(missing_ok=True)
-    window = f"Android Emulator - {avd}:5554"
-    rec = subprocess.Popen(
-        ["ffmpeg", "-y", "-v", "error",
-         "-f", "gdigrab", "-framerate", str(FPS), "-i", f"title={window}",
-         "-c:v", "libx264", "-crf", "18", "-preset", "veryfast",
-         "-pix_fmt", "yuv420p", "-an", str(dest)],
-        stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-    )
-    print(f"  capturing the emulator window at {FPS}fps")
-    time.sleep(PREROLL)  # let ffmpeg open the window and settle
+    if device:
+        rec = DeviceCapture(dest)
+        print(f"  capturing the Fire TV's own screen, timed by this clock, at {FPS}fps")
+    else:
+        window = f"Android Emulator - {avd}:5554"
+        rec = subprocess.Popen(
+            ["ffmpeg", "-y", "-v", "error",
+             "-f", "gdigrab", "-framerate", str(FPS), "-i", f"title={window}",
+             "-c:v", "libx264", "-crf", "18", "-preset", "veryfast",
+             "-pix_fmt", "yuv420p", "-an", str(dest)],
+            stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+        )
+        print(f"  capturing the emulator window at {FPS}fps")
+    time.sleep(PREROLL)  # let the capture open and settle
     if rec.poll() is not None:
         raise SystemExit(
-            "ffmpeg could not capture the emulator window. Is it running, "
-            f"and is its title exactly {window!r}?"
+            "the capture did not start. For the emulator: is it running, and is its "
+            "window title exactly the AVD name? For a Fire TV: does screenrecord run on it?"
         )
     # A take that fails part way must still let go of the file, or the
     # next take cannot open it: the capture process outlives a raised
@@ -401,6 +487,11 @@ def main() -> int:
                 hold(0.35)
         hold(check_end - time.monotonic())
         hold(1.5)  # a tail, so the last cut is not on the final syllable
+        if device:
+            # One more press, after every cut has ended, so the set's
+            # recorder writes a last frame and the file runs to here.
+            key("DPAD_RIGHT")
+            hold(0.6)
 
     except BaseException:
         rec.kill()
@@ -441,6 +532,7 @@ def main() -> int:
     width, height = probe_size(dest)
     (OUT / "tv-timings.json").write_text(
         json.dumps({"video": round(captured, 3), "width": width, "height": height,
+                    "device": ("Fire TV over ADB" if device else "Android TV virtual device"),
                     "beats": marks}, indent=1),
         encoding="utf8",
     )

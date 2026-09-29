@@ -5,7 +5,9 @@ Two cameras, one timeline, three minutes.
 ```
 python beats.py          # check the script fits the ceiling first
 python narrate.py        # Polly, one clip per beat
-python record_tv.py      # the Fire TV beats, from the device
+python record_tv.py      # the Fire TV beats, from an Android TV virtual device
+python record_tv.py --device <ip>   # the same, from a real Fire TV over ADB
+python record_qc.py      # the same, on an Amazon-hosted Fire TV in the browser
 python record.py         # the web beats, from a real browser
 python assemble.py       # cut both, lay the narration, normalise
 python subtitle.py       # burn the captions
@@ -30,12 +32,22 @@ window is, at most the 1920x1080 the virtual device renders, and
 `assemble.py` brings those pieces up to the frame with one plain scale.
 Nothing else is resized, and nothing is ever sped up.
 
-The television footage today is an Android TV virtual device from the
-Android SDK, because Amazon's Fire TV simulator sits behind a developer
-sign-in that only a person can do. When that footage exists it drops
-into the same slot through the same `tv-timings.json`. `record_tv.py`
-says on its first page which device it is recording, and so does the
-site.
+Three ways to make the television footage, all writing the same
+`tv.mp4` and `tv-timings.json`, so `assemble.py` never knows which:
+
+- `record_tv.py` on an Android TV virtual device, which is what the
+  current cut uses.
+- `record_tv.py --device <ip>` on a real Fire TV with ADB debugging on,
+  recorded by the set itself and made constant-rate afterwards. The
+  strongest reading of the track rule.
+- `record_qc.py` on an Amazon-hosted Fire TV in Appstore Quality
+  Central, driven through the browser after a person signs in. Written
+  against the documented page and not yet run: on the day it was
+  written the device pool showed 0 usable of 20, which is a support
+  case. Its first run will find something to fix.
+
+Each recorder writes which device it was into `tv-timings.json`, and
+the site says which one the published video used.
 
 ## Three traps, all of which cost a take
 
