@@ -230,7 +230,7 @@ here:**
 - **Live site:** https://d29nbz7seeunuf.cloudfront.net
 - **Live MCP endpoint:** https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp
 - **Demo video:** add when published.
-- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), thirteen entries,
+- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), fourteen entries,
   two of them against us.
 - **Product feedback:** [PRODUCT_FEEDBACK.md](../PRODUCT_FEEDBACK.md),
   every tool, API and SDK used.
@@ -243,7 +243,7 @@ here:**
 
 ```
 npm install
-npm test          # 211 tests
+npm test          # 214 tests
 npm run validate
 npm run web:dev
 ```

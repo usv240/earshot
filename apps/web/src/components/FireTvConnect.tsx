@@ -47,7 +47,7 @@ const STEPS: Step[] = [
   },
   {
     title: "Find it in the Amazon Appstore",
-    body: "This is the step a household would actually take, and it is the one that waits on Appstore review. Everything above is what review would install. Until then, sideloading is the honest route and is what the demo footage shows.",
+    body: "This is the step a household would actually take, and it is the one that waits on Appstore review. Everything above is what review would install. Until then, sideloading is the honest route, and the demo footage is this APK sideloaded onto an Android TV virtual device from the Android SDK, driven only by the D-pad, because Amazon's own Fire TV simulator sits behind a developer sign-in.",
     status: "waits",
   },
 ];

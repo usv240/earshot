@@ -386,3 +386,38 @@ describe("what the project says in public", () => {
     }
   });
 });
+
+describe("the video script is the one the programs read", () => {
+  /*
+    The demo is cut by programs that read video/beats.py, and a person
+    reads docs/VIDEO_SCRIPT.md. The document is generated from the
+    beats, so this checks the generation was run: every spoken line in
+    the code appears verbatim in the document. A script that drifted
+    from the video would be the one public text here nobody could
+    reproduce.
+  */
+  const beats = fs.readFileSync(path.join(repo, "video/beats.py"), "utf8");
+  const doc = fs.readFileSync(path.join(repo, "docs/VIDEO_SCRIPT.md"), "utf8");
+
+  // Each say=( ... ) block is adjacent string literals; join them.
+  const lines = beats
+    .split("say=(")
+    .slice(1)
+    .map((chunk) => chunk.split(/\n\s*\),/)[0] ?? "")
+    .map((block) => [...block.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]!.replace(/\\"/g, '"')).join(""));
+
+  it("finds the spoken lines in the code at all", () => {
+    expect(lines.length).toBeGreaterThanOrEqual(10);
+    for (const line of lines) expect(line.split(" ").length).toBeGreaterThan(5);
+  });
+
+  it("has every spoken line in the document, word for word", () => {
+    for (const line of lines) {
+      expect(doc.includes(line), `docs/VIDEO_SCRIPT.md lacks: ${line.slice(0, 60)}`).toBe(true);
+    }
+  });
+
+  it("says which device the television footage is", () => {
+    expect(/Android TV virtual device/.test(doc)).toBe(true);
+  });
+});

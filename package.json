@@ -25,7 +25,7 @@
     "web:dev": "npm run dev -w @earshot/web",
     "web:build": "npm run build -w @earshot/web",
     "mcp": "npm run dev -w @earshot/mcp",
-    "deploy": "npm run web:build && npx cdk deploy --require-approval never --app \"npx tsx bin/app.ts\"",
+    "deploy": "npm run web:build && cd infra && npx cdk deploy --require-approval never",
     "prevalidate": "npm run build:packages",
     "check:validation": "node scripts/check-validation.mjs"
   },

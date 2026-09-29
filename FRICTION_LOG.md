@@ -163,4 +163,15 @@ not about how hard it is to fix once you do.
 
 
 
+## Entry 14: preferred focus is not honoured when a screen comes back, so a remote-driven app presses the wrong button (2026-09-29)
+
+- **Task:** record the television beats of the demo video by driving the release APK on an Android TV virtual device with nothing but D-pad key events, the way a Fire TV remote would. The home screen marks its main button with `hasTVPreferredFocus`; the film screen is a separate component that replaces it; stopping the film returns to the home screen.
+- **Steps:** react-native-tvos 0.83, new architecture. Press to "Watch something", watch, press "Stop watching", which sets the stage back to home and remounts the home view with its preferred button. Then press select.
+- **Expected:** focus on the preferred button, because that is what the property promises on a fresh mount, and it is exactly what happens on first launch.
+- **Actual:** focus came back on "Watch something", the button that had focus when the home view was last unmounted, two positions to the right of the preferred one. The select press opened the film again instead of the check. The recorder waited ten seconds for a screen that never came and the take was lost. Reproduced on the next take; pressing left twice and then select opens the check every time, so the row itself is fine and only the landing position is wrong.
+- **Severity:** medium. Nothing crashes, and a person with a remote sees the focus ring and corrects. An automated driver does not, and neither does a viewer who has been told the app prefers one button and watches it prefer another. On a television, focus is the cursor; putting it in the wrong place is the same class of defect as a mouse pointer that jumps.
+- **Workaround:** the recorder stopped counting presses and started reading. It dumps the accessibility tree through `uiautomator`, finds the node marked focused, and walks the row until the words it wants are under the remote. That is what `record_tv.py` does now and it is why the file has a `focus_on` function at all. In the app, an explicit focus call on mount would do the same job, at the cost of imperative code for what a declarative property already claims to do.
+- **Suggestion:** state which wins when a remounted screen carries a preferred-focus flag and the platform has a remembered focus position, and make the flag win. A note in the TV documentation that Android's focus restoration can override `hasTVPreferredFocus` after navigation, with the one line that forces it, would have saved two takes.
+- **Why it is in this log:** the first television take of this video worked because it pressed select the instant the home screen appeared, before restoration had happened; the second, which paused a second to let the viewer read the screen, failed. A behaviour that depends on how fast the remote is pressed is the kind that is invisible in development and shows up in front of a judge.
+
 <!-- Add new entries above this line as they happen. -->

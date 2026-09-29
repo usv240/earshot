@@ -128,7 +128,7 @@ is aimed at.
 
 ```
 npm install
-npm test                 # 211 tests: the engine, the wording, the listening
+npm test                 # 214 tests: the engine, the wording, the listening
                          # model, the agent, and every published number
 npm run validate         # regenerate the validation results
 npm run web:dev          # the site, and the check you can take yourself
