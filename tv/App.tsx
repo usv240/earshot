@@ -286,13 +286,10 @@ export default function App(): React.JSX.Element {
               </Text>
               {recorded.length > 0 && !PERSISTENCE_AVAILABLE && (
                 <Text style={styles.warn}>
-                  Sittings this app records are lost when it closes. React
-                  Native ships no storage and the standard module for it does
-                  not build against this television toolchain, which is
-                  friction log entry 13. A household needs months of history
-                  before the model says anything, so this is a defect rather
-                  than a decision, and the app says so instead of appearing
-                  to work.
+                  Sittings are not being saved on this build, so they will be
+                  lost when the app closes. A household needs months of
+                  history before the model says anything, so the app says so
+                  rather than appearing to work.
                 </Text>
               )}
               {recorded.length > 0 && (

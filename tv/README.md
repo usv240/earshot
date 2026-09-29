@@ -19,29 +19,41 @@ x86-only build fails on every real one with
 
 ## Build it
 
+Two steps, from two different paths. That is not a preference: on
+Windows it is the only combination that works, and the reason is
+`react-native-mmkv`, which is what keeps a household's sittings across
+restarts.
+
 ```
-npm run bundle
+npm run bundle                      # from the real path
+```
+
+```
+subst X: <repo>                     # once per session
 set JAVA_HOME=C:\Program Files\Java\jdk-17
-cd android
+cd X:\tv\android
 gradlew assembleRelease
 ```
 
-**One path, and that is worth a note**, because this app inherited its
-build scaffolding from a sibling that genuinely needs two. There, the
-native build trips the 260-character `MAX_PATH` limit in CMake under a
-long repository path, so Gradle runs from a `subst` drive, and Metro
-cannot run from that drive because Node resolves it back to `C:` and the
-two disagree about file identity.
+mmkv is a Nitro module, and Nitro compiles C++ through CMake. Under
+this repository's real path, which has spaces and commas in it, CMake
+loops forever with `ninja: manifest 'build.ninja' still dirty after
+100 tries`, an error that does not name the path as its cause. A
+`subst` drive gives it a short clean path and it builds in a few
+minutes for all three ABIs.
 
-This app's dependency set never reaches CMake, so it builds from the real
-path, and building from the real path is what makes codegen work: the
-root mismatch that breaks any module with a
-`generateCodegenSchemaFromJavaScript` task is a symptom of the `subst`
-drive rather than of the module.
+Metro cannot run from that drive, because Node resolves `X:` back to
+`C:` and the two disagree about file identity, so the JavaScript
+bundle is generated first from the real path. That is why
+`android/app/build.gradle` lists `release` in `debuggableVariants`:
+it makes the React Native plugin skip its own bundling step.
 
-If a future dependency drags CMake back in, the two-path build is in the
-sibling's README. Clear the generated autolinking file under
-`android/build/generated` when switching between them, or Gradle keeps
+**Run `npm run bundle` before every release build.** No Gradle task
+regenerates the bundle and the file is untracked, so a stale one is
+invisible: the build succeeds and ships last week's JavaScript. Check
+the bundle inside the APK against the one on disk rather than trusting
+timestamps. Clear the generated autolinking file under
+`android/build/generated` when switching paths, or Gradle keeps
 configuring projects at the path it last saw.
 
 ### Before the first build
@@ -80,12 +92,12 @@ ships whatever JavaScript was last produced by hand. Run `npm run
 bundle` before every release build, and check the bundle inside the APK
 against the one on disk rather than trusting the timestamps.
 
-The app carries only the native dependencies it actually uses, and two
-of the three tried so far would not build: `react-native-safe-area-context`
-failed codegen while the build still ran from the `subst` drive, and
-`@react-native-async-storage/async-storage` fails its KSP step against
-react-native-tvos 0.83, which is why a household's sittings do not
-survive the app closing. `FRICTION_LOG.md` entry 13.
+The app carries only the native dependencies it actually uses. Of the
+four tried, two would not build: `react-native-safe-area-context` failed
+codegen, and `@react-native-async-storage/async-storage` fails its KSP
+step against react-native-tvos 0.83. `react-native-mmkv` builds and is
+what keeps sittings across restarts; it needs `react-native-nitro-modules`
+as a peer that npm does not install by itself. `FRICTION_LOG.md` entry 13.
 
 ## What is sample data, and what is not
 

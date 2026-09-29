@@ -10,11 +10,11 @@ import type {Session} from '@earshot/core';
  * app would sit there reporting nothing forever while appearing to
  * work.
  *
- * It does forget, today. React Native ships no storage and the standard
- * module for it does not build against react-native-tvos 0.83, which is
- * friction log entry 13. What is tested here is everything that will
- * still be right when one does: appending, capping, and refusing to
- * hand a malformed row to the model.
+ * On the device, storage is react-native-mmkv, chosen after the standard
+ * AsyncStorage module failed to build against react-native-tvos 0.83
+ * (friction log entry 13). Under Jest the native side is absent, so these
+ * tests exercise the same store over its memory fallback: appending,
+ * capping, and refusing to hand a malformed row to the model.
  */
 
 const sitting = (over: Partial<Session> = {}): Session => ({
@@ -27,12 +27,13 @@ const sitting = (over: Partial<Session> = {}): Session => ({
   ...over,
 });
 
-test('says plainly that sittings do not yet survive a restart', () => {
+test('reports honestly whether sittings survive a restart', () => {
   /*
     A flag rather than a comment, because the home screen reads it and
-    tells the household. A store that silently forgets, in a product
-    whose whole model needs months, would be the most damaging quiet
-    failure available here.
+    tells the household. Under Jest the native mmkv module is absent, so
+    the store degrades to memory and the flag is false; on the device it
+    is true. Either way the app says which, rather than a store that
+    silently forgets in a product whose whole model needs months.
   */
   expect(PERSISTENCE_AVAILABLE).toBe(false);
 });

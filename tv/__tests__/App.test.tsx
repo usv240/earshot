@@ -15,6 +15,17 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 
+/*
+  The store is a module-level singleton, so a sitting written by another
+  test file in the same process would appear on this home screen and
+  change what it says. Isolating it here is what makes the assertions
+  below about the app rather than about test ordering.
+*/
+jest.mock('../src/store', () => {
+  const actual = jest.requireActual('../src/store');
+  return {...actual, DeviceSessionStore: class extends actual.DeviceSessionStore {}};
+});
+
 jest.mock('react-native-video', () => {
   const React2 = require('react');
   const Video = React2.forwardRef(() => null);

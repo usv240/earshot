@@ -207,15 +207,13 @@ here:**
   The player owns its own volume control, because a React Native app
   cannot read the system level the remote's volume keys set without a
   native module. For playback the app owns, that is the entire
-  measurement and nothing is estimated.
+  measurement and nothing is estimated. Sittings are kept on the
+  television in `react-native-mmkv` and survive the app closing, which
+  is what lets a history accumulate over the months the model needs.
+  Nothing about them is uploaded anywhere.
 - Fire TV exposes no way to turn Dialogue Boost on or to read whether it
   is on, so the app explains where the setting lives and cannot confirm
   anybody found it. Friction log entry 1.
-- Sittings the television records are **lost when the app closes**. React
-  Native ships no storage and the standard module for it does not build
-  against react-native-tvos 0.83, which is friction log entry 13. The
-  model needs months of history, so this is a defect rather than a
-  decision, and the app says so on its home screen.
 - The demo MCP endpoint has **no authentication**. A household is a name
   somebody chose, so anybody who guesses it can read that history. That
   is a deliberate scope for a demonstration and would be indefensible in
