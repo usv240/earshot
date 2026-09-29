@@ -120,7 +120,7 @@ export default function Home() {
             <div className="min-w-0">
               <p className="text-sm font-semibold text-ink">What</p>
               <p className="mt-3 leading-relaxed text-muted">
-                A two-minute hearing check you take with a television remote. Three spoken
+                A hearing check of a minute or two that you take with a television remote. Three spoken
                 digits play with noise behind them, it gets harder while you are right and
                 easier while you are wrong, and it ends on the{" "}
                 <span className="whitespace-nowrap">

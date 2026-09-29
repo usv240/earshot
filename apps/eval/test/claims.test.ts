@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { LENGTHS } from "digits-in-noise";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -34,6 +35,13 @@ const results = JSON.parse(
   carelessness: { lapseRate: number; biasDb: number; sdDb: number }[];
   slopes: { slopePerDb: number; biasDb: number; sdDb: number }[];
   cutPointDb: number;
+  lengthCost: {
+    trials: number;
+    sdDb: number | null;
+    refusedOf1000: number;
+    fineWronglyReferredPercent: number;
+    strugglingCaughtPercent: number;
+  }[];
   baseline: {
     households: number;
     compensating: { volumeOnlyFalseAlarms: number; dialogueReferencedFalseAlarms: number };
@@ -160,6 +168,27 @@ describe("what the validation run measured", () => {
       expect(row.referredPercent).toBeGreaterThanOrEqual(previous - 0.001);
       previous = row.referredPercent;
     }
+  });
+
+  it("offers only lengths that still catch a struggling listener", () => {
+    /*
+      The answer to "why twenty-four trials, can it be shorter". Every
+      length the engine names has to clear the same bar in the committed
+      run: it catches a listener 1.8 dB outside the cut-off at least 95
+      percent of the time, and refuses fewer than one run in twenty.
+      A length that fails that is not a shorter test, it is not a test,
+      and the engine must not offer it.
+    */
+    const byTrials = new Map(results.lengthCost.map((r) => [r.trials, r]));
+    for (const length of Object.values(LENGTHS)) {
+      const row = byTrials.get(length.trials);
+      expect(row, `no measurement for the ${length.trials}-trial length`).toBeTruthy();
+      expect(row!.strugglingCaughtPercent).toBeGreaterThanOrEqual(95);
+      expect(row!.refusedOf1000).toBeLessThan(50);
+    }
+    // And the table has to show why shorter was rejected, not just omit it.
+    const ten = byTrials.get(10);
+    expect(ten!.strugglingCaughtPercent).toBeLessThan(50);
   });
 
   it("beats the obvious alternative, and says by how much", () => {

@@ -174,6 +174,34 @@ function main(): void {
     200,
   );
 
+  /*
+    What each length of test costs.
+
+    The answer to "why twenty-four trials" and "can it be shorter", with
+    a number rather than an opinion. A clearly-fine listener sits 2.2 dB
+    inside the cut-off; a clearly-struggling one sits 1.8 dB outside it.
+    The columns are how often each length refuses to answer, wrongly
+    refers the fine one, and catches the struggling one.
+  */
+  const lengthCost = [8, 10, 12, 14, 16, 20, 24].map((trials) => {
+    const s = sweep(REFERENCE, 1000, { trials });
+    let fineReferred = 0;
+    let strugglingCaught = 0;
+    for (let i = 0; i < RANGE_RUNS; i++) {
+      const fine = runScreen({ ...REFERENCE, trueSrtDb: -6 }, 70_000 + i, { trials });
+      if (fine.valid && interpret(fine).band === "refer") fineReferred++;
+      const bad = runScreen({ ...REFERENCE, trueSrtDb: -2 }, 90_000 + i, { trials });
+      if (bad.valid && interpret(bad).band === "refer") strugglingCaught++;
+    }
+    return {
+      trials,
+      sdDb: Number.isFinite(s.sdDb) ? round(s.sdDb) : null,
+      refusedOf1000: s.rejected,
+      fineWronglyReferredPercent: round((fineReferred / RANGE_RUNS) * 100, 1),
+      strugglingCaughtPercent: round((strugglingCaught / RANGE_RUNS) * 100, 1),
+    };
+  });
+
   const results = {
     generatedAt: new Date().toISOString().slice(0, 10),
     method:
@@ -192,6 +220,7 @@ function main(): void {
     slopes,
     cutPointDb: cut,
     baseline,
+    lengthCost,
     referralCurve,
     refusals: {
       betterThanRangeIsRejected: !outOfRange.betterThanRange.valid,

@@ -52,7 +52,7 @@ at 7 percent of cases worldwide.
 this household chose, and watches for captions going on and for rewinding to hear
 a line again. No microphone. No camera. Nothing leaves the device.
 
-**Asks.** When the pattern persists, offers two minutes with the remote. Three
+**Asks.** When the pattern persists, offers a check with the remote, sixteen or twenty-four rounds, a minute or two. Three
 spoken digits in noise, getting harder, until it finds the ratio at which you get
 half of them right. That ratio is the speech reception threshold, and it is the
 measurement the audiogram cannot substitute for.
@@ -128,7 +128,7 @@ is aimed at.
 
 ```
 npm install
-npm test                 # 210 tests: the engine, the wording, the listening
+npm test                 # 211 tests: the engine, the wording, the listening
                          # model, the agent, and every published number
 npm run validate         # regenerate the validation results
 npm run web:dev          # the site, and the check you can take yourself

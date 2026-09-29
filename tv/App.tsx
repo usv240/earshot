@@ -18,7 +18,9 @@ import {
 } from '@earshot/core';
 import {
   interpret,
+  LENGTHS,
   Screen,
+  type Length,
   type Interpretation,
   type ScreenResult,
 } from 'digits-in-noise';
@@ -108,6 +110,7 @@ export default function App(): React.JSX.Element {
   const [result, setResult] = useState<ScreenResult | null>(null);
   const [reading, setReading] = useState<Interpretation | null>(null);
   const [declined, setDeclined] = useState(false);
+  const [length, setLength] = useState<Length>('full');
   /*
     Sittings this app recorded itself, from its own player, against a
     dialogue loudness the pipeline measured. They sit alongside the
@@ -169,11 +172,11 @@ export default function App(): React.JSX.Element {
   }, []);
 
   const startRun = useCallback(() => {
-    run.current = new Screen({}, Date.now() % 100000);
+    run.current = new Screen({trials: LENGTHS[length].trials}, Date.now() % 100000);
     setResult(null);
     setReading(null);
     void present();
-  }, [present]);
+  }, [present, length]);
 
   const press = useCallback(
     (digit: number) => {
@@ -228,7 +231,7 @@ export default function App(): React.JSX.Element {
                 <Text style={styles.body}>{explain(decision.reasons)}</Text>
                 <View style={styles.row}>
                   <TvButton
-                    label="Check it, two minutes"
+                    label="Check it, a minute or two"
                     primary
                     preferred
                     onPress={() => {
@@ -321,7 +324,15 @@ export default function App(): React.JSX.Element {
               where you normally have it. Comfortable, not quiet, and nowhere
               near uncomfortable.
             </Text>
+            <Text style={styles.body}>
+              {LENGTHS[length].label}: {LENGTHS[length].trials} rounds,{' '}
+              {LENGTHS[length].minutes}.
+            </Text>
             <View style={styles.row}>
+              <TvButton
+                label={length === 'full' ? 'Make it quicker' : 'Make it the full check'}
+                onPress={() => setLength(l => (l === 'full' ? 'quick' : 'full'))}
+              />
               <TvButton label="Play it again" onPress={() => audio.current?.playNoise()} />
               <TvButton label="Begin" primary preferred onPress={startRun} />
             </View>

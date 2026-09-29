@@ -142,6 +142,57 @@
     },
     "thresholdDb": 4
   },
+  "lengthCost": [
+    {
+      "trials": 8,
+      "sdDb": null,
+      "refusedOf1000": 1000,
+      "fineWronglyReferredPercent": 0,
+      "strugglingCaughtPercent": 0
+    },
+    {
+      "trials": 10,
+      "sdDb": 0.932,
+      "refusedOf1000": 620,
+      "fineWronglyReferredPercent": 1,
+      "strugglingCaughtPercent": 29.8
+    },
+    {
+      "trials": 12,
+      "sdDb": 1.036,
+      "refusedOf1000": 233,
+      "fineWronglyReferredPercent": 3.8,
+      "strugglingCaughtPercent": 65.8
+    },
+    {
+      "trials": 14,
+      "sdDb": 1.019,
+      "refusedOf1000": 59,
+      "fineWronglyReferredPercent": 2.2,
+      "strugglingCaughtPercent": 85.2
+    },
+    {
+      "trials": 16,
+      "sdDb": 0.954,
+      "refusedOf1000": 18,
+      "fineWronglyReferredPercent": 2.4,
+      "strugglingCaughtPercent": 96.2
+    },
+    {
+      "trials": 20,
+      "sdDb": 0.832,
+      "refusedOf1000": 0,
+      "fineWronglyReferredPercent": 1,
+      "strugglingCaughtPercent": 99.4
+    },
+    {
+      "trials": 24,
+      "sdDb": 0.744,
+      "refusedOf1000": 0,
+      "fineWronglyReferredPercent": 0.8,
+      "strugglingCaughtPercent": 99.4
+    }
+  ],
   "referralCurve": [
     {
       "trueSrtDb": -10,

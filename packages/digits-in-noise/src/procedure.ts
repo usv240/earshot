@@ -35,6 +35,32 @@ import type {
  * rather than sprinkled through the code.
  */
 
+/**
+ * The lengths this test can honestly run at.
+ *
+ * Trial count is what buys precision, and there is a floor below which
+ * the track never settles and a real difficulty goes unseen. Measured
+ * on a simulated ear at -9 dB, 1000 runs each, and pinned by
+ * apps/eval/test/claims.test.ts against the committed validation run:
+ *
+ *   10 trials: 620 of 1000 runs refused, and a listener at -2 dB, who
+ *              plainly struggles, is caught only 28.6 percent of the
+ *              time. That is not a shorter test, it is not a test.
+ *   16 trials: 18 refused, spread 0.95 dB, that listener caught 96
+ *              percent of the time. The honest floor.
+ *   24 trials: none refused, spread 0.74 dB, caught 98.2 percent. The
+ *              published protocol.
+ *
+ * So two lengths are offered and the result says which it took, and
+ * with what spread, so a person knows what a minute bought them.
+ */
+export const LENGTHS = {
+  quick: { trials: 16, label: "Quick", minutes: "about a minute and a half" },
+  full: { trials: 24, label: "Full", minutes: "about two minutes" },
+} as const;
+
+export type Length = keyof typeof LENGTHS;
+
 export function defaultOptions(): ProcedureOptions {
   return {
     // One syllable each. Zero and seven are two, in English.

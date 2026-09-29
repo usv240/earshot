@@ -175,7 +175,7 @@ tool and fails if any of them ever returns a listening figure.
 **Working and verified:**
 
 - The screen, in a browser, driven end to end in a real browser with nine
-  checks and a full twenty-four trial run.
+  checks and a full run at each of the two lengths it offers.
 - The Fire TV app, with the listening model, the offer rule and the
   remote-driven screen.
 - The MCP server, spec-conformant, with its session lifecycle, error
@@ -243,7 +243,7 @@ here:**
 
 ```
 npm install
-npm test          # 210 tests
+npm test          # 211 tests
 npm run validate
 npm run web:dev
 ```
