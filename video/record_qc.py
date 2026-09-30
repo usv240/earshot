@@ -106,18 +106,149 @@ class Remote:
 
 
 def stream_box(page: Page) -> dict:
-    """The largest video or canvas on the page: that is the device."""
+    """The largest video or canvas on the page or in any of its frames:
+    that is the device. Quality Central streams the device into a canvas
+    inside a device-farm iframe, so the search walks frames, and the box
+    comes back in page coordinates, which is what the crop and the click
+    need. Playwright's bounding_box already reports frame content in
+    page coordinates."""
     best = None
-    for tag in ("video", "canvas"):
-        for el in page.locator(tag).all():
-            box = el.bounding_box()
-            if not box:
+    for frame in page.frames:
+        for tag in ("video", "canvas"):
+            try:
+                els = frame.locator(tag).all()
+            except Exception:  # noqa: BLE001  a frame that is gone or cross-origin-locked
                 continue
-            if best is None or box["width"] * box["height"] > best["width"] * best["height"]:
-                best = box
-    if best is None or best["width"] < 300:
+            for el in els:
+                box = el.bounding_box()
+                if not box or box["width"] < 300 or box["height"] < 200:
+                    continue
+                # The remote's own canvas is square; the screen is 16:9.
+                if abs(box["width"] / box["height"] - 16 / 9) > 0.2:
+                    continue
+                if best is None or box["width"] * box["height"] > best["width"] * best["height"]:
+                    best = box
+    if best is None:
         raise SystemExit("no stream on the page: is a device connected and its screen showing?")
     return best
+
+
+def record(page: Page, ctx, narration: dict[str, float]) -> int:
+    """From a page whose stream shows Earshot's home screen: clap, play
+    the two beats, close the context, and write tv.mp4 and
+    tv-timings.json. The console work before this is a person's, or a
+    driver's, and not this function's business."""
+    box = stream_box(page)
+    print(f"  stream at {box['x']:.0f},{box['y']:.0f} {box['width']:.0f}x{box['height']:.0f}", flush=True)
+    page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+    hold(0.5)
+    remote = Remote(page)
+
+    # The clapperboard, in the corner of the stream so it survives
+    # the crop. See record.py for why a take has to clap.
+    page.evaluate(
+        "([x, y]) => {var k=document.createElement('div');k.id='__clap';"
+        "k.style.cssText='position:fixed;left:'+x+'px;top:'+y+'px;width:120px;height:120px;"
+        "z-index:2147483647;background:#000';document.body.appendChild(k);}",
+        [box["x"], box["y"]],
+    )
+    clap_at = time.monotonic()
+    hold(CLAP_MS / 1000)
+    page.evaluate("document.getElementById('__clap').remove()")
+    hold(0.4)
+    start = time.monotonic()
+    clap_clock = clap_at - start
+    marks: list[dict] = []
+
+    def mark(key_name: str) -> None:
+        at = time.monotonic() - start
+        marks.append({"key": key_name, "at": round(at, 3)})
+        print(f"  {at:6.1f}s  {key_name}", flush=True)
+
+    # ---- Before the clock: open the film and let it reach daylight -
+    remote.walk_to(ROW["watch"])
+    remote.select()
+    # The console's screen stream stops updating when no key arrives
+    # for a while (take one froze for seventy seconds of film). Up is a
+    # key the player ignores, so one every few seconds keeps the
+    # picture flowing without touching the film or the level.
+    lead_end = time.monotonic() + FILM_LEAD
+    while time.monotonic() < lead_end - 5.0:
+        hold(5.0)
+        remote.press("ArrowUp", 0.0)
+    hold(max(lead_end - time.monotonic(), 0))
+
+    # ---- Beat 1: the film with the level live, then home ------------
+    hold(LAG)
+    mark("tv-home")
+    budget = seconds_for("tv-home", narration)
+    hold(1.5)
+    remote.walk_to(ROW["louder"])
+    remote.select()
+    walk_cost = ROW_WIDTH * 0.35 + ROW["stop"] * 0.45 + 0.3
+    hold(max(budget - 1.5 - (ROW_WIDTH * 0.35 + ROW["louder"] * 0.45 + 0.3) - walk_cost - 1.6, 3.0))
+    remote.walk_to(ROW["stop"])
+    remote.select()
+    hold(1.6 + LAG)
+
+    # ---- Beat 2: the check, on the remote ----------------------------
+    remote.walk_to(ROW["check"])
+    hold(LAG)
+    mark("tv-check")
+    check_end = time.monotonic() + seconds_for("tv-check", narration)
+    hold(1.0)
+    remote.select()
+    hold(2.0 + LAG)
+    remote.walk_to(ROW["begin"])
+    remote.select()
+    # Presses while a triplet plays are ignored by the app, and every
+    # three that land while it is asking are an answer. A steady
+    # rhythm therefore answers each round without reading the screen.
+    while time.monotonic() < check_end - 0.8:
+        remote.press("Enter", 0.5)
+    hold(check_end - time.monotonic())
+    hold(1.5)
+
+    total = time.monotonic() - start
+    video = page.video
+    ctx.close()
+    src = Path(video.path())
+
+    raw = OUT / "tv-raw.mp4"
+    dest = OUT / "tv.mp4"
+    x, y, w, h = (int(box[k]) for k in ("x", "y", "width", "height"))
+    w -= w % 2
+    h -= h % 2
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error", "-i", str(src),
+         "-vf", f"crop={w}:{h}:{x}:{y}", "-r", str(FPS), "-fps_mode", "cfr",
+         "-c:v", "libx264", "-crf", "18", "-preset", "medium", "-pix_fmt", "yuv420p", "-an", str(dest)],
+        check=True,
+    )
+    src.replace(raw)
+
+    length = float(subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(dest)],
+        check=True, capture_output=True, text=True).stdout.strip())
+    # The context has been recording since the console work began, so
+    # the take is the tail of the file, and the clapperboard is black on
+    # a black app. Align from the end instead: the file stops when the
+    # context closes, which is `total` seconds after the clock started.
+    offset = length - total
+    if offset < 0:
+        raise SystemExit(f"the file is shorter than the take ({length:.1f}s < {total:.1f}s), which is not credible")
+    for m in marks:
+        m["at"] = round(m["at"] + offset, 3)
+
+    (OUT / "tv-timings.json").write_text(
+        json.dumps({"video": round(length, 3), "width": w, "height": h,
+                    "device": "Appstore Quality Central virtual Fire TV",
+                    "clockOffset": round(offset, 3), "alignment": "from the end of the file", "beats": marks}, indent=1),
+        encoding="utf8",
+    )
+    print(f"\nwrote {dest.name} ({dest.stat().st_size / 1048576:.1f} MB, {w}x{h}) and tv-timings.json", flush=True)
+    print(f"{len(marks)} beats over {total:.1f}s of Fire TV footage; picture runs {offset:.2f}s ahead of the clock", flush=True)
+    return 0
 
 
 def main() -> int:
@@ -162,105 +293,7 @@ def main() -> int:
             if page.is_closed():
                 raise SystemExit("the window was closed")
 
-        box = stream_box(page)
-        print(f"  stream at {box['x']:.0f},{box['y']:.0f} {box['width']:.0f}x{box['height']:.0f}", flush=True)
-        page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
-        hold(0.5)
-        remote = Remote(page)
-
-        # The clapperboard, in the corner of the stream so it survives
-        # the crop. See record.py for why a take has to clap.
-        page.evaluate(
-            "([x, y]) => {var k=document.createElement('div');k.id='__clap';"
-            "k.style.cssText='position:fixed;left:'+x+'px;top:'+y+'px;width:120px;height:120px;"
-            "z-index:2147483647;background:#000';document.body.appendChild(k);}",
-            [box["x"], box["y"]],
-        )
-        clap_at = time.monotonic()
-        hold(CLAP_MS / 1000)
-        page.evaluate("document.getElementById('__clap').remove()")
-        hold(0.4)
-        start = time.monotonic()
-        clap_clock = clap_at - start
-        marks: list[dict] = []
-
-        def mark(key_name: str) -> None:
-            at = time.monotonic() - start
-            marks.append({"key": key_name, "at": round(at, 3)})
-            print(f"  {at:6.1f}s  {key_name}", flush=True)
-
-        # ---- Before the clock: open the film and let it reach daylight -
-        remote.walk_to(ROW["watch"])
-        remote.select()
-        hold(FILM_LEAD)
-
-        # ---- Beat 1: the film with the level live, then home ------------
-        hold(LAG)
-        mark("tv-home")
-        budget = seconds_for("tv-home", narration)
-        hold(1.5)
-        remote.walk_to(ROW["louder"])
-        remote.select()
-        walk_cost = ROW_WIDTH * 0.35 + ROW["stop"] * 0.45 + 0.3
-        hold(max(budget - 1.5 - (ROW_WIDTH * 0.35 + ROW["louder"] * 0.45 + 0.3) - walk_cost - 1.6, 3.0))
-        remote.walk_to(ROW["stop"])
-        remote.select()
-        hold(1.6 + LAG)
-
-        # ---- Beat 2: the check, on the remote ----------------------------
-        remote.walk_to(ROW["check"])
-        hold(LAG)
-        mark("tv-check")
-        check_end = time.monotonic() + seconds_for("tv-check", narration)
-        hold(1.0)
-        remote.select()
-        hold(2.0 + LAG)
-        remote.walk_to(ROW["begin"])
-        remote.select()
-        # Presses while a triplet plays are ignored by the app, and every
-        # three that land while it is asking are an answer. A steady
-        # rhythm therefore answers each round without reading the screen.
-        while time.monotonic() < check_end - 0.8:
-            remote.press("Enter", 0.5)
-        hold(check_end - time.monotonic())
-        hold(1.5)
-
-        total = time.monotonic() - start
-        video = page.video
-        ctx.close()
-        src = Path(video.path())
-
-    raw = OUT / "tv-raw.mp4"
-    dest = OUT / "tv.mp4"
-    x, y, w, h = (int(box[k]) for k in ("x", "y", "width", "height"))
-    w -= w % 2
-    h -= h % 2
-    subprocess.run(
-        ["ffmpeg", "-y", "-v", "error", "-i", str(src),
-         "-vf", f"crop={w}:{h}:{x}:{y}", "-r", str(FPS), "-fps_mode", "cfr",
-         "-c:v", "libx264", "-crf", "18", "-preset", "medium", "-pix_fmt", "yuv420p", "-an", str(dest)],
-        check=True,
-    )
-    src.replace(raw)
-
-    offset = find_clap(dest) - clap_clock
-    if not 0.0 <= offset <= 6.0:
-        raise SystemExit(f"the picture is offset {offset:.2f}s from the clock, which is not credible")
-    for m in marks:
-        m["at"] = round(m["at"] + offset, 3)
-    length = float(subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(dest)],
-        check=True, capture_output=True, text=True).stdout.strip())
-
-    (OUT / "tv-timings.json").write_text(
-        json.dumps({"video": round(length, 3), "width": w, "height": h,
-                    "device": "Appstore Quality Central virtual Fire TV",
-                    "clockOffset": round(offset, 3), "beats": marks}, indent=1),
-        encoding="utf8",
-    )
-    print(f"\nwrote {dest.name} ({dest.stat().st_size / 1048576:.1f} MB, {w}x{h}) and tv-timings.json", flush=True)
-    print(f"{len(marks)} beats over {total:.1f}s of Fire TV footage; picture runs {offset:.2f}s ahead of the clock", flush=True)
-    return 0
+        return record(page, ctx, narration)
 
 
 if __name__ == "__main__":

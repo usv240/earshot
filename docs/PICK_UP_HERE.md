@@ -1,3 +1,7 @@
+# Done 2026-09-30: the Fire TV footage is recorded on Amazon's simulator
+
+The pool opened at 12:13 IST with 8 usable devices. `drive_qc.py` drove the console (sign-ins were the operator's), `record_qc.py` recorded take two after take one found the stream freezes without key presses and the clapperboard cannot be seen on a dark app; both are fixed in the code. `video/build/earshot-demo-captioned.mp4` (2:54.7, 4K) now carries the Quality Central footage. What is left: upload it to YouTube (step 5 below) and put the URL in the submission docs. The rest of this file is kept as the record of the route.
+
 # Pick up here: the Fire TV footage
 
 Written 2026-09-29. Everything in the Earshot submission is finished
