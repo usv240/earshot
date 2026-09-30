@@ -366,7 +366,12 @@ def doctor_page(r: Recorder):
     r.on_phrase("what was observed")
     r.point("[data-doctor-page] dl")
     r.on_phrase("its limits")
-    r.point("[data-doctor-page] p.text-xs", dy=-20 * SCALE)
+    # The scope paragraphs sit at the foot of a long card, where the
+    # caption band is. Bring them up to the middle of the frame first.
+    # The page's own title is also small type; the scope paragraphs are
+    # the ones in the ruled block at its foot.
+    r.scroll_to("[data-doctor-page] .space-y-2", rest=URL_BAR_HEIGHT + 260 * SCALE)
+    r.point("[data-doctor-page] .space-y-2 p", dy=-20 * SCALE)
     r.hold_beat()
 
 

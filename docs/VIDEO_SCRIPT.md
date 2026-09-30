@@ -58,37 +58,43 @@ The run answered without listening reaches its end, and the screen says why it c
 
 > And if a run isn't reliable, it refuses to score it, and says why, instead of inventing a number.
 
-**1:21, page, the website, in a real browser**
+**1:21, tv-page, Fire TV, from the device**
 
-One page for your doctor, opened from the result: what was measured or why it was not, and what the page is not.
+On the set: the result, then One page for your doctor opened with the remote.
 
-> Then it helps: one page to take to a doctor, with what was observed, what the check measured, and its limits. Earshot never diagnoses a condition. A test in the repository fails the build if any result tries to.
+> Then it helps. On the set, one page to take to a doctor.
 
-**1:37, baseline, the website, in a real browser**
+**1:29, page, the website, in a real browser**
+
+The same page on the website, opened from the result: what was measured or why it was not, and what the page is not.
+
+> The same page prints from the website: what was observed, what the check measured, and its limits. Earshot never diagnoses a condition. A test in the repository fails the build if any result tries to.
+
+**1:43, baseline, the website, in a real browser**
 
 Volume-only against Earshot on the same two hundred households.
 
 > Why not just watch the volume? A quiet film makes everyone turn the television up. On two hundred simulated households whose hearing never changed, volume alone flags every one of them when the programme gets quieter. Earshot flags none.
 
-**1:52, measured, the website, in a real browser**
+**1:58, measured, the website, in a real browser**
 
 The evidence section: the simulated-listener figures, then what nobody has done yet.
 
 > The procedure was run against two thousand simulated listeners with known thresholds. It reads them back with almost no bias, and repeats itself within the published range for this test. That validates the procedure. A clinical study is the next step, and the site says what it would take.
 
-**2:11, impact, the website, in a real browser**
+**2:18, impact, the website, in a real browser**
 
 The three words on the site: notice, ask rarely, help either way.
 
 > Earshot is not a diagnosis. It's an earlier signal, from the device that already sees the pattern, that a proper hearing test may be worth taking.
 
-**2:22, close, the website, in a real browser**
+**2:28, close, the website, in a real browser**
 
 What it does not do.
 
 > Your television can already help you hear. It just doesn't know you can't.
 
-Estimated 2:27 of a 3:00 ceiling. The estimate is words at
+Estimated 2:33 of a 3:00 ceiling. The estimate is words at
 152 a minute plus holds; the real narration decides the
 final cut, and `python video/beats.py` exits non-zero if the plan is
 over before a frame is recorded.

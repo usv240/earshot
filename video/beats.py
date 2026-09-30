@@ -152,11 +152,20 @@ BEATS: list[Beat] = [
         ),
     ),
     Beat(
+        key="tv-page",
+        action="tv_page",
+        shows="On the set: the result, then One page for your doctor opened with the remote.",
+        min_hold=8,
+        say=(
+            "Then it helps. On the set, one page to take to a doctor."
+        ),
+    ),
+    Beat(
         key="page",
         action="doctor_page",
-        shows="One page for your doctor, opened from the result: what was measured or why it was not, and what the page is not.",
+        shows="The same page on the website, opened from the result: what was measured or why it was not, and what the page is not.",
         say=(
-            "Then it helps: one page to take to a doctor, with what was observed, what the check measured, "
+            "The same page prints from the website: what was observed, what the check measured, "
             "and its limits. Earshot never diagnoses a condition. "
             "A test in the repository fails the build if any result tries to."
         ),
