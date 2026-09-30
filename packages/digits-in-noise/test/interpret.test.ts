@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  allDoctorPageText,
   allMessages,
   defaultListener,
+  doctorPage,
   interpret,
   PROVISIONAL_DIOTIC,
   runScreen,
@@ -81,7 +83,7 @@ describe("the wording", () => {
       /\bdisease\b/i,
       /\bnormal hearing\b/i,
     ];
-    for (const message of allMessages()) {
+    for (const message of [...allMessages(), ...allDoctorPageText()]) {
       for (const pattern of forbidden) {
         expect(
           pattern.test(message),
@@ -92,7 +94,7 @@ describe("the wording", () => {
   });
 
   it("never promises that anything can be fixed", () => {
-    for (const message of allMessages()) {
+    for (const message of [...allMessages(), ...allDoctorPageText()]) {
       expect(/\b(will|guarantee|cure|restore)\b/i.test(message), message).toBe(false);
     }
   });
@@ -189,5 +191,21 @@ describe("the bands", () => {
     const i = interpret(runScreen(defaultListener(), 5));
     expect(["clear", "borderline", "refer"]).toContain(i.band);
     expect(i.nextStep.length).toBeGreaterThan(20);
+  });
+});
+
+describe("the doctor page", () => {
+  it("is one object whether the run was scored or refused, and says what it is not", () => {
+    const scored = doctorPage({ srtDb: -8.2, answers: [], reversals: 9, valid: true, problems: [] }, { date: "2026-09-30", rounds: 24, device: "a computer" });
+    const refused = doctorPage({ srtDb: Number.NaN, answers: [], reversals: 2, valid: false, problems: ["the track never settled"] }, { date: "2026-09-30", rounds: 24, device: "a television" });
+    expect(scored.facts.find((f) => f.label === "Result")?.value).toContain("-8.2 dB");
+    expect(scored.refusals).toEqual([]);
+    expect(refused.facts.find((f) => f.label === "Result")?.value).toBe("Not scored");
+    expect(refused.refusals).toEqual(["the track never settled"]);
+    for (const page of [scored, refused]) {
+      expect(page.scope.join(" ")).toMatch(/not a hearing test/);
+      expect(page.scope.join(" ")).toMatch(/not been validated against a clinic/);
+      expect(page.reference.length).toBeGreaterThan(20);
+    }
   });
 });

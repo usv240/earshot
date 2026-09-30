@@ -20,81 +20,75 @@ ever disagree. Edit `video/beats.py`, not this file.
 
 The front page: the claim on the left, the check on the right.
 
-> You passed the hearing test, and you still can't hear the television. The test on your phone plays tones in a quiet room. What you actually struggle with is speech with other sound behind it, and those are not the same measurement.
+> You passed the hearing test, and you still can't follow the dialogue on television. That's because hearing tones in silence and understanding speech in noise are not the same thing.
 
-**0:17, stakes, the website, in a real browser**
+**0:12, stakes, the website, in a real browser**
 
-The three figures under the claim, pointed to in turn.
+The three figures under the claim; the first two pointed to.
 
-> Eighty percent of people with hearing loss don't know. The ones who notice wait about seven years. And last year's Lancet Commission put hearing loss level with cholesterol as the largest thing you can actually fix that leads to dementia.
+> Most people with hearing loss don't know they have it, and the ones who notice wait about seven years. Earshot starts where people first notice: the television.
 
-**0:33, start, the website, in a real browser**
-
-Start pressed, eighteen rounds chosen, the volume step, Begin.
-
-> So Earshot measures the other thing. Three spoken digits, with noise behind them. You set the volume where you'd have the television, and begin.
-
-**0:42, trials, the website, in a real browser**
-
-Rounds answered on the keypad in real time, no cuts inside a round.
-
-> It gets harder while you're right and easier when you're wrong, until it finds the ratio where you get half of them. That ratio is the measurement. Because it's a ratio and not a level, it works on a television nobody calibrated. That's why the World Health Organization put this test, and not tones, into a phone app.
-
-**1:05, refused, the website, in a real browser**
-
-The run answered without listening reaches its end, and the screen says why it cannot be scored.
-
-> And when a run cannot be scored, it says so, and says why, instead of guessing a number.
-
-**1:12, outcomes, the website, in a real browser**
-
-The three cards: the whole vocabulary of a result.
-
-> Whatever it finds, these are the only three things it can say. It never names a condition. There's a test in the repository that fails the build if any result ever does.
-
-**1:25, measured, the website, in a real browser**
-
-The evidence section: measured here, read from the literature, nobody has done yet.
-
-> A hearing screen can't be checked against real listeners; each gives one number with nothing to compare it to. So this one is run against simulated listeners whose thresholds we chose. Two thousand runs: it reads a known threshold with a bias of four hundredths of a decibel, and repeats itself to three quarters of one. Published figures are point seven to one point two.
-
-**1:50, baseline, the website, in a real browser**
-
-Volume-only against Earshot on the same two hundred households.
-
-> And against the obvious alternative, which is just tracking the volume. On two hundred households whose ears never changed, but who turned up a quieter mix, volume-only accuses every one of them. Earshot accuses none.
-
-**2:04, tv-home, Fire TV, from the device**
+**0:23, tv-home, Fire TV, from the device**
 
 A film playing on the set, the remote's volume key pressed, and the set's volume and the listening level moving together.
 
-> On Fire TV, the app does the half a web page can't. It plays a film whose dialogue loudness was measured, reads the set's own volume, and watches the level you settle on.
+> On Fire TV, it notices. It plays a film whose dialogue loudness was measured, reads the set's own volume, and watches how far past the programme you listen. No microphone. No camera.
 
-**2:17, tv-check, Fire TV, from the device**
+**0:35, tv-check, Fire TV, from the device**
 
 The home screen with what it noticed and the offer, then the check on the D-pad: the volume step, Begin, a round.
 
-> Months later it has noticed, and offers the check. It runs on the remote. Sittings stay on the set. No microphone, no camera.
+> When the pattern has held for months, it asks: a two-minute check, right on the remote. Your listening data stays on the television.
 
-**2:26, agent, the website, in a real browser**
+**0:45, start, the website, in a real browser**
 
-A session held against the deployed MCP server from the page, every request timed, then the server's own answer.
+The same check on the website: Start, eighteen rounds, the volume step, Begin.
 
-> For Alexa Plus, an MCP server, held to a real session from this page. It can explain what the television watches, and it cannot report how anybody watches, because that never leaves the device.
+> The check is three spoken digits with noise behind them. You set the volume where you'd have the television, and begin.
 
-**2:40, honest, the website, in a real browser**
+**0:53, trials, the website, in a real browser**
 
-The card that says no person has taken this test.
+Rounds answered on the keypad in real time, no cuts inside a round.
 
-> What nobody has done yet is on the front page, in the same size as the numbers. No person has taken this test. That's stated, not hidden.
+> Get the digits right and it gets harder; get them wrong and it gets easier, until it finds your speech-in-noise threshold. It measures a ratio, not a volume, so the television needs no calibrated speakers. It is based on the same digits-in-noise approach the World Health Organization uses in its hearing screening app.
 
-**2:50, close, the website, in a real browser**
+**1:14, refused, the website, in a real browser**
+
+The run answered without listening reaches its end, and the screen says why it cannot be scored.
+
+> And if a run isn't reliable, it refuses to score it, and says why, instead of inventing a number.
+
+**1:21, page, the website, in a real browser**
+
+One page for your doctor, opened from the result: what was measured or why it was not, and what the page is not.
+
+> Then it helps: one page to take to a doctor, with what was observed, what the check measured, and its limits. Earshot never diagnoses a condition. A test in the repository fails the build if any result tries to.
+
+**1:37, baseline, the website, in a real browser**
+
+Volume-only against Earshot on the same two hundred households.
+
+> Why not just watch the volume? A quiet film makes everyone turn the television up. On two hundred simulated households whose hearing never changed, volume alone flags every one of them when the programme gets quieter. Earshot flags none.
+
+**1:52, measured, the website, in a real browser**
+
+The evidence section: the simulated-listener figures, then what nobody has done yet.
+
+> The procedure was run against two thousand simulated listeners with known thresholds. It reads them back with almost no bias, and repeats itself within the published range for this test. That validates the procedure. A clinical study is the next step, and the site says what it would take.
+
+**2:11, impact, the website, in a real browser**
+
+The three words on the site: notice, ask rarely, help either way.
+
+> Earshot is not a diagnosis. It's an earlier signal, from the device that already sees the pattern, that a proper hearing test may be worth taking.
+
+**2:22, close, the website, in a real browser**
 
 What it does not do.
 
 > Your television can already help you hear. It just doesn't know you can't.
 
-Estimated 2:56 of a 3:00 ceiling. The estimate is words at
+Estimated 2:27 of a 3:00 ceiling. The estimate is words at
 152 a minute plus holds; the real narration decides the
 final cut, and `python video/beats.py` exits non-zero if the plan is
 over before a frame is recorded.
@@ -121,7 +115,7 @@ that took eleven seconds looks like eleven seconds.
 
 The rules say the video has to show the project running on a Fire TV
 device or the Fire TV simulator. The two television beats are the
-release APK (v0.1.1) installed on a Fire TV that Amazon hosts in
+release APK (v0.1.1, then v0.1.2 with the doctor page on the set) installed on a Fire TV that Amazon hosts in
 Appstore Quality Central, Live Device Interaction (a FOS 14 3P TV
 image), signed in to the operator's Amazon account, driven only by
 the D-pad through the console's remote, and recorded from the

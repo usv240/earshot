@@ -398,3 +398,21 @@ a:focus-visible,
   white-space: normal;
   cursor: pointer;
 }
+
+/* The doctor page is the only thing that prints. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  [data-doctor-page],
+  [data-doctor-page] * {
+    visibility: visible;
+  }
+  [data-doctor-page] {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+}

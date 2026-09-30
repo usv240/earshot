@@ -32,10 +32,14 @@ What the order is for
 ---------------------
 A judge who watches only the first fifteen seconds should leave with the
 one sentence: a tone test in a quiet room cannot find the reason you
-cannot follow the television. Everything after that is evidence for it,
-in the order a sceptic would ask for it: the claim, the check itself,
-what it refuses to say, the number behind the number, the television,
-the agent, the honesty, and the line.
+cannot follow the television. The television itself is on screen by
+half a minute, because it is a Fire TV entry, and the rest follows the
+product's own three words, notices, asks, helps: the film and the
+level, the offer and the check, the page for the doctor; then the two
+pieces of evidence, the baseline and the simulation, with what nobody
+has done said beside them; what it is, in one breath; and the line.
+The Alexa+ agent and the MCP server stay on the site and in the
+submission; a Fire TV entry's three minutes are for the television.
 """
 
 from __future__ import annotations
@@ -81,86 +85,19 @@ BEATS: list[Beat] = [
         action="hero",
         pause_before=0.8,
         say=(
-            "You passed the hearing test, and you still can't hear the television. "
-            "The test on your phone plays tones in a quiet room. "
-            "What you actually struggle with is speech with other sound behind it, "
-            "and those are not the same measurement."
+            "You passed the hearing test, and you still can't follow the dialogue on television. "
+            "That's because hearing tones in silence and understanding speech in noise "
+            "are not the same thing."
         ),
     ),
     Beat(
         key="stakes",
-        shows="The three figures under the claim, pointed to in turn.",
+        shows="The three figures under the claim; the first two pointed to.",
         action="stats",
         say=(
-            "Eighty percent of people with hearing loss don't know. "
-            "The ones who notice wait about seven years. "
-            "And last year's Lancet Commission put hearing loss level with cholesterol "
-            "as the largest thing you can actually fix that leads to dementia."
-        ),
-    ),
-    Beat(
-        key="start",
-        shows="Start pressed, eighteen rounds chosen, the volume step, Begin.",
-        action="check_start",
-        say=(
-            "So Earshot measures the other thing. "
-            "Three spoken digits, with noise behind them. "
-            "You set the volume where you'd have the television, and begin."
-        ),
-    ),
-    Beat(
-        key="trials",
-        shows="Rounds answered on the keypad in real time, no cuts inside a round.",
-        action="check_trials",
-        min_hold=14,
-        say=(
-            "It gets harder while you're right and easier when you're wrong, "
-            "until it finds the ratio where you get half of them. "
-            "That ratio is the measurement. "
-            "Because it's a ratio and not a level, it works on a television nobody calibrated. "
-            "That's why the World Health Organization put this test, and not tones, into a phone app."
-        ),
-    ),
-    Beat(
-        key="refused",
-        action="check_refused",
-        shows="The run answered without listening reaches its end, and the screen says why it cannot be scored.",
-        say=(
-            "And when a run cannot be scored, it says so, and says why, "
-            "instead of guessing a number."
-        ),
-    ),
-    Beat(
-        key="outcomes",
-        shows="The three cards: the whole vocabulary of a result.",
-        action="outcomes",
-        say=(
-            "Whatever it finds, these are the only three things it can say. "
-            "It never names a condition. "
-            "There's a test in the repository that fails the build if any result ever does."
-        ),
-    ),
-    Beat(
-        key="measured",
-        shows="The evidence section: measured here, read from the literature, nobody has done yet.",
-        action="evidence",
-        say=(
-            "A hearing screen can't be checked against real listeners; "
-            "each gives one number with nothing to compare it to. "
-            "So this one is run against simulated listeners whose thresholds we chose. "
-            "Two thousand runs: it reads a known threshold with a bias of four hundredths of a decibel, "
-            "and repeats itself to three quarters of one. "
-            "Published figures are point seven to one point two."
-        ),
-    ),
-    Beat(
-        key="baseline",
-        shows="Volume-only against Earshot on the same two hundred households.",
-        action="baseline",
-        say=(
-            "And against the obvious alternative, which is just tracking the volume. "
-            "On two hundred households whose ears never changed, but who turned up a quieter mix, "
-            "volume-only accuses every one of them. Earshot accuses none."
+            "Most people with hearing loss don't know they have it, "
+            "and the ones who notice wait about seven years. "
+            "Earshot starts where people first notice: the television."
         ),
     ),
     Beat(
@@ -169,9 +106,9 @@ BEATS: list[Beat] = [
         action="tv_home",
         min_hold=6,
         say=(
-            "On Fire TV, the app does the half a web page can't. "
+            "On Fire TV, it notices. "
             "It plays a film whose dialogue loudness was measured, reads the set's own volume, "
-            "and watches the level you settle on."
+            "and watches how far past the programme you listen. No microphone. No camera."
         ),
     ),
     Beat(
@@ -180,34 +117,84 @@ BEATS: list[Beat] = [
         action="tv_check",
         min_hold=9,
         say=(
-            "Months later it has noticed, and offers the check. "
-            "It runs on the remote. Sittings stay on the set. No microphone, no camera."
+            "When the pattern has held for months, it asks: a two-minute check, right on the remote. "
+            "Your listening data stays on the television."
         ),
     ),
     Beat(
-        key="agent",
-        shows="A session held against the deployed MCP server from the page, every request timed, then the server's own answer.",
-        action="agent",
-        min_hold=9,
+        key="start",
+        shows="The same check on the website: Start, eighteen rounds, the volume step, Begin.",
+        action="check_start",
         say=(
-            "For Alexa Plus, an MCP server, held to a real session from this page. "
-            "It can explain what the television watches, and it cannot report how anybody watches, "
-            "because that never leaves the device."
+            "The check is three spoken digits with noise behind them. "
+            "You set the volume where you'd have the television, and begin."
         ),
     ),
     Beat(
-        key="honest",
-        shows="The card that says no person has taken this test.",
-        action="honest",
+        key="trials",
+        shows="Rounds answered on the keypad in real time, no cuts inside a round.",
+        action="check_trials",
+        min_hold=12,
         say=(
-            "What nobody has done yet is on the front page, in the same size as the numbers. "
-            "No person has taken this test. That's stated, not hidden."
+            "Get the digits right and it gets harder; get them wrong and it gets easier, "
+            "until it finds your speech-in-noise threshold. "
+            "It measures a ratio, not a volume, so the television needs no calibrated speakers. "
+            "It is based on the same digits-in-noise approach the World Health Organization uses in its hearing screening app."
+        ),
+    ),
+    Beat(
+        key="refused",
+        action="check_refused",
+        shows="The run answered without listening reaches its end, and the screen says why it cannot be scored.",
+        say=(
+            "And if a run isn't reliable, it refuses to score it, and says why, "
+            "instead of inventing a number."
+        ),
+    ),
+    Beat(
+        key="page",
+        action="doctor_page",
+        shows="One page for your doctor, opened from the result: what was measured or why it was not, and what the page is not.",
+        say=(
+            "Then it helps: one page to take to a doctor, with what was observed, what the check measured, "
+            "and its limits. Earshot never diagnoses a condition. "
+            "A test in the repository fails the build if any result tries to."
+        ),
+    ),
+    Beat(
+        key="baseline",
+        shows="Volume-only against Earshot on the same two hundred households.",
+        action="baseline",
+        say=(
+            "Why not just watch the volume? "
+            "A quiet film makes everyone turn the television up. "
+            "On two hundred simulated households whose hearing never changed, "
+            "volume alone flags every one of them when the programme gets quieter. Earshot flags none."
+        ),
+    ),
+    Beat(
+        key="measured",
+        shows="The evidence section: the simulated-listener figures, then what nobody has done yet.",
+        action="evidence",
+        say=(
+            "The procedure was run against two thousand simulated listeners with known thresholds. "
+            "It reads them back with almost no bias, and repeats itself within the published range for this test. "
+            "That validates the procedure. A clinical study is the next step, and the site says what it would take."
+        ),
+    ),
+    Beat(
+        key="impact",
+        shows="The three words on the site: notice, ask rarely, help either way.",
+        action="impact",
+        say=(
+            "Earshot is not a diagnosis. It's an earlier signal, from the device that already sees the pattern, "
+            "that a proper hearing test may be worth taking."
         ),
     ),
     Beat(
         key="close",
-        shows="What it does not do.",
         action="close",
+        shows="What it does not do.",
         min_hold=4,
         say=(
             "Your television can already help you hear. "
@@ -296,7 +283,7 @@ def script() -> str:
         "",
         "The rules say the video has to show the project running on a Fire TV",
         "device or the Fire TV simulator. The two television beats are the",
-        "release APK (v0.1.1) installed on a Fire TV that Amazon hosts in",
+        "release APK (v0.1.1, then v0.1.2 with the doctor page on the set) installed on a Fire TV that Amazon hosts in",
         "Appstore Quality Central, Live Device Interaction (a FOS 14 3P TV",
         "image), signed in to the operator's Amazon account, driven only by",
         "the D-pad through the console's remote, and recorded from the",

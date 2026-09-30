@@ -106,3 +106,26 @@ describe('the household with nothing going on', () => {
     expect(Math.abs(d!.driftDb)).toBeLessThan(0.01);
   });
 });
+
+/*
+  The doctor page on the set is the package's object, so the same
+  wording tests cover it; this checks the television passes the device
+  it should, and that a refused run still gets a page.
+*/
+import {doctorPage} from 'digits-in-noise';
+
+test('the set hands over one page for the doctor, scored or refused', () => {
+  const scored = doctorPage(
+    {srtDb: -7.4, answers: [], reversals: 9, valid: true, problems: []},
+    {date: '2026-09-30', rounds: 24, device: 'a Fire TV, with the remote'},
+  );
+  const refused = doctorPage(
+    {srtDb: Number.NaN, answers: [], reversals: 1, valid: false, problems: ['the track never settled']},
+    {date: '2026-09-30', rounds: 24, device: 'a Fire TV, with the remote'},
+  );
+  expect(scored.facts.find(f => f.label === 'Where')?.value).toBe('a Fire TV, with the remote');
+  expect(scored.facts.find(f => f.label === 'Result')?.value).toContain('-7.4 dB');
+  expect(refused.facts.find(f => f.label === 'Result')?.value).toBe('Not scored');
+  expect(refused.refusals).toEqual(['the track never settled']);
+  expect(refused.scope.join(' ')).toMatch(/not a hearing test/);
+});

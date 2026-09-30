@@ -18,6 +18,7 @@ import {
 } from '@earshot/core';
 import {
   DEFAULT_LENGTH,
+  doctorPage,
   interpret,
   LENGTHS,
   lengthFor,
@@ -61,7 +62,7 @@ const COLOURS = {
   warn: '#e0b45c',
 };
 
-type Stage = 'home' | 'watch' | 'level' | 'playing' | 'answering' | 'result';
+type Stage = 'home' | 'watch' | 'level' | 'playing' | 'answering' | 'result' | 'page';
 
 function TvButton({
   label,
@@ -404,11 +405,56 @@ export default function App(): React.JSX.Element {
               Compared against: {reading.reference.label}
             </Text>
             <View style={styles.row}>
-              <TvButton label="Done" primary preferred onPress={() => setStage('home')} />
+              <TvButton label="One page for your doctor" primary preferred onPress={() => setStage('page')} />
+              <TvButton label="Done" onPress={() => setStage('home')} />
               <TvButton label="Again" onPress={startRun} />
             </View>
           </View>
         )}
+
+        {/*
+          The page, on the set. Sittings never leave the television, so
+          there is no link to send; the page is laid out to be read from
+          the sofa or photographed with a phone, white on the dark screen
+          so a photo of it is legible. The words are the package's, the
+          same object the website prints, under the same wording tests.
+        */}
+        {stage === 'page' && result && (() => {
+          const page = doctorPage(result, {
+            date: new Date().toISOString().slice(0, 10),
+            rounds: trials,
+            device: 'a Fire TV, with the remote',
+          });
+          return (
+            <View style={styles.paper}>
+              <Text style={styles.paperEyebrow}>{page.title}</Text>
+              <Text style={styles.paperHeading}>{page.headline}</Text>
+              {page.facts.map(f => (
+                <View key={f.label} style={styles.paperRow}>
+                  <Text style={styles.paperLabel}>{f.label}</Text>
+                  <Text style={styles.paperValue}>{f.value}</Text>
+                </View>
+              ))}
+              {page.refusals.length > 0 && (
+                <View>
+                  <Text style={styles.paperLabel}>Why it was not scored</Text>
+                  {page.refusals.map(r => (
+                    <Text key={r} style={styles.paperBody}>{r}</Text>
+                  ))}
+                </View>
+              )}
+              <Text style={styles.paperBody}>{page.nextStep}</Text>
+              {page.scope.map(line => (
+                <Text key={line.slice(0, 24)} style={styles.paperSmall}>{line}</Text>
+              ))}
+              <Text style={styles.paperSmall}>Reference: {page.reference}</Text>
+              <View style={styles.row}>
+                <TvButton label="Back" primary preferred onPress={() => setStage('result')} />
+                <TvButton label="Done" onPress={() => setStage('home')} />
+              </View>
+            </View>
+          );
+        })()}
       </ScrollView>
     </View>
   );
@@ -438,6 +484,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLOURS.line,
   },
+  paper: {backgroundColor: '#ffffff', borderRadius: 12, padding: 28, maxWidth: 1180},
+  paperEyebrow: {color: '#666666', fontSize: 18, fontWeight: '600', letterSpacing: 1, marginBottom: 8},
+  paperHeading: {color: '#111111', fontSize: 34, fontWeight: '600', marginBottom: 14},
+  paperRow: {flexDirection: 'row', justifyContent: 'space-between', gap: 24, borderBottomWidth: 1, borderBottomColor: '#e5e5e5', paddingVertical: 6},
+  paperLabel: {color: '#666666', fontSize: 20},
+  paperValue: {color: '#111111', fontSize: 20, fontWeight: '600', textAlign: 'right', flexShrink: 1},
+  paperBody: {color: '#333333', fontSize: 21, lineHeight: 30, marginTop: 12},
+  paperSmall: {color: '#555555', fontSize: 16, lineHeight: 23, marginTop: 8},
   panelTitle: {color: COLOURS.ink, fontSize: 24, fontWeight: '600', marginBottom: 12},
   panelBody: {color: COLOURS.muted, fontSize: 22, lineHeight: 33, maxWidth: 1100},
   slots: {flexDirection: 'row', gap: 18, marginVertical: 26},

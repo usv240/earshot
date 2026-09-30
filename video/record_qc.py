@@ -243,7 +243,7 @@ def record(page: Page, ctx, narration: dict[str, float]) -> int:
     (OUT / "tv-timings.json").write_text(
         json.dumps({"video": round(length, 3), "width": w, "height": h,
                     "device": "Appstore Quality Central virtual Fire TV",
-                    "clockOffset": round(offset, 3), "alignment": "from the end of the file", "beats": marks}, indent=1),
+                    "clockOffset": round(offset, 3), "alignment": "from the end of the file", "crop_x": x, "crop_y": y, "beats": marks}, indent=1),
         encoding="utf8",
     )
     print(f"\nwrote {dest.name} ({dest.stat().st_size / 1048576:.1f} MB, {w}x{h}) and tv-timings.json", flush=True)

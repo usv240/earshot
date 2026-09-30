@@ -38,7 +38,7 @@ const STEPS: Step[] = [
     title: "Install it from a laptop on the same network",
     body: "Two commands. The first connects to the set over the network; the second installs the app. Fire TV asks once whether to allow the laptop.",
     status: "live",
-    command: "adb connect <fire-tv-ip>:5555\nadb install earshot-tv-v0.1.1.apk",
+    command: "adb connect <fire-tv-ip>:5555\nadb install earshot-tv-v0.1.2.apk",
   },
   {
     title: "Open it and take the check with the remote",

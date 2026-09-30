@@ -10,6 +10,7 @@ import {
   type ScreenResult,
 } from "digits-in-noise";
 import { TripletPlayer, type DigitManifest } from "../lib/audio";
+import { DoctorPage } from "./DoctorPage";
 
 /**
  * The test, in a browser.
@@ -66,6 +67,7 @@ export function HearingTest({ manifest }: Props) {
   const [reading, setReading] = useState<Interpretation | null>(null);
   const [problem, setProblem] = useState<string>("");
   const [trials, setTrials] = useState<number>(DEFAULT_LENGTH);
+  const [pageOpen, setPageOpen] = useState(false);
 
   const screen = useRef<Screen | null>(null);
   const player = useRef<TripletPlayer | null>(null);
@@ -115,6 +117,7 @@ export function HearingTest({ manifest }: Props) {
     player.current?.stop();
     screen.current = new Screen({ trials }, Date.now() % 100000);
     setResult(null);
+    setPageOpen(false);
     setReading(null);
     await present();
   }, [present, trials]);
@@ -374,7 +377,10 @@ export function HearingTest({ manifest }: Props) {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={() => void startRun()} className="primary">
+            <button type="button" onClick={() => setPageOpen((v) => !v)} className="primary" data-testid="doctor-page">
+              One page for your doctor
+            </button>
+            <button type="button" onClick={() => void startRun()} className="secondary">
               Again
             </button>
             <button
@@ -384,11 +390,12 @@ export function HearingTest({ manifest }: Props) {
                 player.current = null;
                 setStage("idle");
               }}
-              className="secondary"
+              className="ghost"
             >
               Finish
             </button>
           </div>
+          {pageOpen && <DoctorPage result={result} rounds={trials} onClose={() => setPageOpen(false)} />}
         </div>
       )}
 

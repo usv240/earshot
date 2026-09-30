@@ -261,12 +261,13 @@ ALEXA = "#alexa"
 HOLD = "button:has-text('Hold a session')"
 HONEST = "text=Nobody has done yet"
 HONEST_CARD = "text=No person has taken this test"
+DOCTOR = "[data-testid=doctor-page]"
 CLOSE = "#privacy"
 
 
 def hero(r: Recorder):
     yield
-    r.on_phrase("tones in a quiet room")
+    r.on_phrase("tones in silence")
     r.point(HERO, dy=-40 * SCALE)
     r.hold_beat()
 
@@ -274,16 +275,18 @@ def hero(r: Recorder):
 def stats(r: Recorder):
     r.scroll_to(STATS, rest=URL_BAR_HEIGHT + 260 * SCALE)
     yield
-    r.on_phrase("Eighty percent")
+    r.on_phrase("don't know")
     r.point(f"{STATS} > div:nth-child(1)", dy=-60 * SCALE)
     r.on_phrase("seven years")
     r.point(f"{STATS} > div:nth-child(2)", dy=-60 * SCALE)
-    r.on_phrase("Lancet")
-    r.point(f"{STATS} > div:nth-child(3)", dy=-60 * SCALE)
     r.hold_beat()
 
 
 def check_start(r: Recorder):
+    # The television beats came first, so the browser is wherever the
+    # stakes left it; the check card is at the top of the page.
+    r.page.goto(SITE, wait_until="networkidle")
+    r.page.wait_for_timeout(600)
     # The check card sits in the hero, and the hero is at scroll zero, so
     # this rest is a request the page cannot grant: the shot is as high
     # as it goes. The stat tiles' last line therefore sits under the
@@ -353,6 +356,20 @@ def check_refused(r: Recorder):
     r.hold_beat()
 
 
+def doctor_page(r: Recorder):
+    """The result screen is on camera from the refusal beat; open the
+    page from it and bring it into frame."""
+    r.click(DOCTOR)
+    r.page.wait_for_selector("[data-doctor-page]", timeout=10_000)
+    r.scroll_to("[data-doctor-page]", rest=URL_BAR_HEIGHT + 40 * SCALE)
+    yield
+    r.on_phrase("what was observed")
+    r.point("[data-doctor-page] dl")
+    r.on_phrase("its limits")
+    r.point("[data-doctor-page] p.text-xs", dy=-20 * SCALE)
+    r.hold_beat()
+
+
 def outcomes(r: Recorder):
     r.page.goto(SITE + "#outcomes", wait_until="networkidle")
     r.page.wait_for_timeout(600)
@@ -364,21 +381,27 @@ def outcomes(r: Recorder):
 
 
 def evidence(r: Recorder):
+    r.page.goto(SITE + "#evidence", wait_until="networkidle")
+    r.page.wait_for_timeout(600)
     r.scroll_to(EVIDENCE, rest=URL_BAR_HEIGHT + 120 * SCALE)
     yield
-    r.on_phrase("Two thousand runs")
+    r.on_phrase("almost no bias")
     r.point("text=0.037 dB")
-    r.on_phrase("three quarters")
+    r.on_phrase("published range")
     r.point("text=0.748 dB")
+    r.on_phrase("next step")
+    r.scroll_to(HONEST, rest=URL_BAR_HEIGHT + 200 * SCALE)
     r.hold_beat()
 
 
 def baseline(r: Recorder):
+    r.page.goto(SITE + "#evidence", wait_until="networkidle")
+    r.page.wait_for_timeout(600)
     r.scroll_to(BASELINE, rest=URL_BAR_HEIGHT + 130 * SCALE)
     yield
-    r.on_phrase("accuses every one")
+    r.on_phrase("flags every one")
     r.point("text=200 of 200")
-    r.on_phrase("accuses none")
+    r.on_phrase("flags none")
     r.point("text=0 of 200")
     r.hold_beat()
 
@@ -386,7 +409,6 @@ def baseline(r: Recorder):
 def agent(r: Recorder):
     r.scroll_to(ALEXA, rest=URL_BAR_HEIGHT + 120 * SCALE)
     yield
-    r.on_phrase("real session")
     r.click(HOLD)
     r.page.wait_for_selector("text=DELETE session", timeout=30_000)
     r.on_phrase("cannot report")
@@ -394,6 +416,16 @@ def agent(r: Recorder):
     # rest used for the heading. Bring the card up so the answer is seen.
     r.scroll_to("#alexa .card", rest=URL_BAR_HEIGHT + 80 * SCALE)
     r.point("#alexa blockquote")
+    r.hold_beat()
+
+
+def impact(r: Recorder):
+    r.page.goto(SITE + "#how", wait_until="networkidle")
+    r.page.wait_for_timeout(600)
+    r.scroll_to("#how", rest=URL_BAR_HEIGHT + 120 * SCALE)
+    yield
+    r.on_phrase("earlier signal")
+    r.point("#how h2", dy=-20 * SCALE)
     r.hold_beat()
 
 
@@ -412,7 +444,7 @@ def close(r: Recorder):
     r.hold_beat()
 
 
-ACTIONS = {f.__name__: f for f in (hero, stats, check_start, check_trials, check_refused, outcomes, evidence, baseline, agent, honest, close)}
+ACTIONS = {f.__name__: f for f in (hero, stats, check_start, check_trials, check_refused, doctor_page, outcomes, evidence, baseline, agent, impact, honest, close)}
 
 
 def assert_full_frame(path: Path) -> None:

@@ -249,7 +249,7 @@ here:**
   instructions.
 - **Live site:** https://d29nbz7seeunuf.cloudfront.net
 - **Live MCP endpoint:** https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp
-- **Fire TV app:** https://github.com/usv240/earshot/releases/tag/v0.1.1, the
+- **Fire TV app:** https://github.com/usv240/earshot/releases/tag/v0.1.2 (adds one page for your doctor on the set; photographed on Amazon's hosted Fire TV in [docs/img/tv-doctor-page-qc.png](img/tv-doctor-page-qc.png)), the
   APK for arm64, armeabi-v7a and x86_64, with install steps in its notes.
 - **Demo video:** add when published. Its two Fire TV beats are the release APK on a Fire TV that Amazon hosts in Appstore Quality Central, the Fire TV simulator the rules name, recorded from the console's stream on 2026-09-30; `video/build/tv-timings.json` names the device.
 - **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), fourteen entries,
