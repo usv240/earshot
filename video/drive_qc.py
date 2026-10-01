@@ -54,16 +54,23 @@ def main() -> int:
         except PermissionError:
             pass  # a closing browser still holds it; the recorder reads page.video, not the directory
     with sync_playwright() as pw:
-        kwargs = dict(headless=False, viewport={"width": qc.WIDTH, "height": qc.HEIGHT},
+        # QC_FULL=1: the 4K whole-console take. A 1600x900 CSS window at
+        # 2.4x device scale records a native 3840x2160 file and fits the
+        # console's header and the whole device stream in one view.
+        import os
+        full = os.environ.get("QC_FULL") == "1"
+        vw, vh, dsf = (1600, 900, 2.4) if full else (qc.WIDTH, qc.HEIGHT, 1)
+        rw, rh = (3840, 2160) if full else (qc.WIDTH, qc.HEIGHT)
+        kwargs = dict(headless=False, viewport={"width": vw, "height": vh}, device_scale_factor=dsf,
                       ignore_default_args=["--enable-automation"],
-                      record_video_dir=str(qc.OUT / "qc-raw"), record_video_size={"width": qc.WIDTH, "height": qc.HEIGHT})
+                      record_video_dir=str(qc.OUT / "qc-raw"), record_video_size={"width": rw, "height": rh})
         try:
             ctx = pw.chromium.launch_persistent_context(str(qc.PROFILE), channel="chrome", **kwargs)
         except Exception:
             ctx = pw.chromium.launch_persistent_context(str(qc.PROFILE), **kwargs)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto(qc.START_URL, wait_until="domcontentloaded", timeout=120_000)
-        page.screenshot(path=str(SHOT))
+        page.screenshot(path=str(SHOT), scale="css")
         log("ready; waiting for commands")
         while True:
             time.sleep(1.0)
@@ -103,6 +110,16 @@ def main() -> int:
                     time.sleep(4)
                 elif verb == "shot":
                     pass
+                elif verb == "urlbar":
+                    import retake_qc
+                    page.evaluate(retake_qc.URL_BAR_JS)
+                    time.sleep(1)
+                elif verb == "retake":
+                    import retake_qc
+                    log("retaking")
+                    rc = retake_qc.retake(page, ctx, narration)
+                    log(f"retake returned {rc}")
+                    return rc
                 elif verb == "scroll":
                     page.evaluate(f"window.scrollTo(0, {int(rest)})")
                     time.sleep(1.5)
@@ -162,7 +179,7 @@ def main() -> int:
                         log(f"  {f}")
                 elif verb == "record":
                     log("recording")
-                    page.screenshot(path=str(SHOT))
+                    page.screenshot(path=str(SHOT), scale="css")
                     rc = qc.record(page, ctx, narration)
                     log(f"record returned {rc}")
                     return rc
@@ -172,11 +189,11 @@ def main() -> int:
                 else:
                     log(f"unknown: {line}")
                     continue
-                page.screenshot(path=str(SHOT))
+                page.screenshot(path=str(SHOT), scale="css")
                 log(f"ok: {line}  ({page.url[:80]})")
             except Exception as err:  # noqa: BLE001
                 try:
-                    page.screenshot(path=str(SHOT))
+                    page.screenshot(path=str(SHOT), scale="css")
                 except Exception:  # noqa: BLE001
                     pass
                 log(f"failed: {line}: {type(err).__name__}: {str(err)[:200]}")
