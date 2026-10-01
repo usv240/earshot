@@ -418,6 +418,10 @@ describe("the video script is the one the programs read", () => {
   });
 
   it("says which device the television footage is", () => {
-    expect(/Android TV virtual device/.test(doc)).toBe(true);
+    // The footage is Amazon's hosted Fire TV; the script must name it and
+    // the device image, and must say the console is in frame.
+    expect(/Appstore Quality\s+Central/.test(doc)).toBe(true);
+    expect(/FOS 14 3P TV/.test(doc)).toBe(true);
+    expect(/whole console page/.test(doc)).toBe(true);
   });
 });
