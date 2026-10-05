@@ -99,7 +99,8 @@ than about the method.
   Amazon S3, Amazon DynamoDB, AWS Lambda, CloudFront. See
   [AWS.md](AWS.md) for exactly what each does and the minimum IAM policy.
 - **Mini challenge: Open Source.** `digits-in-noise`, a new
-  dependency-free TypeScript library, MIT.
+  dependency-free TypeScript library, MIT, on npm:
+  https://www.npmjs.com/package/digits-in-noise
 
 ## Pre-existing project
 
@@ -114,8 +115,10 @@ fixes that were expensive to learn once.
 
 - **Repository:** https://github.com/usv240/earshot
 - **GitHub username:** usv240
-- **The contribution:** `packages/digits-in-noise`, published from this
-  repository under MIT.
+- **The contribution:** `digits-in-noise` on npm,
+  https://www.npmjs.com/package/digits-in-noise (`npm install
+  digits-in-noise`), MIT, source at `packages/digits-in-noise` in this
+  repository.
 - **What it is:** the digits-in-noise hearing screen as a
   dependency-free TypeScript library. The adaptive one-up one-down track,
   triplet scoring, speech reception threshold estimation, the validity

@@ -153,7 +153,8 @@ or turns a test that did not work into good news.
 
 ## Licence
 
-MIT. `packages/digits-in-noise` is published separately as a dependency-free
+MIT. `packages/digits-in-noise` is published separately on npm as
+[`digits-in-noise`](https://www.npmjs.com/package/digits-in-noise), a dependency-free
 library, because the only open implementations of this test are in Java and
 native mobile code and the ecosystem should have one that runs anywhere.
 
