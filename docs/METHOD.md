@@ -78,9 +78,9 @@ cheapest of the outstanding items to fix.
 
 Published diotic categories:
 
-- **at or below -5.55 dB SNR** — normal auditory performance
-- **above -5.55 up to -3.80** — insufficient
-- **above -3.80** — poor
+- **at or below -5.55 dB SNR**: normal auditory performance
+- **above -5.55 up to -3.80**: insufficient
+- **above -3.80**: poor
 
 These are close to the cut-points derived from UK Biobank data, which
 sit at -5.5 and -3.5.

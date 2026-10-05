@@ -80,16 +80,16 @@ provisional. Every result carries its reference. Carry it too.
 All five are on one MCP server, spec revision 2025-11-25 over Streamable
 HTTP.
 
-- **`what_the_television_watches`** — the mechanism, and nothing else.
+- **`what_the_television_watches`**: the mechanism, and nothing else.
   Returns no data, because there is none to return.
-- **`explain_the_check`** — what the test measures, why it works on
+- **`explain_the_check`**: what the test measures, why it works on
   uncalibrated equipment, and what it cannot do.
-- **`record_screen_result`** — store a completed check, including one
+- **`record_screen_result`**: store a completed check, including one
   that was refused. Wants `household` and `valid`, plus `srt_db` when
   the run was usable.
-- **`get_screen_history`** — past checks, newest first, with whether
+- **`get_screen_history`**: past checks, newest first, with whether
   anything has actually changed.
-- **`prepare_for_appointment`** — one page for a clinician: what was
+- **`prepare_for_appointment`**: one page for a clinician: what was
   measured, when, and what it does not establish. Excludes refused runs
   and anything measured with placeholder audio rather than burying them
   under a caveat.
