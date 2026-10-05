@@ -242,30 +242,35 @@ documentation, and they were enough.
 
 ---
 
-## Android TV virtual device and Appstore Quality Central
+## Appstore Quality Central and the Android TV virtual device
 
-**Used for:** the Fire TV footage in the demo video. The release APK
-runs on an Android TV virtual device from the Android SDK, driven only
-by D-pad key events over ADB and captured in real time from the host.
+**Used for:** testing during the build on an Android TV virtual device,
+driven only by D-pad key events over ADB, and the Fire TV footage in the
+demo video: the release APK uploaded to a Fire TV that Amazon hosts in
+Appstore Quality Central (Live Device Interaction, a FOS 14 3P TV),
+launched from its ADB shell box and driven with the console's remote,
+filmed with the whole console in frame.
 
-**What worked well:** the APK that installs on the virtual device is
-the APK a Fire TV would install, and the virtual device is honest about
-what it is. Reading the screen through `uiautomator` made a remote
-driven by a program reliable, which is how the focus finding above was
-made at all.
+**What worked well:** Quality Central puts a real Fire TV in a browser
+with no hardware, which is exactly what a team without a device needs.
+The upload and ADB shell box on the dashboard were enough to install and
+launch a sideloaded APK. On the emulator side, reading the screen
+through `uiautomator` made a remote driven by a program reliable, which
+is how the focus finding above was made at all.
 
-**What needs work:** the rules ask for footage on a Fire TV device or
-the Fire TV simulator, and the simulator lives in Appstore Quality
-Central behind a developer sign-in and a browser session, so nothing in
-a build pipeline can reach it. A way to drive a Quality Central device
-from ADB, or a downloadable Fire TV system image for the standard
-emulator, would let the footage be made by the same script that makes
-the rest of the video, every time the app changes. As it is, that
-footage is a manual step, and the site says so.
+**What needs work:** Quality Central lives behind a developer sign-in
+and a browser session, so nothing in a build pipeline can reach it. The
+stream stops updating without key presses, the device's first-run setup
+ignores the remote, and a recording of the browser runs behind the clock.
+A way to drive a Quality Central device from ADB, or a downloadable Fire
+TV system image for the standard emulator, would let the footage be made
+by the same script that makes the rest of the video, every time the app
+changes.
 
 **Onboarding:** the emulator path is Android's and needs nothing from
-Amazon. Finding out whether Quality Central could be scripted took
-longer than it should have, because the answer is not written down.
+Amazon. Quality Central took one support case before devices were
+available, and finding out whether it could be scripted took longer than
+it should have, because the answer is not written down.
 
 **Would we build with it again:** yes, and we would want the image.
 
