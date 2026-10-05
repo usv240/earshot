@@ -61,8 +61,9 @@ measurement the audiogram cannot substitute for.
 
 **Helps.** Fire TV already ships Dialogue Boost, hearing-aid pairing and direct
 streaming to cochlear implants. All of it is for people who already know. Earshot
-turns the first one on, measures whether it helped, and produces one page to take
-to a doctor.
+explains where the first one lives (Fire TV gives an app no way to switch it on or
+to read whether it is on; friction log entry 1), and produces one page to take to
+a doctor.
 
 ## Why a digit test works on a television
 
