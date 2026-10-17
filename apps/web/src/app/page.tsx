@@ -5,6 +5,7 @@ import { FireTvConnect } from "../components/FireTvConnect";
 import { HearingTest } from "../components/HearingTest";
 import { Info } from "../components/Info";
 import { McpProof } from "../components/McpProof";
+import { ApiKey } from "../components/ApiKey";
 import { Nav } from "../components/Nav";
 import { Outcomes } from "../components/Outcomes";
 import type { DigitManifest } from "../lib/audio";
@@ -314,6 +315,9 @@ export default function Home() {
           <div className="mt-10">
             <McpProof />
           </div>
+          <div className="mt-6">
+            <ApiKey />
+          </div>
         </section>
 
         <div className="rule my-20" />
@@ -346,7 +350,7 @@ export default function Home() {
             <div className="card min-w-0 p-6">
               <p className="font-semibold text-ink">Run it</p>
               <pre className="mt-3 overflow-x-auto rounded-lg border border-line bg-[var(--raised)] p-3 font-mono text-[12px] leading-relaxed text-ink">
-                {"npm install\nnpm test          # 214 tests, both runners\nnpm run validate  # regenerate every figure on this page\nnpm run web:dev"}
+                {"npm install\nnpm test          # 220 tests, both runners\nnpm run validate  # regenerate every figure on this page\nnpm run web:dev"}
               </pre>
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 No AWS account needed for any of that. The procedure, the wording, the

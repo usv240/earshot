@@ -168,7 +168,7 @@ function handler(event) {
       cors: {
         allowedOrigins: ["*"],
         allowedMethods: [HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE],
-        allowedHeaders: ["content-type", "mcp-session-id", "mcp-protocol-version"],
+        allowedHeaders: ["content-type", "mcp-session-id", "mcp-protocol-version", "authorization"],
         exposedHeaders: ["mcp-session-id"],
       },
     });

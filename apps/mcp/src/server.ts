@@ -2,12 +2,14 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { MCP_PROTOCOL_VERSION, registerMcp, TOOL_NAMES } from "./mcp";
 import { MemoryStore, type ScreenStore } from "./store";
+import { issueKey, issuedKeyBody } from "./keys";
 
 /**
  * The Earshot MCP server.
  *
  * POST/GET/DELETE /mcp   Model Context Protocol, spec 2025-11-25,
  *                        Streamable HTTP. This is the Alexa+ surface.
+ * POST /v1/keys          a free API key, no account: a private space
  * GET /healthz           liveness
  */
 
@@ -97,7 +99,10 @@ export function buildServer(
     tools: TOOL_NAMES,
     store: store instanceof MemoryStore ? "in-memory" : "dynamodb",
     holds: "Completed checks only. How a household watches television is never uploaded.",
+    keys: "Optional. POST /v1/keys for a private space; no key is the open server.",
   }));
+
+  app.post("/v1/keys", async (_req, reply) => reply.code(201).send(issuedKeyBody(issueKey())));
 
   registerMcp(app, { store });
 

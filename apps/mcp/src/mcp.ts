@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { callerFrom, storageName } from "./keys";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { interpret, PROVISIONAL_DIOTIC } from "digits-in-noise";
 import { changeAcross, type ScreenRecord, type ScreenStore } from "./store";
@@ -215,13 +216,21 @@ export function registerMcp(
         { code: -32602 },
       );
     }
+    if (household.includes(":")) {
+      throw Object.assign(new Error("household may not contain a colon"), { code: -32602 });
+    }
     return household.trim();
   };
 
   const callTool = async (
     name: string,
     args: Record<string, unknown>,
+    space: string | null = null,
   ): Promise<Record<string, unknown>> => {
+    // The name the caller used, and where its rows live. A keyed caller's
+    // households are stored under its space and shown back by name.
+    const where = (household: string) => storageName(household, space);
+    const shown = (r: ScreenRecord): ScreenRecord => ({ ...r, household: r.household.split(":").pop() ?? r.household });
     switch (name) {
       case "what_the_television_watches": {
         /*
@@ -287,7 +296,7 @@ export function registerMcp(
         });
 
         const entry: ScreenRecord = {
-          household,
+          household: where(household),
           takenAt:
             typeof args.taken_at === "string"
               ? args.taken_at
@@ -302,7 +311,8 @@ export function registerMcp(
         await deps.store.record(entry);
 
         return textContent({
-          stored: entry,
+          stored: shown(entry),
+          ...(space ? { space: "your key's own" } : {}),
           headline: reading.headline,
           nextStep: reading.nextStep,
           ...(entry.placeholderAudio
@@ -317,9 +327,10 @@ export function registerMcp(
       case "get_screen_history": {
         const household = requireHousehold(args);
         const limit = typeof args.limit === "number" ? args.limit : 20;
-        const history = await deps.store.history(household, limit);
+        const history = (await deps.store.history(where(household), limit)).map(shown);
         return textContent({
           household,
+          ...(space ? { space: "your key's own" } : {}),
           screens: history,
           change: changeAcross(history),
           note:
@@ -329,7 +340,7 @@ export function registerMcp(
 
       case "prepare_for_appointment": {
         const household = requireHousehold(args);
-        const history = await deps.store.history(household, 20);
+        const history = (await deps.store.history(where(household), 20)).map(shown);
         const usable = history.filter((r) => r.valid && !r.placeholderAudio);
 
         return textContent({
@@ -364,6 +375,17 @@ export function registerMcp(
 
   app.post("/mcp", async (req, reply) => {
     if (!checkOrigin(req, reply)) return;
+
+    // An API key is optional. No header is the open server; a malformed
+    // one is refused rather than silently treated as open, so a caller
+    // who meant to be private never writes into the shared space.
+    const caller = callerFrom(req.headers.authorization);
+    if ("error" in caller) {
+      return reply
+        .code(401)
+        .header("WWW-Authenticate", 'Bearer realm="earshot"')
+        .send(rpcError(null, -32001, caller.error));
+    }
 
     const parsed = req.body as { json?: unknown; parseError?: string } | undefined;
     if (parsed?.parseError) {
@@ -442,7 +464,7 @@ export function registerMcp(
             ? (params.arguments as Record<string, unknown>)
             : {};
         try {
-          const result = await callTool(name, args);
+          const result = await callTool(name, args, caller.space);
           return reply.send(rpcResult(msg.id, result));
         } catch (err) {
           const code = (err as { code?: number }).code ?? -32603;
