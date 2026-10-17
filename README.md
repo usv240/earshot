@@ -127,6 +127,22 @@ Apple ships a hearing test. Intel holds a patent on passive detection from devic
 volume. No television does either, and the audiogram misses the failure mode this
 is aimed at.
 
+## Your own API key
+
+The server is open: name a household and use it, no key. For a space of
+your own, take a free key with no account:
+
+```
+curl -X POST https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/v1/keys
+```
+
+Send it as `Authorization: Bearer <key>` on every request to `/mcp`, or
+paste the `mcpClientConfig` the response carries into any MCP client.
+Households you name with it are reachable by nobody without it. Nothing
+about the key is stored: the space is derived from its hash on every
+request, so there is no table to leak, and a lost key cannot be
+recovered. The site's Alexa+ section issues one and proves it, live.
+
 ## Run it
 
 ```
