@@ -411,16 +411,32 @@ def baseline(r: Recorder):
     r.hold_beat()
 
 
+KEY_BTN = "#alexa button:has-text('Get an API key')"
+PROVE = "#alexa button:has-text('Prove it is yours')"
+NO_KEY_ROW = "#alexa td:has-text('asked with no key')"
+
+
 def agent(r: Recorder):
+    # October re-cut: the session, then the key panel beneath it. The
+    # session proves the MCP server for the Alexa+ rule; the key panel is
+    # something a judge can press: a key issued, a placeholder check
+    # recorded with it, and the same household asked with no key.
     r.scroll_to(ALEXA, rest=URL_BAR_HEIGHT + 120 * SCALE)
     yield
     r.click(HOLD)
     r.page.wait_for_selector("text=DELETE session", timeout=30_000)
-    r.on_phrase("cannot report")
-    # The quote sits under five rows of requests, below the frame at the
-    # rest used for the heading. Bring the card up so the answer is seen.
-    r.scroll_to("#alexa .card", rest=URL_BAR_HEIGHT + 80 * SCALE)
-    r.point("#alexa blockquote")
+    # The five timed requests are the proof the server is live; keep them
+    # in frame for the first sentence before moving to the key.
+    r.scroll_to("#alexa table", rest=URL_BAR_HEIGHT + 200 * SCALE)
+    r.point("#alexa table tbody tr:nth-child(4)")
+    r.on_phrase("free API key")
+    r.scroll_to("text=Your own key", rest=URL_BAR_HEIGHT + 90 * SCALE)
+    r.click(KEY_BTN)
+    r.page.wait_for_selector(PROVE, timeout=30_000)
+    r.scroll_to(PROVE, rest=URL_BAR_HEIGHT + 260 * SCALE)
+    r.click(PROVE)
+    r.page.wait_for_selector(NO_KEY_ROW, timeout=30_000)
+    r.point(NO_KEY_ROW)
     r.hold_beat()
 
 
@@ -475,7 +491,8 @@ def main() -> int:
         stale.unlink()
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(args=["--force-color-profile=srgb", "--autoplay-policy=no-user-gesture-required"])
+        # The installed Chrome: the Playwright browser cache is gone from this machine.
+        browser = pw.chromium.launch(channel="chrome", args=["--force-color-profile=srgb", "--autoplay-policy=no-user-gesture-required"])
         context = browser.new_context(
             viewport={"width": WIDTH, "height": HEIGHT},
             device_scale_factor=1,

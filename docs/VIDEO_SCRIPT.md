@@ -70,31 +70,37 @@ The same page on the website, opened from the result: what was measured or why i
 
 > The same page prints from the website: what was observed, what the check measured, and its limits. Earshot never diagnoses a condition. A test in the repository fails the build if any result tries to.
 
-**1:43, baseline, the website, in a real browser**
+**1:43, agent, the website, in a real browser**
+
+The live MCP session from the site, then the key panel: a key issued, a check recorded with it, and the same household asked with no key.
+
+> Earshot answers Alexa+ through its MCP server, live from this page. And anyone can take a free API key: the checks they record with it are theirs alone.
+
+**1:58, baseline, the website, in a real browser**
 
 Volume-only against Earshot on the same two hundred households.
 
 > Why not just watch the volume? A quiet film makes everyone turn the television up. On two hundred simulated households whose hearing never changed, volume alone flags every one of them when the programme gets quieter. Earshot flags none.
 
-**1:58, measured, the website, in a real browser**
+**2:13, measured, the website, in a real browser**
 
 The evidence section: the simulated-listener figures, then what nobody has done yet.
 
 > The procedure was run against two thousand simulated listeners with known thresholds. It reads them back with almost no bias, and repeats itself within the published range for this test. That validates the procedure. A clinical study is the next step, and the site says what it would take.
 
-**2:18, impact, the website, in a real browser**
+**2:32, impact, the website, in a real browser**
 
 The three words on the site: notice, ask rarely, help either way.
 
 > Earshot is not a diagnosis. It's an earlier signal, from the device that already sees the pattern, that a proper hearing test may be worth taking.
 
-**2:28, close, the website, in a real browser**
+**2:43, close, the website, in a real browser**
 
 What it does not do.
 
 > Your television can already help you hear. It just doesn't know you can't.
 
-Estimated 2:33 of a 3:00 ceiling. The estimate is words at
+Estimated 2:48 of a 3:00 ceiling. The estimate is words at
 152 a minute plus holds; the real narration decides the
 final cut, and `python video/beats.py` exits non-zero if the plan is
 over before a frame is recorded.

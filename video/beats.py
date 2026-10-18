@@ -171,6 +171,20 @@ BEATS: list[Beat] = [
         ),
     ),
     Beat(
+        key="agent",
+        action="agent",
+        shows=(
+            "The live MCP session from the site, then the key panel: a key issued, "
+            "a check recorded with it, and the same household asked with no key."
+        ),
+        pause_before=0.4,
+        min_hold=14.5,
+        say=(
+            "Earshot answers Alexa+ through its MCP server, live from this page. "
+            "And anyone can take a free API key: the checks they record with it are theirs alone."
+        ),
+    ),
+    Beat(
         key="baseline",
         shows="Volume-only against Earshot on the same two hundred households.",
         action="baseline",
