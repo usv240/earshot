@@ -9,3 +9,4 @@ cdk.out/
 video/build/
 apps/web/public/content/
 __pycache__/
+cdk.out.sess/
