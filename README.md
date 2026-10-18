@@ -4,7 +4,7 @@
 
 **Live:** <https://d29nbz7seeunuf.cloudfront.net>. Take the check yourself.
 
-**Demo video (2:39):** <https://youtu.be/1Urr2xsHT8U>
+**Demo video (2:39):** <https://youtu.be/5l4lFp5yEe4>
 **Agent endpoint:** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
 
 **You passed the hearing test and you still can't hear the television.**
