@@ -268,7 +268,7 @@ here:**
 
 ```
 npm install
-npm test          # 220 tests
+npm test          # 222 tests
 npm run validate
 npm run web:dev
 ```

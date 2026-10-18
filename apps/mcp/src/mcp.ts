@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { callerFrom, storageName } from "./keys";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { interpret, PROVISIONAL_DIOTIC } from "digits-in-noise";
@@ -40,6 +40,46 @@ import { changeAcross, type ScreenRecord, type ScreenStore } from "./store";
  * - MCP-Protocol-Version validated when present.
  * - Origin validated per the DNS-rebinding guidance.
  */
+
+
+/**
+ * Sessions are signed, not remembered.
+ *
+ * On Lambda a client's second request can land on another instance, which
+ * never saw the id the first one issued, and a remembered session answers
+ * it with 404 "Unknown or terminated session". It happened to Bellwether's
+ * Strands agent in the middle of a recorded run, on its fourth tool call,
+ * and this server kept sessions the same way. A signature the whole
+ * deployment can check makes an id valid on every instance with no table
+ * and no state. The key is the function's own name and version unless one
+ * is configured.
+ */
+const LOCAL_SECRET = randomBytes(16).toString("hex");
+
+function sessionSecret(): string {
+  const configured = process.env.EARSHOT_SESSION_SECRET;
+  if (configured) return configured;
+  const fn = process.env.AWS_LAMBDA_FUNCTION_NAME;
+  if (fn) return `${fn}:${process.env.AWS_LAMBDA_FUNCTION_VERSION ?? ""}`;
+  return LOCAL_SECRET;
+}
+
+function sign(nonce: string): string {
+  return createHmac("sha256", sessionSecret()).update(nonce).digest("hex").slice(0, 24);
+}
+
+export function newSessionId(): string {
+  const nonce = randomBytes(8).toString("hex");
+  return `${nonce}.${sign(nonce)}`;
+}
+
+export function sessionIsOurs(id: string): boolean {
+  const [nonce, sig, extra] = id.split(".");
+  if (extra !== undefined || !nonce || !sig || nonce.length !== 16 || sig.length !== 24) return false;
+  const want = Buffer.from(sign(nonce));
+  const got = Buffer.from(sig);
+  return want.length === got.length && timingSafeEqual(want, got);
+}
 
 export const MCP_PROTOCOL_VERSION = "2025-11-25";
 /** Older revision accepted for header-less backwards compatibility only. */
@@ -195,7 +235,8 @@ export function registerMcp(
   app: FastifyInstance,
   deps: { store: ScreenStore },
 ): void {
-  const sessions = new Set<string>();
+  // Ended by DELETE on this instance. Validity itself is the signature.
+  const terminated = new Set<string>();
 
   const checkOrigin = (req: FastifyRequest, reply: FastifyReply): boolean => {
     const origin = req.headers.origin;
@@ -421,8 +462,7 @@ export function registerMcp(
     }
 
     if (msg.method === "initialize") {
-      const newSession = randomUUID();
-      sessions.add(newSession);
+      const newSession = newSessionId();
       reply.header("MCP-Session-Id", newSession);
       return reply.send(
         rpcResult(msg.id ?? null, {
@@ -440,7 +480,7 @@ export function registerMcp(
         .code(400)
         .send(rpcError(msg.id ?? null, -32600, "Missing MCP-Session-Id header"));
     }
-    if (!sessions.has(sessionId)) {
+    if (!sessionIsOurs(sessionId) || terminated.has(sessionId)) {
       return reply
         .code(404)
         .send(rpcError(msg.id ?? null, -32001, "Unknown or terminated session"));
@@ -483,8 +523,8 @@ export function registerMcp(
   app.delete("/mcp", async (req, reply) => {
     const sessionHeader = req.headers["mcp-session-id"];
     const sessionId = Array.isArray(sessionHeader) ? sessionHeader[0] : sessionHeader;
-    if (sessionId && sessions.has(sessionId)) {
-      sessions.delete(sessionId);
+    if (sessionId && sessionIsOurs(sessionId) && !terminated.has(sessionId)) {
+      terminated.add(sessionId);
       return reply.code(204).send();
     }
     return reply.code(404).send();

@@ -12,7 +12,7 @@ of what is needed to do that, so nobody has to remember it.
 
 ## Where things stand
 
-- Repository: main at `fc0c3af`, CI green, 220 tests.
+- Repository: main at `fc0c3af`, CI green, 222 tests.
 - Site: https://d29nbz7seeunuf.cloudfront.net, deployed from that commit.
 - Fire TV app: release v0.1.1, https://github.com/usv240/earshot/releases/tag/v0.1.1,
   the APK to sideload onto the simulator.
