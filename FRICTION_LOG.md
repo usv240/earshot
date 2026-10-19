@@ -2,7 +2,7 @@
 
 Every entry is something that happened while building Earshot, with what
 was tried, what was expected, what actually occurred, and what would have
-helped. Two of them are against us rather than against anybody's tools,
+helped. Three of them are against us rather than against anybody's tools,
 and they are here because they were the expensive ones.
 
 Severity is about the cost to a developer who hits it without knowing,
@@ -173,5 +173,25 @@ not about how hard it is to fix once you do.
 - **Workaround:** the recorder stopped counting presses and started reading. It dumps the accessibility tree through `uiautomator`, finds the node marked focused, and walks the row until the words it wants are under the remote. That is what `record_tv.py` does now and it is why the file has a `focus_on` function at all. In the app, an explicit focus call on mount would do the same job, at the cost of imperative code for what a declarative property already claims to do.
 - **Suggestion:** state which wins when a remounted screen carries a preferred-focus flag and the platform has a remembered focus position, and make the flag win. A note in the TV documentation that Android's focus restoration can override `hasTVPreferredFocus` after navigation, with the one line that forces it, would have saved two takes.
 - **Why it is in this log:** the first television take of this video worked because it pressed select the instant the home screen appeared, before restoration had happened; the second, which paused a second to let the viewer read the screen, failed. A behaviour that depends on how fast the remote is pressed is the kind that is invisible in development and shows up in front of a judge.
+
+## Entry 15: the AgentCore CLI's own CDK app brings a jest test that our vitest run collects and fails on (2026-10-19)
+
+- **Task:** host Earshot's Strands agent on Amazon Bedrock AgentCore Runtime as `earshothearing_hearing`, inside the existing TypeScript monorepo, and keep `npm test` green.
+- **Steps:** scaffold `apps/agentcore` with `npx -y @aws/agentcore`, then `deploy --yes` and `invoke --prompt`, both of which worked first time; then run the repository's suite.
+- **Expected:** the deploy tooling stays out of the product's tests, or says it brings tests of its own.
+- **Actual:** the scaffold vends a CDK project at `apps/agentcore/agentcore/cdk` with `jest.config.js` and `test/cdk.test.ts`. vitest's default include collected that file and the run failed, and our count guard, which walks every `test` directory, counted its declarations as ours. Nothing in the generated README mentions the test or the runner it expects.
+- **Severity:** low once found, and it lands in the one place a hackathon project cannot afford: a green suite that turns red the moment an AWS tool is added.
+- **Workaround:** `apps/agentcore/**` excluded in `vitest.config.ts` and in the count guard's walk, with a comment saying whose test it is.
+- **Suggestion:** detect a parent `package.json` with a test runner and either skip the vended test or print one line saying it exists and which runner it needs. A `--no-tests` flag would also do.
+
+## Entry 16: our MCP server introduced itself as a different product, and every test passed (2026-10-19, ours not theirs)
+
+- **Task:** check all five of our live MCP servers against spec revision 2025-11-25 with one probe, `bellwether/scripts/mcp-conform.mjs --all`, before submission.
+- **Steps:** run the probe, then read each server's `initialize` result by eye, not only its grades.
+- **Expected:** twelve of twelve MUST and seven of seven SHOULD, and an `instructions` field that describes Earshot.
+- **Actual:** every check passed, and the `instructions` field told each connecting assistant that this server turns watching into reading: EveryWord's text, copied across with the transport when Earshot's server was built from its sibling. Every tool name, schema and result was Earshot's, so nothing a test asserted was wrong. Only the sentence the model reads first was.
+- **Severity:** medium. An assistant is told what a server is for in that field, and is likely to repeat it to the person asking. A conformance check cannot see it, because the field is free text and the spec says nothing about its content.
+- **Workaround:** the instructions now begin "Earshot notices from the television", and a test requires them to name Earshot and no sibling. Deployed the same day.
+- **Why it is in this log:** the third entry here against ourselves, and the same lesson as the first two: a protocol-correct server can still say the wrong thing, and only reading what it says finds that.
 
 <!-- Add new entries above this line as they happen. -->

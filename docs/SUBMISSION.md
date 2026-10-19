@@ -255,7 +255,7 @@ here:**
 - **Fire TV app:** https://github.com/usv240/earshot/releases/tag/v0.1.2 (adds one page for your doctor on the set; photographed on Amazon's hosted Fire TV in [docs/img/tv-doctor-page-qc.png](img/tv-doctor-page-qc.png)), the
   APK for arm64, armeabi-v7a and x86_64, with install steps in its notes.
 - **Demo video (2:39):** https://youtu.be/5l4lFp5yEe4. Its three Fire TV beats are the release APK v0.1.2 on a Fire TV that Amazon hosts in Appstore Quality Central (Live Device Interaction, FOS 14 3P TV), the Fire TV simulator the rules name, recorded on 2026-10-01 with the whole console and its developer.amazon.com address in frame; `video/build/tv-timings.json` names the device.
-- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), fourteen entries,
+- **Friction log:** [FRICTION_LOG.md](../FRICTION_LOG.md), sixteen entries,
   two of them against us.
 - **Product feedback:** [PRODUCT_FEEDBACK.md](../PRODUCT_FEEDBACK.md),
   every tool, API and SDK used.
