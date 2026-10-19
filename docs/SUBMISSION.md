@@ -268,7 +268,7 @@ here:**
 
 ```
 npm install
-npm test          # 222 tests
+npm test          # 224 tests
 npm run validate
 npm run web:dev
 ```
@@ -277,3 +277,7 @@ No AWS account is needed for any of that. The procedure, the threshold
 estimation, the validity rules, the wording, the listening model, the
 speech-region arithmetic and all of the signal processing are pure
 functions with tests.
+
+## Built with
+
+Fire TV (Fire OS); MCP server, spec 2025-11-25, Streamable HTTP; Agent Skill; Amazon Bedrock (Claude) and the Strands Agents SDK; Amazon Bedrock AgentCore Runtime; Amazon Polly; Amazon Transcribe; Amazon DynamoDB, AWS Lambda, Amazon S3, Amazon CloudFront, AWS CDK. Each, with the file that uses it, is in the README's Built with table.

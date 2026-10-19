@@ -162,3 +162,11 @@ anywhere.
 What an account buys is the two artefacts: a real dialogue loudness
 figure for a real programme, and the digit recordings. Both are inputs
 to the product rather than parts of it.
+
+## Amazon Bedrock AgentCore Runtime
+
+The project's Strands agent is deployed as a hosted runtime (`apps/agentcore`) with its own IAM role and traces, verified with a live invocation. It reaches the product only through the public MCP tools.
+
+## Amazon Bedrock and the Strands Agents SDK
+
+The Hearing Check-in agent (`apps/agent/hearing_check_in.py`) is a Strands agent on Claude through Bedrock. It is an outside client of Earshot's MCP server with no data access of its own, and it reports only what the tools return.

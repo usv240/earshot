@@ -309,3 +309,25 @@ defects this week were guards that silently checked nothing, and neither
 type system nor test runner can see that. Friction log entries 9 and 10.
 
 **Would we build with them again:** yes.
+
+## Amazon Bedrock AgentCore Runtime
+
+**Used for:** hosting our Strands agent as an invocable endpoint with its own IAM role and traces (`apps/agentcore`), so Alexa+, a scheduled job or another agent can call it. It reaches the product only through our MCP server.
+
+**What worked well:** `npx @aws/agentcore deploy` turned an existing Strands agent into a hosted endpoint in about four minutes, first time, and `invoke` returned the agent's own JSON.
+
+**What needs work:** the scaffold's default model profile was not one this account could invoke, so the model is pinned by hand. In a TypeScript repository the vended CDK project's own jest test is picked up by vitest and fails until excluded.
+
+**Onboarding:** no global install; deploy and invoke both worked on Windows on the first run.
+
+**Would we build with it again:** yes. It is the shortest path from a local agent to something Alexa+ or a schedule can call.
+
+## Agent Skills
+
+**Used for:** `skills/earshot/SKILL.md`, which tells an agent what the product is, which MCP tools to call in what order, and what it must never say. A test checks it names every tool on the server.
+
+**What worked well:** plain markdown an agent reads directly, so the product's rules travel with its tools.
+
+**What needs work:** we found no public way to load a skill into Alexa+ ourselves and watch it run, so ours is checked against the MCP server by a test rather than end to end in Alexa+.
+
+**Would we build with it again:** yes.

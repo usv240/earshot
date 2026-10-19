@@ -148,7 +148,7 @@ recovered. The site's Alexa+ section issues one and proves it, live.
 
 ```
 npm install
-npm test                 # 223 tests: the engine, the wording, the listening
+npm test                 # 224 tests: the engine, the wording, the listening
                          # model, the agent, and every published number
 npm run validate         # regenerate the validation results
 npm run web:dev          # the site, and the check you can take yourself
@@ -167,6 +167,21 @@ cannot say what is wrong, how bad it is, or whether anything can be done, and th
 wording is tested to make sure it never tries. That test walks every sentence the
 tool can produce and fails if any of them names a condition, promises an outcome,
 or turns a test that did not work into good news.
+
+## Built with
+
+Every tool this project uses, and the file that uses it.
+
+| Tool | What it does here | Where |
+|---|---|---|
+| Fire TV (Fire OS) | the React Native television app, driven by the D-pad | [`tv`](tv) |
+| MCP server, spec 2025-11-25, Streamable HTTP | the Alexa+ surface: five tools, signed sessions, conformance-probed live | [`apps/mcp/src/mcp.ts`](apps/mcp/src/mcp.ts) |
+| Agent Skill | tells an agent how to use the five tools; a test checks it names every tool | [`skills/earshot/SKILL.md`](skills/earshot/SKILL.md) |
+| Amazon Bedrock (Claude) and the Strands Agents SDK | the Hearing Check-in agent, from the MCP tools only | [`apps/agent/hearing_check_in.py`](apps/agent/hearing_check_in.py) |
+| Amazon Bedrock AgentCore Runtime | hosts the Hearing Check-in agent as an invocable endpoint | [`apps/agentcore`](apps/agentcore) |
+| Amazon Polly | the eight spoken digits the check plays | [`apps/pipeline/src/speech.ts`](apps/pipeline/src/speech.ts) |
+| Amazon Transcribe | word timings to find where a film's dialogue is | [`apps/pipeline/src/analyse.ts`](apps/pipeline/src/analyse.ts) |
+| Amazon DynamoDB, AWS Lambda, Amazon S3, Amazon CloudFront, AWS CDK | checks, the service, the site, one deploy | [`infra/bin/app.ts`](infra/bin/app.ts) |
 
 ## Licence
 
