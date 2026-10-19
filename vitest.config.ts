@@ -14,6 +14,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     include: ["packages/**/test/**/*.test.ts", "apps/**/test/**/*.test.ts"],
-    exclude: ["**/node_modules/**", "tv/**", "**/dist/**"],
+    // apps/agentcore/agentcore/cdk is the AgentCore CLI's own CDK app; its jest test is not ours.
+    exclude: ["**/node_modules/**", "tv/**", "**/dist/**", "apps/agentcore/**"],
   },
 });

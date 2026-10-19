@@ -28,7 +28,10 @@ function testFiles(): string[] {
   return out
     .split("\n")
     .map((f) => f.trim())
-    .filter((f) => /\.(test|spec)\.(ts|tsx)$/.test(f));
+    .filter((f) => /\.(test|spec)\.(ts|tsx)$/.test(f))
+    // The AgentCore CLI's own CDK app ships a jest test that runs under its
+    // deploy, not under `npm test`, so it is not part of the published count.
+    .filter((f) => !f.startsWith("apps/agentcore/"));
 }
 
 /**

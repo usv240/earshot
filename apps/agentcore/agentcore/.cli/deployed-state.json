@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "hearing": {
+            "runtimeId": "earshothearing_hearing-MTR7gi8q8R",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-east-1:957325809861:runtime/earshothearing_hearing-MTR7gi8q8R",
+            "roleArn": "arn:aws:iam::957325809861:role/AgentCore-earshothearing--ApplicationAgentHearingRu-QHbuiVV41jPj"
+          }
+        },
+        "stackName": "AgentCore-earshothearing-default",
+        "deployHash": "d8fe267e2dc6f119"
+      }
+    }
+  }
+}

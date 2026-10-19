@@ -6,7 +6,7 @@
 
 **Demo video (2:39):** <https://youtu.be/5l4lFp5yEe4>
 **Agent endpoint:** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
-**Agent:** a Strands agent on Amazon Bedrock answers "why did my TV ask, and has anything changed?" from these tools only ([apps/agent](apps/agent)).
+**Agent:** a Strands agent on Amazon Bedrock answers "why did my TV ask, and has anything changed?" from these tools only ([apps/agent](apps/agent)), also hosted on Amazon Bedrock AgentCore Runtime ([apps/agentcore](apps/agentcore)).
 
 **You passed the hearing test and you still can't hear the television.**
 
@@ -148,7 +148,7 @@ recovered. The site's Alexa+ section issues one and proves it, live.
 
 ```
 npm install
-npm test                 # 222 tests: the engine, the wording, the listening
+npm test                 # 223 tests: the engine, the wording, the listening
                          # model, the agent, and every published number
 npm run validate         # regenerate the validation results
 npm run web:dev          # the site, and the check you can take yourself
