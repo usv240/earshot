@@ -1,0 +1,19 @@
+{
+ "question": "My television suggested a hearing check. Why did it ask, what does the check actually tell me, and has anything changed for the household 'ours'?",
+ "answer": "No check has been recorded yet for your household, so there is nothing to compare. Your television noticed patterns like volume being set higher than the programme's dialogue level or subtitles being switched on, and after months of that it asked one quiet question, no microphone or camera involved and nothing leaving your device. The ninety-second check itself plays spoken digits in noise and finds the level where you catch half of them, which is closer to real conversation than a tone test. If you do take the check and want to share the result with a clinician, this tool can prepare a plain one-page summary for you to bring.",
+ "tools_available": [
+  "explain_the_check",
+  "get_screen_history",
+  "prepare_for_appointment",
+  "record_screen_result",
+  "what_the_television_watches"
+ ],
+ "tools_called": [
+  "what_the_television_watches",
+  "explain_the_check",
+  "get_screen_history"
+ ],
+ "model": "us.anthropic.claude-sonnet-4-6",
+ "server": "https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp",
+ "captured": "2026-10-19"
+}
