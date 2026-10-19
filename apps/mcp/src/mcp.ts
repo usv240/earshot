@@ -470,7 +470,7 @@ export function registerMcp(
           capabilities: { tools: { listChanged: false } },
           serverInfo: SERVER_INFO,
           instructions:
-            "EveryWord turns watching into reading with word-by-word karaoke captions. Ask what is in the library, recommend a story for a reader, report how many words someone has actually read, or explain a word they are stuck on. Report only numbers these tools return, and never estimate a reading level or diagnose a reading difficulty.",
+            "Earshot notices from the television how far past a programme's dialogue a household is listening, runs a ninety-second hearing-in-noise check with the remote, and prepares one page for the doctor. Explain what the television looks at and what the check measures, record a check, report a household's history, or prepare the page for an appointment. Report only numbers these tools return, call a change smaller than the test's repeatability no change, and never diagnose hearing loss or recommend a device.",
         }),
       );
     }

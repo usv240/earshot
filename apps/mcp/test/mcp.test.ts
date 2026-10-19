@@ -90,6 +90,20 @@ describe("the transport", () => {
     });
   });
 
+  it("introduces itself as Earshot, and as nothing else", async () => {
+    // Until 2026-10-19 the instructions were a sibling project's, copied
+    // across with the transport: every agent that connected was told this
+    // server turned watching into reading. Found by probing all five live
+    // servers.
+    const { app } = makeApp();
+    const { res } = await initialise(app);
+    const result = (res.json() as { result: { instructions: string; serverInfo: { name: string } } }).result;
+    expect(result.serverInfo.name).toBe("earshot-mcp");
+    expect(result.instructions).toMatch(/^Earshot /);
+    expect(result.instructions).not.toMatch(/EveryWord|Bellwether|Nightlight|Volley|reading|karaoke/i);
+    expect(result.instructions).toMatch(/hearing/);
+  });
+
   it("refuses a request with no session", async () => {
     const { app } = makeApp();
     await initialise(app);
