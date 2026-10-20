@@ -4,7 +4,7 @@
 
 **Live:** <https://d29nbz7seeunuf.cloudfront.net>. Take the check yourself.
 
-**Demo video (2:53):** <https://youtu.be/my-ObfGW8UA>
+**Demo video (2:53):** <https://youtu.be/NB-eo4zwwwU>
 **Agent endpoint:** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
 **Agent:** a Strands agent on Amazon Bedrock answers "why did my TV ask, and has anything changed?" from these tools only ([apps/agent](apps/agent)), also hosted on Amazon Bedrock AgentCore Runtime ([apps/agentcore](apps/agentcore)).
 
