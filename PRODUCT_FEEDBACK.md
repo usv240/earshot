@@ -331,3 +331,8 @@ type system nor test runner can see that. Friction log entries 9 and 10.
 **What needs work:** we found no public way to load a skill into Alexa+ ourselves and watch it run, so ours is checked against the MCP server by a test rather than end to end in Alexa+.
 
 **Would we build with it again:** yes.
+
+## Not used, and why
+
+- Kiro and Kiro Crew: not used. The build ran in one coding agent from the first commit; a second workspace mid-window would have added nothing a judge can see. Every AWS integration here is a service the product calls at run time.
+- SageMaker: not used. The hearing check is a deterministic signal-processing staircase, measured against a published reference; nothing trains a model.

@@ -170,3 +170,8 @@ The project's Strands agent is deployed as a hosted runtime (`apps/agentcore`) w
 ## Amazon Bedrock and the Strands Agents SDK
 
 The Hearing Check-in agent (`apps/agent/hearing_check_in.py`) is a Strands agent on Claude through Bedrock. It is an outside client of Earshot's MCP server with no data access of its own, and it reports only what the tools return.
+
+## What was deliberately not used
+
+- Kiro and Kiro Crew: not used. The build ran in one coding agent from the first commit; a second workspace mid-window would have added nothing a judge can see. Every AWS integration here is a service the product calls at run time.
+- SageMaker: not used. The hearing check is a deterministic signal-processing staircase, measured against a published reference; nothing trains a model.
