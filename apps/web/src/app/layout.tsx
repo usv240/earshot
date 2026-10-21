@@ -37,7 +37,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
   from light to dark for somebody who chose dark. It is deliberately the
   only script that runs before hydration and it touches one attribute.
 */
-const themeScript = `(function(){try{var t=localStorage.getItem("earshot-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`;
+const themeScript = `(function(){try{var t=localStorage.getItem("earshot-theme");document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
