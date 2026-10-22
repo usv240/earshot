@@ -144,9 +144,8 @@ repository root. What each part does:
   for one CommonJS dependency, because the alternative was a 502 at
   runtime rather than an error at synth time.
 
-The demo endpoint has no authentication, which
-[SUBMISSION.md](SUBMISSION.md) states as a deliberate scope for a
-demonstration. `cdk deploy` needs the usual CloudFormation, S3, Lambda,
+The demo endpoint is open by default; a free key from `POST /v1/keys`
+gives a private space, as [SUBMISSION.md](SUBMISSION.md) describes. `cdk deploy` needs the usual CloudFormation, S3, Lambda,
 DynamoDB, CloudFront and IAM permissions of the account that owns the
 stack; the minimum policy above is for producing the artefacts, not
 for deploying.

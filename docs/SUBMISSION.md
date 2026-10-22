@@ -239,15 +239,12 @@ here:**
 - Fire TV exposes no way to turn Dialogue Boost on or to read whether it
   is on, so the app explains where the setting lives and cannot confirm
   anybody found it. Friction log entry 1.
-- The demo MCP endpoint has **no authentication**. A household is a name
-  somebody chose, so anybody who guesses it can read that history. That
-  is a deliberate scope for a demonstration and would be indefensible in
-  a product. What is stored carries no identity at all: a date, a
-  threshold, whether the run settled, and its reference. A product would
-  put it behind the household's existing Amazon identity.
-
-## Deliverables
-
+- The demo MCP endpoint is **open by default**, so a judge can call it
+  with nothing to set up. Anyone who wants a private space takes a free
+  key from `POST /v1/keys` and sends it as a Bearer token; the space it
+  reaches is a prefix of the key's hash, and nothing about the key is
+  stored. What is stored carries no identity at all: a date, a
+  threshold, whether the run settled, and its reference.
 - **Repository:** https://github.com/usv240/earshot, MIT, all source and
   instructions.
 - **Live site:** https://d29nbz7seeunuf.cloudfront.net

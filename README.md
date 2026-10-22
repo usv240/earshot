@@ -1,202 +1,177 @@
 # Earshot
 
-**Earshot measures how far past a programme's dialogue you are listening, screens your hearing in noise with the remote, and hands you one page for the doctor.**
+**A Fire TV app that notices when a household listens far past a programme's dialogue, offers a two-minute hearing-in-noise check on the remote, and prepares one page for the doctor.**
 
-**Live:** <https://d29nbz7seeunuf.cloudfront.net>. Take the check yourself.
+- **Live site:** <https://d29nbz7seeunuf.cloudfront.net> (take the check in a browser)
+- **Demo video (2:53):** <https://youtu.be/NB-eo4zwwwU>
+- **MCP endpoint (Alexa+ surface):** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
+- **Fire TV APK:** <https://github.com/usv240/earshot/releases/tag/v0.1.2>
+- **Open-source library:** [`digits-in-noise`](https://www.npmjs.com/package/digits-in-noise) on npm, source in [`packages/digits-in-noise`](packages/digits-in-noise)
 
-**Demo video (2:53):** <https://youtu.be/NB-eo4zwwwU>
-**Agent endpoint:** <https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/mcp>
-**Agent:** a Strands agent on Amazon Bedrock answers "why did my TV ask, and has anything changed?" from these tools only ([apps/agent](apps/agent)), also hosted on Amazon Bedrock AgentCore Runtime ([apps/agentcore](apps/agentcore)).
-
-**You passed the hearing test and you still can't hear the television.**
-
-That sentence describes a real and very common situation, and it is the one this
-project is built around.
-
-In September 2024 the FDA authorised the first over-the-counter hearing aid
-software, and AirPods Pro 2 now run a five-minute hearing test. It is a genuinely
-good thing and it is pure-tone audiometry: tones in quiet. The literature is
-blunt that the audiogram misses the complaint people actually have. Normal
-pure-tone thresholds with poor speech-in-noise performance is common enough to
-have its own name, and diagnosing it needs speech measured in noise rather than
-tones measured in silence.
-
-So the person who cannot follow dialogue can take the best-funded hearing test in
-the world and be told they are fine.
-
-Earshot measures the other thing, on the device where the complaint lives.
-
-## Why the television
-
-Because it already has the evidence, and because it is where the problem shows up
-first.
-
-A paper in the Journal of Laryngology and Otology validated television volume as
-a clinical marker. Someone who turns the set up has a 68 percent chance of
-already having hearing loss of 25 dB or more, at 81 percent sensitivity. For news
-programmes, where the content is nearly all speech, the average loss among those
-viewers was 41 dB. The authors recommend it "in situations where audiometry is
-unavailable".
-
-They collected it by asking patients in a clinic. The television knows the real
-number every night and has never been asked. It can also do better than the paper
-could, because it knows how loud the programme's dialogue was, so the signal is
-not "did you turn it up" but **how far past this programme are you listening**.
-
-Why it is worth catching: around 80 percent of people with hearing loss do not
-know, those who notice wait about seven years to ask anyone and over ten to be
-fitted, and the 2024 Lancet standing Commission puts hearing loss level with high
-LDL cholesterol as the largest modifiable risk factor for dementia from midlife,
-at 7 percent of cases worldwide.
+Track: Fire TV. Also entered: Alexa+ (Agent Skill plus a self-hosted MCP server), AWS Builder, Open Source.
 
 ## What it does
 
-**Notices.** Compares the dialogue loudness of what is playing against the volume
-this household chose, and watches for captions going on and for rewinding to hear
-a line again. No microphone. No camera. Nothing leaves the device.
+- **Notices.** The listening model compares how loud a programme's dialogue is with the volume the household chose, and watches for captions going on and for rewinding to hear a line again. No microphone, no camera. Nothing about how you watch leaves the television. ([`packages/earshot-core`](packages/earshot-core), [`tv/src/watch.tsx`](tv/src/watch.tsx))
+- **Asks, rarely.** It needs a baseline first, never interrupts a programme, never asks twice in a season, and stops for good after two refusals. ([`packages/earshot-core/src/offer.ts`](packages/earshot-core/src/offer.ts))
+- **Measures.** A digits-in-noise check driven by the D-pad: three spoken digits in noise, adaptive, 18 or 24 rounds, ending in a speech reception threshold in dB SNR. The test measures a ratio, not a level, so it works on speakers nobody calibrated. ([`packages/digits-in-noise`](packages/digits-in-noise), [`tv/App.tsx`](tv/App.tsx))
+- **Helps.** It explains where Fire TV's Dialogue Boost lives and produces one page to take to a clinician. It is a screen, not a diagnosis, and a test walks every sentence it can say to keep it that way. ([`packages/digits-in-noise/src/report.ts`](packages/digits-in-noise/src/report.ts))
+- **Talks to agents.** Five MCP tools over Streamable HTTP, an Agent Skill for Alexa+, and a Strands agent on Amazon Bedrock that answers "why did my TV ask, and has anything changed?" from those tools only. ([`apps/mcp`](apps/mcp), [`skills/earshot/SKILL.md`](skills/earshot/SKILL.md), [`apps/agent`](apps/agent))
 
-**Asks.** When the pattern persists, offers a check with the remote, eighteen or twenty-four rounds, a minute or two. Three
-spoken digits in noise, getting harder, until it finds the ratio at which you get
-half of them right. That ratio is the speech reception threshold, and it is the
-measurement the audiogram cannot substitute for.
+## Why it matters
 
-**Helps.** Fire TV already ships Dialogue Boost, hearing-aid pairing and direct
-streaming to cochlear implants. All of it is for people who already know. Earshot
-explains where the first one lives (Fire TV gives an app no way to switch it on or
-to read whether it is on; friction log entry 1), and produces one page to take to
-a doctor.
+Standard hearing tests play tones in a quiet room. Many people with normal tone results still cannot follow speech in noise, and diagnosing that needs speech measured in noise [1, 2]. Television volume is itself a validated clinical marker: a person who turns the set up has a 68 percent chance of hearing loss of 25 dB or more, at 81 percent sensitivity [3]. Around 80 percent of people with hearing loss do not know, those who notice wait about seven years to ask anyone [4], and the 2024 Lancet standing Commission puts hearing loss among the largest modifiable risk factors for dementia from midlife [5]. The television already has the evidence, every night, on hardware that is already under the set.
 
-## Why a digit test works on a television
+## Architecture
 
-It measures a **ratio**, not a level, so it survives hardware nobody calibrated.
-That is why the World Health Organization put this test rather than pure-tone
-audiometry into a phone app, and it is why a living room is a viable place to run
-one.
+```mermaid
+flowchart LR
+    TV["Fire TV app (React Native, tv/)<br/>sittings stay on device"]
+    WEB["Website (Next.js, apps/web)<br/>S3 + CloudFront"]
+    MCP["MCP server, spec 2025-11-25<br/>AWS Lambda (apps/mcp)"]
+    DDB["Amazon DynamoDB<br/>completed checks only"]
+    SKILL["Alexa+ Agent Skill<br/>skills/earshot/SKILL.md"]
+    AGENT["Strands Agents agent<br/>apps/agent"]
+    BR["Amazon Bedrock<br/>Claude Sonnet"]
+    AC["Amazon Bedrock AgentCore Runtime<br/>apps/agentcore"]
+    POLLY["Amazon Polly<br/>eight spoken digits"]
+    TRANS["Amazon Transcribe<br/>dialogue timings"]
 
-The response is three digits. No reading, no language beyond counting, no
-touchscreen. For this measurement a remote control is a better input device than
-a phone, and it is already in the right hand, in the right room, pointed at the
-thing that caused the complaint.
+    POLLY -->|digit WAVs| TV
+    POLLY -->|digit WAVs| WEB
+    TRANS -->|sintel.analysis.json| TV
+    WEB -->|record_screen_result| MCP
+    SKILL -->|five tools| MCP
+    AGENT -->|MCP client| MCP
+    AGENT --> BR
+    AC -->|hosts| AGENT
+    MCP --> DDB
+```
 
-## Every number here is a test
+The Fire TV app runs alone on the set. The website, the Agent Skill and the Strands agent are all clients of the same MCP server. Polly and Transcribe run once, at build time, to produce the audio and the dialogue analysis the apps ship with ([`apps/pipeline`](apps/pipeline)).
 
-A hearing screen cannot be checked against real listeners, because each one gives
-a single number and there is nothing to compare it against. So the procedure is
-run against simulated listeners whose thresholds were chosen in advance, and the
-question becomes whether the number that comes back is the number that went in.
+## What is real and what is simulated
 
-Over 2000 runs against an ordinary adult ear, the procedure reads a known
-threshold with a bias of **0.037 dB** and a **0.748 dB** test-retest spread.
-Published test-retest figures for this test sit between 0.7 and 1.2 dB.
+- **Real:** the hearing check, the adaptive procedure and the threshold it produces, on the TV and on the web.
+- **Real:** the eight digit recordings, synthesised with Amazon Polly (voice Joanna, neural) and levelled to within 0 dB of each other, with masking noise shaped to their own spectrum ([`apps/web/public/audio/digits.json`](apps/web/public/audio/digits.json)).
+- **Real:** the dialogue loudness of the film the TV app plays (Sintel), measured through Amazon Transcribe timings ([`apps/pipeline/analysis/sintel.analysis.json`](apps/pipeline/analysis/sintel.analysis.json)), and the sittings the app records while you watch it.
+- **Real:** the MCP server, the API keys, the Strands agent run and the AgentCore deployment, all live.
+- **Sample data:** the months of viewing history on the TV home screen. The screen says so. A household must watch for months before the model has anything to say, and a third-party app cannot read what other Fire TV apps play ([FRICTION_LOG.md](FRICTION_LOG.md) entry 12).
+- **Simulated listeners:** every accuracy figure below comes from running the procedure against a model listener with a known threshold, not from people. See [docs/EVAL.md](docs/EVAL.md).
+- **Provisional:** the referral bands. The digits are synthetic speech rather than a normed corpus, so the bands are labelled provisional in the code and in every result.
 
-Bias stays under 0.07 dB at every threshold from -14 to -3 dB, which matters more
-than the headline. A screen exists to sort people near a cut-off, and those people
-are at the ends of the range, not in the comfortable middle.
+## Evidence
 
-The cut-point it refers on comes from the published diotic categories
-rather than from us: normal at or below -5.55 dB SNR, poor above -3.80.
-An earlier version used -9 and -7, which came from where adult
-thresholds cluster rather than from where a screen should draw a line,
-and on a screening tool that three and a half decibel difference is the
-difference between telling somebody to see a doctor and telling them
-they are fine.
+All figures are read from [`apps/eval/results/validation.json`](apps/eval/results/validation.json), regenerated by `npm run validate`, and pinned by [`apps/eval/test/claims.test.ts`](apps/eval/test/claims.test.ts). CI re-runs the validation and stops if the committed file differs.
 
-At that cut-point a listener two decibels inside the normal range is
-referred 0.2 percent of the time, and one two decibels outside it 99.4
-percent of the time. Around the line itself it is close to a coin toss,
-which it has to be, and is why the borderline band says to repeat the
-check rather than offering a verdict.
+| Measurement | Value | Source |
+|---|---|---|
+| Runs against a reference listener at -9 dB | 2000, none refused | `headline.runs`, `headline.rejected` |
+| Bias of the threshold estimate | bias of 0.037 dB | `headline.biasDb` |
+| Test-retest spread | test-retest spread 0.748 dB (published range 0.7 to 1.2 dB) | `headline.sdDb`, `comparison` |
+| Bias across -14 to -3 dB | under 0.07 dB at every point | `acrossRange` |
+| Referral of a listener 2.2 dB inside the normal range | 0.2 percent | `referralCurve` |
+| Referral of a listener 1.8 dB outside it | 99.4 percent | `referralCurve` |
+| Cut-point | -3.8 dB SNR, from the published diotic categories [6] | `cutPointDb` |
+| Dialogue-referenced vs volume-only detection, 200 households | 0 vs 200 false alarms on compensating households; 200 vs 200 detections on creeping ones | `baseline` |
 
-These come out of `npm run validate`, are written to
-`apps/eval/results/validation.json`, and are read back by
-`apps/eval/test/claims.test.ts`. Nothing about accuracy is typed in by hand.
-[docs/METHOD.md](docs/METHOD.md) sets the whole procedure against the
-literature it came from, parameter by parameter, including the four
-places it deliberately differs and why.
+Other committed measurements:
 
-To be explicit about what that establishes: it measures the **procedure**, using
-a model of a listener. It is not a clinical trial and does not stand in for one.
-Our digit audio is synthesised rather than drawn from a normed corpus, so the
-referral bands in the library are labelled provisional until our own material has
-been normed. See [docs/EVAL.md](docs/EVAL.md).
+- Digit levelling: 4.37 dB spread before, 0 dB after. Noise matched to the speech spectrum to 1.12 dB mean across 100 Hz to 6 kHz. ([`apps/web/public/audio/digits.json`](apps/web/public/audio/digits.json))
+- Sintel: dialogue at -40.6 LUFS over 28.3 s of speech in a 125 s clip; the dialogue gate moved the figure by 0.4 dB on this clip. ([`apps/pipeline/analysis/sintel.analysis.json`](apps/pipeline/analysis/sintel.analysis.json))
+- Strands agent, live against the deployed server on 2026-10-19: called `what_the_television_watches`, `explain_the_check` and `get_screen_history`, model `us.anthropic.claude-sonnet-4-6`. ([`apps/agent/runs/hearing-check-in.json`](apps/agent/runs/hearing-check-in.json))
+- AgentCore Runtime `earshothearing_hearing`, us-east-1, deployed. ([`apps/agentcore/agentcore/.cli/deployed-state.json`](apps/agentcore/agentcore/.cli/deployed-state.json))
 
-## What already exists
+[docs/METHOD.md](docs/METHOD.md) sets the procedure against the literature parameter by parameter. [docs/PRIOR_ART.md](docs/PRIOR_ART.md) names what already exists: Apple's hearing test, Intel's patent on volume-based detection, and what no television does.
 
-Most of the interesting objections to this project are about prior art, so they
-are answered in one place rather than avoided: [docs/PRIOR_ART.md](docs/PRIOR_ART.md).
-Apple ships a hearing test. Intel holds a patent on passive detection from device
-volume. No television does either, and the audiogram misses the failure mode this
-is aimed at.
+## Research
 
-## Your own API key
+1. ASHA Leader, hidden hearing loss: difficulty with speech in noise despite normal pure-tone thresholds. DOI 10.1044/leader.FMP.23032018.6. <https://leader.pubs.asha.org/doi/10.1044/leader.FMP.23032018.6>
+2. 2025 systematic review: diagnosis needs speech-in-noise measurement rather than pure-tone audiometry alone. PMC11940875. <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11940875/>
+3. *Validation of self-reported hearing loss using television volume*, Journal of Laryngology and Otology. PMID 20831845. <https://pubmed.ncbi.nlm.nih.gov/20831845/>
+4. ASHA, *Untreated Hearing Loss in Adults*. <https://www.asha.org/Articles/Untreated-Hearing-Loss-in-Adults/>
+5. Livingston et al., Lancet standing Commission on dementia, 2024. <https://www.thelancet.com/article/S0140-6736(24)01296-0/abstract>
+6. *Discrimination of degrees of auditory performance from the digits-in-noise test based on hearing status*, International Journal of Audiology. DOI 10.1080/14992027.2020.1787531. <https://www.tandfonline.com/doi/full/10.1080/14992027.2020.1787531>
+7. *The digits-in-noise test: Assessing auditory speech recognition abilities in noise*, J. Acoust. Soc. Am. <https://pubs.aip.org/asa/jasa/article/133/3/1693/913552/The-digits-in-noise-test-Assessing-auditory-speech>
+8. *The one-up one-down adaptive (staircase) procedure in speech-in-noise testing*, J. Acoust. Soc. Am. <https://pubs.aip.org/asa/jasa/article/152/4/2357/2839490/The-one-up-one-down-adaptive-staircase-procedure>
+9. *Evaluating a smartphone digits-in-noise test as part of the audiometric test battery*. PMC5968873. <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5968873/>
+10. *The Feasibility and Reliability of a Digits-in-Noise Test in the Clinical Follow-Up of Children*. PMC8221724. <https://pmc.ncbi.nlm.nih.gov/articles/PMC8221724/>
+11. *Digits-In-Noise Hearing Test Using Text-to-Speech and Automatic Speech Recognition*. PMC12489207. <https://pmc.ncbi.nlm.nih.gov/articles/PMC12489207/>
+12. *Remote self-report and speech-in-noise measures predict clinical audiometric thresholds*. PMC12951638. <https://pmc.ncbi.nlm.nih.gov/articles/PMC12951638/>
+13. *The multilingual digits-in-noise (DIN) test: development and evaluation*, International Journal of Audiology. DOI 10.1080/14992027.2024.2397068. <https://www.tandfonline.com/doi/full/10.1080/14992027.2024.2397068>
+14. FDA, first over-the-counter hearing aid software authorised, September 2024. <https://www.fda.gov/news-events/press-announcements/fda-authorizes-first-over-counter-hearing-aid-software>
+15. NIDCD, *Quick Statistics About Hearing*. <https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing>
 
-The server is open: name a household and use it, no key. For a space of
-your own, take a free key with no account:
+## Run it
+
+Node 20 or newer. No AWS account is needed for any of this.
+
+```
+npm install          # also installs the Fire TV app under tv/
+npm test             # the whole suite, both runners
+npm run validate     # regenerate apps/eval/results/validation.json
+npm run web:dev      # the site, with the check you can take yourself
+npm run mcp          # the MCP server locally (in-memory store)
+```
+
+**Fire TV.** Install the release APK on a device or emulator with ADB debugging on ([tv/README.md](tv/README.md) has the build steps):
+
+```
+adb connect <your Fire TV ip>:5555
+adb install earshot-tv-v0.1.2.apk
+```
+
+**Agent.** The Strands agent needs AWS credentials with Bedrock access:
+
+```
+pip install strands-agents mcp
+python apps/agent/hearing_check_in.py --household ours
+```
+
+**Your own MCP space.** The server is open by default. For a private space, take a free key and send it as `Authorization: Bearer <key>` on every request to `/mcp`:
 
 ```
 curl -X POST https://inwrmblw32v4iyzsxkr5bfpidu0izuah.lambda-url.us-east-1.on.aws/v1/keys
 ```
 
-Send it as `Authorization: Bearer <key>` on every request to `/mcp`, or
-paste the `mcpClientConfig` the response carries into any MCP client.
-Households you name with it are reachable by nobody without it. Nothing
-about the key is stored: the space is derived from its hash on every
-request, so there is no table to leak, and a lost key cannot be
-recovered. The site's Alexa+ section issues one and proves it, live.
+**Deploy.** `npm run deploy` builds the site and deploys the CDK stack in [`infra/bin/app.ts`](infra/bin/app.ts). The AgentCore runtime deploys from [`apps/agentcore`](apps/agentcore) with `npx @aws/agentcore deploy --yes`. [docs/AWS.md](docs/AWS.md) lists the permissions.
 
-## Run it
+## Tests
+
+225 tests across two runners, all passing:
 
 ```
-npm install
-npm test                 # 224 tests: the engine, the wording, the listening
-                         # model, the agent, and every published number
-npm run validate         # regenerate the validation results
-npm run web:dev          # the site, and the check you can take yourself
+npx vitest run        # 19 files, 204 tests: packages, pipeline, MCP server, eval
+npm --prefix tv test  # 3 suites, 21 tests: the Fire TV app under jest
+npm test              # runs both
 ```
 
-`npm install` installs the Fire TV app too, and `npm test` runs its suite.
-The app is outside the npm workspaces because Metro and Gradle both resolve
-from the app directory and hoisting breaks them, so without those two lines
-a clean clone gets a long green run that never touched this project's
-primary track.
+What the suite checks, beyond the code: every published accuracy figure is re-derived from the committed run; the test count, the friction-log count and the MCP tool list in the skill are counted rather than typed; no document may claim a first or claim validation on people; every sentence the product can say is walked for diagnoses or promises; and no MCP tool may ever return a listening figure.
 
-## What this is not
-
-A screen, not a diagnosis. It can say something is worth getting checked. It
-cannot say what is wrong, how bad it is, or whether anything can be done, and the
-wording is tested to make sure it never tries. That test walks every sentence the
-tool can produce and fails if any of them names a condition, promises an outcome,
-or turns a test that did not work into good news.
-
-## Built with
-
-Every tool this project uses, and the file that uses it.
+## AWS and tools used
 
 | Tool | What it does here | Where |
 |---|---|---|
-| Fire TV (Fire OS) | the React Native television app, driven by the D-pad | [`tv`](tv) |
-| MCP server, spec 2025-11-25, Streamable HTTP | the Alexa+ surface: five tools, signed sessions, conformance-probed live | [`apps/mcp/src/mcp.ts`](apps/mcp/src/mcp.ts) |
-| Agent Skill | tells an agent how to use the five tools; a test checks it names every tool | [`skills/earshot/SKILL.md`](skills/earshot/SKILL.md) |
-| Amazon Bedrock (Claude) and the Strands Agents SDK | the Hearing Check-in agent, from the MCP tools only | [`apps/agent/hearing_check_in.py`](apps/agent/hearing_check_in.py) |
-| Amazon Bedrock AgentCore Runtime | hosts the Hearing Check-in agent as an invocable endpoint | [`apps/agentcore`](apps/agentcore) |
-| Amazon Polly | the eight spoken digits the check plays | [`apps/pipeline/src/speech.ts`](apps/pipeline/src/speech.ts) |
-| Amazon Transcribe | word timings to find where a film's dialogue is | [`apps/pipeline/src/analyse.ts`](apps/pipeline/src/analyse.ts) |
-| Amazon DynamoDB, AWS Lambda, Amazon S3, Amazon CloudFront, AWS CDK | checks, the service, the site, one deploy | [`infra/bin/app.ts`](infra/bin/app.ts) |
+| Fire TV (Fire OS) | React Native TV app, driven by the D-pad; reads system volume through a native module | [`tv/`](tv), [`tv/android/app/src/main/java/com/earshottv/SystemVolumeModule.kt`](tv/android/app/src/main/java/com/earshottv/SystemVolumeModule.kt) |
+| Alexa+ (Agent Skill) | the skill that tells an agent how to use the five tools; a test checks it names each one | [`skills/earshot/SKILL.md`](skills/earshot/SKILL.md) |
+| MCP, spec 2025-11-25, Streamable HTTP | the server: five tools, signed sessions, Origin handling, API keys | [`apps/mcp/src/mcp.ts`](apps/mcp/src/mcp.ts), [`apps/mcp/src/keys.ts`](apps/mcp/src/keys.ts) |
+| Strands Agents | the Hearing Check-in agent, an MCP client with no other data access | [`apps/agent/hearing_check_in.py`](apps/agent/hearing_check_in.py) |
+| Amazon Bedrock | Claude (`us.anthropic.claude-sonnet-4-6`) behind the agent | [`apps/agent/hearing_check_in.py`](apps/agent/hearing_check_in.py) |
+| Amazon Bedrock AgentCore | hosts the same agent as an invocable runtime | [`apps/agentcore/app/hearing/main.py`](apps/agentcore/app/hearing/main.py) |
+| Amazon Polly | the eight spoken digits, as raw PCM | [`apps/pipeline/src/digits.ts`](apps/pipeline/src/digits.ts) |
+| Amazon Transcribe | word timings to locate dialogue; the words are never used | [`apps/pipeline/src/speech.ts`](apps/pipeline/src/speech.ts), [`apps/pipeline/src/analyse.ts`](apps/pipeline/src/analyse.ts) |
+| AWS Lambda, Amazon DynamoDB, Amazon S3, Amazon CloudFront, AWS CDK | the MCP server, the results store, the site, one deploy | [`infra/bin/app.ts`](infra/bin/app.ts) |
+
+Product feedback on each tool is in [PRODUCT_FEEDBACK.md](PRODUCT_FEEDBACK.md). The friction log is [FRICTION_LOG.md](FRICTION_LOG.md).
+
+## Privacy
+
+- **On the television:** sittings (level, duration, captions, rewinds) are kept in `react-native-mmkv` on the device, capped at 400 rows, and never uploaded. There is no server-side store for them anywhere in the project. ([`tv/src/store.ts`](tv/src/store.ts))
+- **On the server:** a completed check is one append-only row: household name, date, threshold, whether the run was usable, its band, its reference, which surface took it, and whether the audio was placeholder. No audio, no answers, no identity. ([`apps/mcp/src/store.ts`](apps/mcp/src/store.ts))
+- **API keys:** nothing about a key is stored. The space it reaches is a prefix of its hash, computed on each request. ([`apps/mcp/src/keys.ts`](apps/mcp/src/keys.ts))
+- **Transcribe:** the only audio sent to AWS is the film's own soundtrack, once, at build time. Only `start_time` and `end_time` are read from the result. ([docs/AWS.md](docs/AWS.md))
+- **No microphone and no camera** anywhere in the app, the site or the server.
 
 ## Licence
 
-MIT. `packages/digits-in-noise` is published separately on npm as
-[`digits-in-noise`](https://www.npmjs.com/package/digits-in-noise), a dependency-free
-library, because the only open implementations of this test are in Java and
-native mobile code and the ecosystem should have one that runs anywhere.
-
-## Sources
-
-- Hidden hearing loss: [ASHA Leader](https://leader.pubs.asha.org/doi/10.1044/leader.FMP.23032018.6) and a [2025 systematic review](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11940875/)
-- Television volume as a marker: [*Validation of self-reported hearing loss using television volume*](https://pubmed.ncbi.nlm.nih.gov/20831845/), Journal of Laryngology and Otology
-- Dementia risk: [Livingston et al., Lancet standing Commission, 2024](https://www.thelancet.com/article/S0140-6736(24)01296-0/abstract)
-- Delay and undiagnosed rates: [ASHA, *Untreated Hearing Loss in Adults*](https://www.asha.org/Articles/Untreated-Hearing-Loss-in-Adults/)
-- The test: [*Evaluating a smartphone digits-in-noise test as part of the audiometric test battery*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5968873/)
-- Remote self-administration: [*Remote self-report and speech-in-noise measures predict clinical audiometric thresholds*](https://pmc.ncbi.nlm.nih.gov/articles/PMC12951638/)
-- OTC hearing aid software: [FDA, September 2024](https://www.fda.gov/news-events/press-announcements/fda-authorizes-first-over-counter-hearing-aid-software)
-- Prior open implementation, in Java: [nzilbb/digit-triplets-test](https://github.com/nzilbb/digit-triplets-test)
+MIT, see [LICENSE](LICENSE). `digits-in-noise` is published separately under MIT at <https://www.npmjs.com/package/digits-in-noise>.
